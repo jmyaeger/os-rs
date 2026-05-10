@@ -503,8 +503,17 @@ impl Monster {
 
         Ok(monster)
     }
+
     pub fn new(name: &str, version: Option<&str>) -> Result<Monster, MonsterError> {
         Self::from_json_str(name, version, MONSTER_JSON_STR)
+    }
+
+    pub fn name(&self) -> &str {
+        self.info.name.as_str()
+    }
+
+    pub fn id_with_default(&self) -> i32 {
+        self.info.id.unwrap_or(0)
     }
 
     pub fn attack(
@@ -619,14 +628,15 @@ impl Monster {
 
     pub fn scale_toa(&mut self) {
         // Scale the HP and defence rolls based on the toa_level field of the monster
-        if constants::TOA_MONSTERS.contains(&self.info.id.unwrap_or(0)) {
+        let id = &self.id_with_default();
+        if constants::TOA_MONSTERS.contains(id) && !constants::KEPHRI_OVERLORD_IDS.contains(id) {
             self.scale_toa_hp();
             self.scale_toa_defence();
         }
     }
     fn scale_toa_hp(&mut self) {
         // Scale the HP based on the toa_level field of the monster
-        let level_factor = if self.info.name.as_str() == "Core (Wardens)" {
+        let level_factor = if self.name() == "Core (Wardens)" {
             1 // Core's HP scaling is 75% lower than other monsters in ToA
         } else {
             4
@@ -647,7 +657,7 @@ impl Monster {
 
         // If the NPC is affected by path scaling, apply it
         self.stats.hitpoints.current =
-            if constants::TOA_PATH_MONSTERS.contains(&self.info.id.unwrap_or(0)) {
+            if constants::TOA_PATH_MONSTERS.contains(&self.id_with_default()) {
                 let path_scaled_hp = level_scaled_hp * toa_path_level_bonus / 100;
                 round_toa_hp(path_scaled_hp)
             } else {
@@ -749,6 +759,10 @@ impl Monster {
         self.has_attribute(Attribute::Shade)
     }
 
+    pub fn is_flying(&self) -> bool {
+        self.has_attribute(Attribute::Flying)
+    }
+
     pub fn vampyre_tier(&self) -> Option<u8> {
         if let Some(attrs) = self.info.attributes.as_ref() {
             for attr in attrs {
@@ -761,7 +775,7 @@ impl Monster {
     }
 
     pub fn is_in_wilderness(&self) -> bool {
-        constants::WILDERNESS_MONSTERS.contains(&self.info.name.as_str())
+        constants::WILDERNESS_MONSTERS.contains(&self.name())
     }
 
     pub fn is_revenant(&self) -> bool {
@@ -769,11 +783,11 @@ impl Monster {
     }
 
     pub fn is_toa_monster(&self) -> bool {
-        constants::TOA_MONSTERS.contains(&self.info.id.unwrap_or(0))
+        constants::TOA_MONSTERS.contains(&self.id_with_default())
     }
 
     pub fn is_toa_path_monster(&self) -> bool {
-        constants::TOA_PATH_MONSTERS.contains(&self.info.id.unwrap_or(0))
+        constants::TOA_PATH_MONSTERS.contains(&self.id_with_default())
     }
 
     pub fn heal(&mut self, amount: u32) {
@@ -897,25 +911,35 @@ impl Monster {
         let combat_type = &player.combat_type();
 
         if combat_type == &CombatType::Magic
-            && constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&self.info.id.unwrap_or(0))
+            && constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&self.id_with_default())
             || (player.is_using_ranged()
-                && constants::IMMUNE_TO_RANGED_MONSTERS.contains(&self.info.id.unwrap_or(0)))
+                && constants::IMMUNE_TO_RANGED_MONSTERS.contains(&self.id_with_default()))
             || (player.is_using_melee()
-                && (constants::IMMUNE_TO_MELEE_MONSTERS.contains(&self.info.id.unwrap_or(0))
+                && (constants::IMMUNE_TO_MELEE_MONSTERS.contains(&self.id_with_default())
                     || (self.info.name == "Zulrah" && player.gear.weapon.attack_range < 2)))
         {
             return true;
         }
 
         if player.is_using_melee()
-            && player.gear.weapon.attack_range < 2
-            && constants::IMMUNE_TO_NON_HALBERD_MELEE_DAMAGE_MONSTERS
-                .contains(&self.info.id.unwrap_or(0))
+            && (player.gear.weapon.attack_range < 2
+                && !(player.is_wearing_salamander() && player.is_using_melee()))
+            && (constants::IMMUNE_TO_NON_HALBERD_MELEE_DAMAGE_MONSTERS
+                .contains(&self.id_with_default())
+                || (self.is_flying() && self.name() != "Vespula"))
         {
             return true;
         }
 
         if self.vampyre_tier() == Some(3) && !player.is_wearing_ivandis_weapon() {
+            return true;
+        }
+
+        if self.vampyre_tier() == Some(2)
+            && !player.is_using_vampyrebane(2)
+            && !player.is_wearing("Efaritay's aid", None)
+            && !player.is_wearing_silver_weapon()
+        {
             return true;
         }
 
@@ -939,7 +963,7 @@ impl Monster {
             return true;
         }
 
-        if self.info.name.as_str() == "Fire Warrior of Lesarkus"
+        if self.name() == "Fire Warrior of Lesarkus"
             && (!player.is_using_ranged() || !player.is_wearing("Ice arrows", None))
         {
             return true;
@@ -968,11 +992,11 @@ impl Monster {
 
     pub fn is_immune_to_thrall(&self, thrall: Thrall) -> bool {
         if thrall.attack_type() == AttackType::Melee
-            && constants::IMMUNE_TO_MELEE_MONSTERS.contains(&self.info.id.unwrap_or(0))
+            && constants::IMMUNE_TO_MELEE_MONSTERS.contains(&self.id_with_default())
             || thrall.attack_type() == AttackType::Ranged
-                && constants::IMMUNE_TO_RANGED_MONSTERS.contains(&self.info.id.unwrap_or(0))
+                && constants::IMMUNE_TO_RANGED_MONSTERS.contains(&self.id_with_default())
             || thrall.attack_type() == AttackType::Magic
-                && constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&self.info.id.unwrap_or(0))
+                && constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&self.id_with_default())
         {
             return true;
         }
@@ -1031,7 +1055,7 @@ impl Monster {
     }
 
     fn set_defence_floor(&mut self) {
-        let floor = match self.info.name.as_str() {
+        let floor = match self.name() {
             "Verzik Vitur" => self.stats.defence.base,
             "Soteseg" => 100,
             "The Nightmare" | "Phosani's Nightmare" | "The Hueycoatl" => 120,

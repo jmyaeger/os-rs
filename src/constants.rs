@@ -173,17 +173,22 @@ pub const IMMUNE_TO_RANGED_MONSTERS: [i32; 14] = [
 pub const ALWAYS_MAX_HIT_MELEE: &[i32] = &[
     11710, 11713, // Baboon thrower
     12814, // Fremennik warband archer
+    14179, // Void flare
 ];
 
 pub const ALWAYS_MAX_HIT_RANGED: &[i32] = &[
     11711, 11714, // Baboon mage
     12815, // Fremennik warband seer
+    11717, // Cursed baboon
+    11715, // Baboon shaman
+    14179, // Void flare
 ];
 
 pub const ALWAYS_MAX_HIT_MAGIC: &[i32] = &[
     11709, 11712, // Baboon brawler
     12816, // Fremennik warband berserker
     14151, 14150, // Royal titans elementals
+    14179, // Void flare
 ];
 
 pub const GUARANTEED_ACCURACY_MONSTERS: &[i32] = &[
@@ -460,7 +465,7 @@ pub const STAB_SPEC_WEAPONS: [&str; 5] = [
     "Dragon sword",
 ];
 
-pub const SLASH_SPEC_WEAPONS: [&str; 13] = [
+pub const SLASH_SPEC_WEAPONS: [&str; 14] = [
     "Ancient godsword",
     "Bandos godsword",
     "Armadyl godsword",
@@ -474,6 +479,7 @@ pub const SLASH_SPEC_WEAPONS: [&str; 13] = [
     "Abyssal dagger",
     "Dragon claws",
     "Saradomin sword",
+    "Arkan blade",
 ];
 
 pub const CRUSH_SPEC_WEAPONS: [&str; 3] = ["Dinh's bulwark", "Ancient mace", "Dragon mace"];
@@ -623,12 +629,13 @@ pub const IVANDIS_WEAPONS: [(&str, Option<&str>); 3] = [
     ("Ivandis flail", None),
 ];
 
-pub const KERIS_WEAPONS: [(&str, Option<&str>); 5] = [
+pub const KERIS_WEAPONS: [(&str, Option<&str>); 6] = [
     ("Keris", None),
     ("Keris partisan", None),
     ("Keris partisan of the sun", None),
     ("Keris partisan of corruption", None),
     ("Keris partisan of breaching", None),
+    ("Keris partisan of amascut", None),
 ];
 
 pub const LEAF_BLADED_WEAPONS: [(&str, Option<&str>); 3] = [
@@ -652,10 +659,11 @@ pub const ALWAYS_HITS_SPEC: [(&str, Option<&str>); 2] =
 pub const MAGIC_SHORTBOWS: [(&str, Option<&str>); 2] =
     [("Magic shortbow", None), ("Magic shortbow (i)", None)];
 
-pub const DOUBLE_HIT_WEAPONS: [(&str, Option<&str>); 3] = [
+pub const DOUBLE_HIT_WEAPONS: [(&str, Option<&str>); 4] = [
     ("Torag's hammers", None),
     ("Sulphur blades", None),
     ("Glacial temotli", None),
+    ("Earthbound tecpatl", None),
 ];
 
 pub const OPAL_BOLTS: [(&str, Option<&str>); 2] =
@@ -692,7 +700,7 @@ pub const DEMONBANE_WEAPONS: [(&str, Option<&str>); 6] = [
 pub const OGRE_BOWS: [(&str, Option<&str>); 2] = [("Ogre bow", None), ("Comp ogre bow", None)];
 pub const EAT_DELAY: u32 = 3;
 
-pub const SPEC_COSTS: [(&str, u8); 71] = [
+pub const SPEC_COSTS: [(&str, u8); 74] = [
     ("Ancient godsword", 50),
     ("Eldritch nightmare staff", 55),
     ("Keris partisan of the sun", 75),
@@ -764,6 +772,9 @@ pub const SPEC_COSTS: [(&str, u8); 71] = [
     ("Soulreaper axe", 0),
     ("Brine sabre", 75),
     ("Crimson bludgeon", 50),
+    ("Eye of ayak", 50),
+    ("Arkan blade", 30),
+    ("Rosewood blowpipe", 25),
 ];
 
 pub const DEMONBANE_VULNERABILITY: [(&str, i32); 3] =

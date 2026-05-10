@@ -31,7 +31,7 @@ pub fn monster_def_rolls(monster: &Monster) -> MonsterDefRolls {
     }
 
     // Use magic level for magic defence in most cases
-    if constants::MAGIC_DEF_EXCEPTIONS.contains(&monster.info.id.unwrap_or(0)) {
+    if constants::MAGIC_DEF_EXCEPTIONS.contains(&monster.id_with_default()) {
         // Use defence level in some special cases
         def_rolls.set(
             CombatType::Magic,
@@ -161,7 +161,15 @@ fn calc_player_melee_rolls(player: &mut Player, monster: &Monster) {
     let inquisitor_boost = inquisitor_boost(player);
     let obsidian_boost = obsidian_boost(player);
 
-    let base_max_hit = calc_max_hit(eff_str, player.bonuses.strength.melee);
+    let keris_penalties = if player.is_wearing("Keris partisan of amascut", None)
+        && !constants::TOA_MONSTERS.contains(&monster.id_with_default())
+    {
+        (-50, -22)
+    } else {
+        (0, 0)
+    };
+
+    let base_max_hit = calc_max_hit(eff_str, player.bonuses.strength.melee + keris_penalties.1);
 
     // Obsidian bonus is additive based on base max hit (verified in-game)
     let scaled_max_hit =
@@ -173,7 +181,10 @@ fn calc_player_melee_rolls(player: &mut Player, monster: &Monster) {
         (CombatType::Crush, player.bonuses.attack.crush),
     ];
 
-    for &(combat_type, bonus) in &combat_types {
+    for &(combat_type, mut bonus) in &combat_types {
+        if combat_type == CombatType::Stab {
+            bonus -= keris_penalties.0;
+        }
         let base_att_roll = calc_roll(eff_att, bonus);
         let mut att_roll = gear_bonus.multiply_to_int(base_att_roll)
             + obsidian_boost.multiply_to_int(base_att_roll);
@@ -341,12 +352,14 @@ fn calc_player_magic_rolls(player: &mut Player, monster: &Monster) {
 
     // Apply dragonbane boosts - still works for DHL and DHCB when manual casting
     if monster.is_dragon() {
-        if player.is_wearing_any(vec![
-            ("Dragon hunter wand", None),
-            ("Dragon hunter lance", None),
-        ]) {
+        if player.is_wearing("Dragon hunter wand", None) {
+            att_roll = att_roll * 7 / 4;
+            max_hit = max_hit * 7 / 5;
+        } else if player.is_wearing("Dragon hunter lance", None) {
+            att_roll = att_roll * 6 / 5;
             max_hit = max_hit * 6 / 5;
         } else if player.is_wearing("Dragon hunter crossbow", None) {
+            att_roll = att_roll * 13 / 10;
             max_hit = max_hit * 5 / 4;
         }
     }
@@ -553,11 +566,15 @@ fn apply_melee_weapon_boosts(
             (Fraction::new(6, 5).unwrap(), Fraction::new(6, 5).unwrap())
         }
         "Dragon hunter wand" if monster.is_dragon() => {
-            (Fraction::new(3, 2).unwrap(), Fraction::new(6, 5).unwrap())
+            (Fraction::new(7, 4).unwrap(), Fraction::new(7, 5).unwrap())
         }
         "Keris partisan of breaching" if monster.is_kalphite() => (
             Fraction::new(133, 100).unwrap(),
             Fraction::new(133, 100).unwrap(),
+        ),
+        "Keris partisan of amascut" if monster.is_kalphite() => (
+            Fraction::new(115, 100).unwrap(),
+            Fraction::new(115, 100).unwrap(),
         ),
         // Other keris variants against kalphites
         _ if monster.is_kalphite() && player.is_wearing_keris() => (
@@ -567,6 +584,10 @@ fn apply_melee_weapon_boosts(
         "Barronite mace" if monster.is_golem() => (
             Fraction::new(1, 1).unwrap(),
             Fraction::new(115, 100).unwrap(),
+        ),
+        "Granite hammer" if monster.is_golem() => (
+            Fraction::new(13, 10).unwrap(),
+            Fraction::new(13, 10).unwrap(),
         ),
         // Wildy mace against wildy monsters
         _ if (monster.is_in_wilderness() || player.boosts.in_wilderness)
@@ -762,7 +783,7 @@ fn apply_ranged_weapon_boosts(
     att_roll = att_factor.multiply_to_int(att_roll);
     max_hit = max_hit_factor.multiply_to_int(max_hit);
 
-    if constants::P2_WARDEN_IDS.contains(&monster.info.id.unwrap_or_default())
+    if constants::P2_WARDEN_IDS.contains(&monster.id_with_default())
         && player.is_wearing("Twisted bow", None)
     {
         // Tbow accuracy bonus is applied a second time at P2 Wardens

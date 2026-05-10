@@ -376,8 +376,7 @@ impl Default for PlayerState {
     }
 }
 
-#[allow(unpredictable_function_pointer_comparisons)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct Player {
     pub stats: PlayerStats,
     pub gear: Rc<Gear>,
@@ -837,6 +836,10 @@ impl Player {
         ranged_types.contains(&self.combat_type())
     }
 
+    pub fn is_using_magic(&self) -> bool {
+        self.combat_type() == CombatType::Magic
+    }
+
     pub fn set_active_style(&mut self, style: CombatStyle) {
         // Set the active combat style and make any necessary attack speed adjustments
         self.attrs.active_style = style;
@@ -1104,6 +1107,15 @@ impl Player {
         self.is_using_demonbane_spell() || self.is_wearing_any(constants::DEMONBANE_WEAPONS)
     }
 
+    pub fn is_using_vampyrebane(&self, tier: u8) -> bool {
+        let mut weapons = vec!["Blisterwood flail", "Blisterwood sickle", "Ivandis flail"];
+        if tier == 2 {
+            weapons.push("Rod of ivandis");
+        }
+
+        weapons.contains(&self.gear.weapon.name.as_str())
+    }
+
     pub fn is_using_corpbane_weapon(&self) -> bool {
         // Check if the player's weapon does full damage to Corp
         let weapon_name = &self.gear.weapon.name;
@@ -1321,8 +1333,9 @@ impl Player {
 
     pub fn rolls_accuracy_twice(&self) -> bool {
         !self.state.last_attack_hit
-            && self.combat_type() == CombatType::Magic
+            && self.is_using_magic()
             && self.is_wearing("Confliction gauntlets", None)
+            && !self.gear.weapon.is_two_handed
     }
 }
 

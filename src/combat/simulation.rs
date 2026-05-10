@@ -110,7 +110,7 @@ pub fn assign_limiter(player: &Player, monster: &Monster) -> Option<Box<dyn limi
         return Some(Box::new(limiters::Seren {}));
     }
 
-    if monster.info.name.as_str() == "Kraken (Kraken)" && player.is_using_ranged() {
+    if ["Kraken", "Cave kraken"].contains(&monster.name()) && player.is_using_ranged() {
         return Some(Box::new(limiters::Kraken {}));
     }
 
@@ -122,15 +122,14 @@ pub fn assign_limiter(player: &Player, monster: &Monster) -> Option<Box<dyn limi
         return Some(Box::new(limiters::VerzikP1 { limit }));
     }
 
-    if monster.info.name.contains("Tekton") && player.combat_type() == CombatType::Magic {
+    if monster.info.name.contains("Tekton") && player.is_using_magic() {
         return Some(Box::new(limiters::Tekton {}));
     }
 
-    if ((monster.info.name.contains("Glowing crystal")
-        && player.combat_type() == CombatType::Magic)
+    if ((monster.info.name.contains("Glowing crystal") && player.is_using_magic())
         || ((monster.matches_version("Left claw")
             || (monster.info.name.contains("Great Olm") && monster.matches_version("Head")))
-            && player.combat_type() == CombatType::Magic))
+            && player.is_using_magic()))
         || (monster.matches_version("Right claw")
             || monster.matches_version("Left claw") && player.is_using_ranged())
         || (monster.info.name.contains("Ice demon")
@@ -142,7 +141,7 @@ pub fn assign_limiter(player: &Player, monster: &Monster) -> Option<Box<dyn limi
         return Some(Box::new(limiters::OneThirdDamage {}));
     }
 
-    if ["Slash Bash", "Zogre", "Skogre"].contains(&monster.info.name.as_str()) {
+    if ["Slash Bash", "Zogre", "Skogre"].contains(&monster.name()) {
         if player.attrs.spell == Some(Spell::Standard(StandardSpell::CrumbleUndead)) {
             return Some(Box::new(limiters::HalfDamage {}));
         } else if !player.is_using_ranged()
@@ -161,8 +160,14 @@ pub fn assign_limiter(player: &Player, monster: &Monster) -> Option<Box<dyn limi
         return Some(Box::new(limiters::HalfDamage {}));
     }
 
-    if player.is_wearing("Efaritay's aid", None) && monster.vampyre_tier() == Some(2) {
-        return Some(Box::new(limiters::HalfDamage {}));
+    if player.is_wearing("Efaritay's aid", None) && monster.vampyre_tier() == Some(2) {}
+
+    if monster.vampyre_tier() == Some(2) {
+        if !player.is_using_vampyrebane(2) && player.is_wearing("Efaritay's aid", None) {
+            return Some(Box::new(limiters::HalfDamage {}));
+        } else if player.is_wearing_silver_weapon() {
+            return Some(Box::new(limiters::VampyreT2 {}));
+        }
     }
 
     if monster.info.id == Some(HUEYCOATL_TAIL_ID) {

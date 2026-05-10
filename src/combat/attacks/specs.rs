@@ -303,7 +303,7 @@ pub fn bgs_spec(
     if hit.success {
         hit.damage = max(1, hit.damage);
 
-        if !IMMUNE_TO_STAT_DRAIN.contains(&monster.info.id.unwrap_or_default()) {
+        if !IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
             let cap = if monster.info.name.contains("Tekton") && !hit.success {
                 Some(10)
             } else {
@@ -596,7 +596,7 @@ pub fn dorgeshuun_weapon_spec(
 
         // Drains defence by damage, but only if it hasn't been drained already
         if monster.stats.defence.current == monster.stats.defence.base
-            && !IMMUNE_TO_STAT_DRAIN.contains(&monster.info.id.unwrap_or_default())
+            && !IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default())
         {
             monster.drain_stat(&CombatStat::Defence, hit.damage, None);
         }
@@ -673,7 +673,7 @@ pub fn dragon_warhammer_spec(
         if hit.success {
             hit.apply_transforms(player, monster, rng, limiter);
 
-            if !IMMUNE_TO_STAT_DRAIN.contains(&monster.info.id.unwrap_or_default()) {
+            if !IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
                 monster.drain_stat(&CombatStat::Defence, def_drain, None);
             }
         }
@@ -699,7 +699,7 @@ pub fn seercull_spec(
     // Stat drain is determined from damage roll after 0 -> 1 transform
     hit.damage = max(hit.damage, 1);
 
-    if !IMMUNE_TO_STAT_DRAIN.contains(&monster.info.id.unwrap_or_default()) {
+    if !IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
         monster.drain_stat(&CombatStat::Magic, hit.damage, None);
     }
 
@@ -818,7 +818,7 @@ pub fn dawnbringer_spec(
     _limiter: &Option<Box<dyn Limiter>>,
 ) -> Hit {
     // Rolls 75-150 damage regardless of bonuses or levels, but only on Verzik P1
-    if VERZIK_IDS.contains(&monster.info.id.unwrap_or(0)) {
+    if VERZIK_IDS.contains(&monster.id_with_default()) {
         Hit::accurate(damage_roll(75, 150, rng))
     } else {
         Hit::inaccurate()
@@ -1378,7 +1378,7 @@ pub fn sara_sword_spec(
 
     let mut hit = base_attack(&info, rng, false);
 
-    if hit.success && !IMMUNE_TO_MAGIC_MONSTERS.contains(&monster.info.id.unwrap_or_default()) {
+    if hit.success && !IMMUNE_TO_MAGIC_MONSTERS.contains(&monster.id_with_default()) {
         // Add a random amount between 1 and 16 to damage
         hit.damage += rng.random_range(1..=16);
         hit.apply_transforms(player, monster, rng, limiter);
@@ -1664,7 +1664,7 @@ pub fn elder_maul_spec(
         if hit.success {
             hit.apply_transforms(player, monster, rng, limiter);
 
-            if !IMMUNE_TO_STAT_DRAIN.contains(&monster.info.id.unwrap_or_default()) {
+            if !IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
                 monster.drain_stat(&CombatStat::Defence, def_drain, None);
             }
         }
@@ -1711,6 +1711,83 @@ pub fn crimson_bludgeon_spec(
     hit.apply_transforms(player, monster, rng, limiter);
 
     hit
+}
+
+pub fn eye_of_ayak_spec(
+    player: &mut Player,
+    monster: &mut Monster,
+    rng: &mut SmallRng,
+    limiter: &Option<Box<dyn Limiter>>,
+) -> Hit {
+    let mut info = AttackInfo::new(player, monster);
+
+    // Double accuracy and +30% damage
+    info.max_att_roll *= 2;
+    info.max_hit = info.max_hit * 13 / 10;
+    let mut hit = base_attack(&info, rng, player.rolls_accuracy_twice());
+
+    if hit.success {
+        // Drain the monster's magic defence bonus by the damage dealt, capped at 0
+        monster.bonuses.defence.magic = max(0, monster.bonuses.defence.magic - hit.damage as i32);
+
+        hit.apply_transforms(player, monster, rng, limiter);
+    }
+
+    // Spec has a 5-tick attack speed
+    Rc::make_mut(&mut player.gear).weapon.speed = 5;
+
+    hit
+}
+
+pub fn arkan_blade_spec(
+    player: &mut Player,
+    monster: &mut Monster,
+    rng: &mut SmallRng,
+    limiter: &Option<Box<dyn Limiter>>,
+) -> Hit {
+    let mut info = AttackInfo::new(player, monster);
+
+    // Boost accuracy and damage by 50%
+    info.max_att_roll = info.max_att_roll * 3 / 2;
+    info.max_hit = info.max_hit * 3 / 2;
+
+    // Spec rolls against slash defence
+    info.max_def_roll = monster.def_rolls.get(CombatType::Slash);
+
+    let mut hit = base_attack(&info, rng, false);
+
+    if hit.success {
+        // Apply a strong burn stack
+        if !monster.is_immune_to_strong_burn() {
+            monster.add_burn_stack(10);
+        }
+
+        hit.apply_transforms(player, monster, rng, limiter);
+    }
+
+    hit
+}
+
+pub fn rosewood_bp_spec(
+    player: &mut Player,
+    monster: &mut Monster,
+    rng: &mut SmallRng,
+    limiter: &Option<Box<dyn Limiter>>,
+) -> Hit {
+    let mut info = AttackInfo::new(player, monster);
+
+    // Reduce accuracy by 20% and boost damage by 10%
+    info.max_att_roll = info.max_att_roll * 4 / 5;
+    info.max_hit = info.max_hit * 11 / 10;
+
+    // Rolls two independent hits
+    let mut hit1 = base_attack(&info, rng, false);
+    let mut hit2 = base_attack(&info, rng, false);
+
+    hit1.apply_transforms(player, monster, rng, limiter);
+    hit2.apply_transforms(player, monster, rng, limiter);
+
+    hit1.combine(&hit2)
 }
 
 // TODO: implement purging staff spec
@@ -1768,6 +1845,8 @@ pub fn get_spec_attack_function(player: &Player) -> AttackFn {
         "Scorching bow" => scorching_bow_spec,
         "Elder maul" => elder_maul_spec,
         "Crimson bludgeon" => crimson_bludgeon_spec,
+        "Eye of ayak" => eye_of_ayak_spec,
+        "Rosewood blowpipe" => rosewood_bp_spec,
         _ => player.attack,
     }
 }

@@ -74,7 +74,9 @@ impl Hit {
     ) {
         self.apply_berserker_necklace(player);
         self.damage = max(self.damage, 1);
-        self.apply_flat_armour(monster);
+        if player.combat_type() != CombatType::Magic {
+            self.apply_flat_armour(monster);
+        }
         self.apply_limiters(rng, limiter);
     }
 
@@ -94,7 +96,7 @@ impl Hit {
         // Subtract flat armour from damage, post-roll (clamping at 1 damage)
         if monster.bonuses.flat_armour > 0 {
             self.damage = max(
-                1,
+                0,
                 self.damage
                     .saturating_sub(monster.bonuses.flat_armour.try_into().unwrap_or(0)),
             );
@@ -137,6 +139,11 @@ pub fn standard_attack(
     if hit.success {
         // Transform any accurate zeros into 1s, then apply post-roll transforms
         hit.apply_transforms(player, monster, rng, limiter);
+    }
+
+    // Reset any attack speed changes from eye of ayak spec
+    if player.is_wearing("Eye of ayak", None) {
+        player.set_active_style(player.attrs.active_style);
     }
 
     hit

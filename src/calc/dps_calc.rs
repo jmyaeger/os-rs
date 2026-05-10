@@ -33,10 +33,12 @@ fn get_normal_accuracy(
         let att_roll_factor = match &player.gear.weapon.name as &str {
             "Saradomin godsword" | "Bandos godsword" | "Zamorak godsword" | "Armadyl godsword"
             | "Zaryte crossbow" | "Webweaver bow" | "Toxic blowpipe" | "Ancient godsword"
-            | "Brine sabre" | "Barrelchest anchor" => Fraction::new(2, 1),
-            "Accursed sceptre" | "Accursed sceptre (a)" | "Volatile nightmare staff" => {
-                Fraction::new(3, 2)
-            }
+            | "Brine sabre" | "Barrelchest anchor" | "Eye of ayak" => Fraction::new(2, 1),
+            "Accursed sceptre"
+            | "Accursed sceptre (a)"
+            | "Volatile nightmare staff"
+            | "Arkan blade"
+            | "Granite hammer" => Fraction::new(3, 2),
             "Dragon dagger" => Fraction::new(115, 100),
             "Abyssal dagger" | "Abyssal whip" | "Dragon mace" | "Dragon sword" | "Elder maul" => {
                 Fraction::new(5, 4)
@@ -46,6 +48,7 @@ fn get_normal_accuracy(
             }
             "Magic shortbow" | "Magic shortbow (i)" => Fraction::new(10, 7),
             "Heavy ballista" | "Light ballista" => Fraction::new(5, 4),
+            "Rosewood blowpipe" => Fraction::new(4, 5),
             _ => Fraction::new(1, 1),
         }
         .unwrap();
@@ -53,7 +56,7 @@ fn get_normal_accuracy(
     }
 
     if player.is_wearing("Keris partisan of the sun", None)
-        && constants::TOA_MONSTERS.contains(&monster.info.id.unwrap_or(0))
+        && constants::TOA_MONSTERS.contains(&monster.id_with_default())
         && monster.stats.hitpoints.current < monster.stats.hitpoints.base / 4
     {
         max_att_roll = max_att_roll * 5 / 4;
@@ -158,6 +161,17 @@ fn get_fang_accuracy(
     }
 }
 
+fn get_confliction_gauntlets_accuracy(
+    player: &Player,
+    monster: &Monster,
+    using_spec: bool,
+) -> Result<f64, DpsCalcError> {
+    let single_roll = get_normal_accuracy(player, monster, using_spec)?;
+    let double_roll = get_fang_accuracy(player, monster, using_spec)?;
+
+    Ok(double_roll / (1.0 - double_roll - single_roll))
+}
+
 fn get_hit_chance(
     player: &Player,
     monster: &Monster,
@@ -167,16 +181,26 @@ fn get_hit_chance(
     if (monster.info.name.contains("Verzik")
         && monster.matches_version("Phase 1")
         && player.is_wearing("Dawnbringer", None))
-        || (monster.info.name.as_str() == "Giant rat (Scurrius)"
+        || (monster.name() == "Giant rat (Scurrius)"
             && player.combat_stance() != CombatStance::ManualCast)
         || (using_spec && player.is_wearing_any(constants::ALWAYS_HITS_SPEC))
-        || constants::P2_WARDEN_IDS.contains(&monster.info.id.unwrap_or(0))
-        || constants::GUARANTEED_ACCURACY_MONSTERS.contains(&monster.info.id.unwrap_or(0))
+        || constants::P2_WARDEN_IDS.contains(&monster.id_with_default())
+        || constants::GUARANTEED_ACCURACY_MONSTERS.contains(&monster.id_with_default())
+        || (monster.name() == "Eclipse Moon"
+            && monster.matches_version("Clone")
+            && player.is_using_melee())
     {
         return Ok(1.0);
     }
 
-    let mut hit_chance = get_normal_accuracy(player, monster, using_spec)?;
+    let mut hit_chance = if player.is_wearing("Confliction gauntlets", None)
+        && player.is_using_magic()
+        && !player.gear.weapon.is_two_handed
+    {
+        get_confliction_gauntlets_accuracy(player, monster, using_spec)?
+    } else {
+        get_normal_accuracy(player, monster, using_spec)?
+    };
 
     if player.is_wearing("Osmumten's fang", None) && player.combat_type() == CombatType::Stab {
         if monster.is_toa_monster() {
@@ -186,7 +210,7 @@ fn get_hit_chance(
         }
     }
 
-    if player.combat_type() == CombatType::Magic && player.is_wearing("Brimstone ring", None) {
+    if player.is_using_magic() && player.is_wearing("Brimstone ring", None) {
         let mut monster_copy = monster.clone();
         let def_roll = monster.def_rolls.get(CombatType::Magic) * 9 / 10;
         monster_copy.def_rolls.set(CombatType::Magic, def_roll);
@@ -210,6 +234,9 @@ fn get_dot_expected(
         } else if player.is_wearing("Ancient godsword", None) {
             let accuracy = get_hit_chance(player, monster, true)?;
             Ok(accuracy * 25.0)
+        } else if player.is_wearing("Arkan blade", None) && !monster.is_immune_to_strong_burn() {
+            let accuracy = get_hit_chance(player, monster, true)?;
+            Ok(accuracy * 10.0)
         } else {
             Ok(0.0)
         }
@@ -233,6 +260,10 @@ fn get_dot_max(player: &Player, monster: &Monster, using_spec: bool) -> u32 {
 }
 
 fn burning_claw_dot(player: &Player, monster: &Monster) -> Result<f64, DpsCalcError> {
+    if monster.is_immune_to_normal_burn() {
+        return Ok(0.0);
+    }
+
     let mut dot = 0.0;
     let accuracy = get_hit_chance(player, monster, true)?;
     for acc_roll in 0..3 {
@@ -254,7 +285,7 @@ pub fn get_distribution(
     let combat_type = player.combat_type();
     let (mut min_hit, max_hit) = if using_spec {
         get_spec_min_max_hit(player, monster)?
-    } else if constants::P2_WARDEN_IDS.contains(&monster.info.id.unwrap_or(0)) {
+    } else if constants::P2_WARDEN_IDS.contains(&monster.id_with_default()) {
         get_wardens_p2_min_max(player, monster)?
     } else {
         (0, player.max_hits.get(combat_type))
@@ -270,7 +301,7 @@ pub fn get_distribution(
     let mut accurate_zero_applicable = true;
 
     // Check if the monster always dies in one hit
-    if constants::ONE_HIT_MONSTERS.contains(&monster.info.id.unwrap_or(0)) {
+    if constants::ONE_HIT_MONSTERS.contains(&monster.id_with_default()) {
         return Ok(AttackDistribution::new(vec![HitDistribution::single(
             1.0,
             vec![Hitsplat::new(monster.stats.hitpoints.base, true)],
@@ -286,16 +317,36 @@ pub fn get_distribution(
     }
 
     // Check if the monster always takes the maximum hit for the current combat type
-    if player.combat_type() == CombatType::Magic
-        && constants::ALWAYS_MAX_HIT_MAGIC.contains(&monster.info.id.unwrap_or(0))
+    if player.is_using_magic()
+        && constants::ALWAYS_MAX_HIT_MAGIC.contains(&monster.id_with_default())
         || player.is_using_melee()
-            && constants::ALWAYS_MAX_HIT_MELEE.contains(&monster.info.id.unwrap_or(0))
+            && constants::ALWAYS_MAX_HIT_MELEE.contains(&monster.id_with_default())
         || player.is_using_ranged()
-            && constants::ALWAYS_MAX_HIT_RANGED.contains(&monster.info.id.unwrap_or(0))
+            && constants::ALWAYS_MAX_HIT_RANGED.contains(&monster.id_with_default())
     {
+        if monster.info.name == "Void Flare"
+            && player.boosts.mark_of_darkness
+            && player.is_using_demonbane_spell()
+        {
+            let damage_boost = if player.is_wearing("Purging staff", None) {
+                50
+            } else {
+                25
+            };
+            return Ok(AttackDistribution::new(vec![HitDistribution::single(
+                1.0,
+                vec![Hitsplat::new(
+                    max_hit
+                        + get_demonbane_factor(100, monster)
+                            .multiply_to_int(max_hit * damage_boost / 100),
+                    true,
+                )],
+            )]));
+        }
+
         return Ok(AttackDistribution::new(vec![HitDistribution::single(
             1.0,
-            vec![Hitsplat::new(max_hit, true)],
+            vec![Hitsplat::new(dist.get_max(), true)],
         )]));
     }
 
@@ -372,6 +423,7 @@ pub fn get_distribution(
         if player.is_wearing_any_version("Dragon dagger")
             || player.is_wearing_any_version("Dragon knife")
             || player.is_wearing_any(constants::MAGIC_SHORTBOWS)
+            || player.is_wearing_any_version("Rosewood blowpipe")
         {
             hit_count = 2;
         } else if player.is_wearing("Webweaver bow", None) {
@@ -398,7 +450,7 @@ pub fn get_distribution(
     // Saradomin sword spec
     if using_spec && player.is_wearing("Saradomin sword", None) {
         let magic_hit = HitDistribution::linear(1.0, 1, 16);
-        if !constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&monster.info.id.unwrap_or(0)) {
+        if !constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&monster.id_with_default()) {
             dist = dist.transform(
                 &|h| HitDistribution::new(vec![WeightedHit::new(1.0, vec![*h])]).zip(&magic_hit),
                 &TransformOpts {
@@ -406,6 +458,16 @@ pub fn get_distribution(
                 },
             );
         }
+    }
+
+    // Granite hammer spec
+    if using_spec && player.is_wearing("Granite hammer", None) {
+        dist = dist.transform(
+            &flat_add_transformer(5, 0),
+            &TransformOpts {
+                transform_inaccurate: true,
+            },
+        );
     }
 
     // Verac's set effect distribution
@@ -590,7 +652,7 @@ pub fn get_distribution(
     }
 
     // Full Ahrim's + amulet of the damned distribution
-    if player.combat_type() == CombatType::Magic
+    if player.is_using_magic()
         && player.set_effects.full_ahrims
         && player.is_wearing_any_version("Amulet of the damned")
     {
@@ -690,7 +752,7 @@ pub fn get_distribution(
     }
 
     // Apply corp transform before ruby bolt procs
-    if monster.info.name.as_str() == "Corporeal Beast" && !player.is_using_corpbane_weapon() {
+    if monster.name() == "Corporeal Beast" && !player.is_using_corpbane_weapon() {
         dist = dist.transform(&division_transformer(2, 0), &TransformOpts::default());
     }
 
@@ -720,7 +782,7 @@ pub fn get_distribution(
 
     // Accurate 0 -> 1 is either overwritten by ruby bolts or divided back down to 0
     if accurate_zero_applicable
-        && (monster.info.name.as_str() != "Corporeal Beast" || player.is_using_corpbane_weapon())
+        && (monster.name() != "Corporeal Beast" || player.is_using_corpbane_weapon())
     {
         dist = dist.transform(
             &|h| HitDistribution::single(1.0, vec![Hitsplat::new(max(h.damage, 1), h.accurate)]),
@@ -764,7 +826,7 @@ fn get_spec_min_max_hit(player: &Player, monster: &Monster) -> Result<(u32, u32)
             )
         }
         "Saradomin godsword" | "Zamorak godsword" | "Ancient godsword" | "Dragon halberd"
-        | "Crystal halberd" | "Saradomin sword" | "Barrelchest anchor" => {
+        | "Crystal halberd" | "Saradomin sword" | "Barrelchest anchor" | "Rosewood blowpipe" => {
             (0, base_max_hit * 11 / 10)
         }
         "Armadyl godsword" => (0, (base_max_hit * 11 / 10) * 5 / 4),
@@ -778,7 +840,8 @@ fn get_spec_min_max_hit(player: &Player, monster: &Monster) -> Result<(u32, u32)
         | "Toxic blowpipe"
         | "Dragon mace"
         | "Accursed sceptre"
-        | "Accursed sceptre (a)" => (0, base_max_hit * 3 / 2),
+        | "Accursed sceptre (a)"
+        | "Arkan blade" => (0, base_max_hit * 3 / 2),
         "Voidwaker" => (base_max_hit / 2, base_max_hit * 3 / 2),
         "Dragon dagger" => (0, base_max_hit * 23 / 20),
         "Abyssal dagger" => (0, base_max_hit * 17 / 20),
@@ -799,6 +862,7 @@ fn get_spec_min_max_hit(player: &Player, monster: &Monster) -> Result<(u32, u32)
         }
         "Magic shortbow" | "Magic shortbow (i)" | "Magic longbow" | "Magic comp bow"
         | "Seercull" => (0, player.seercull_spec_max()),
+        "Eye of ayak" => (0, base_max_hit * 13 / 10),
         _ => {
             return Err(DpsCalcError::SpecNotImplemented(
                 player.gear.weapon.name.clone(),
@@ -837,7 +901,7 @@ fn apply_limiters(
     }
 
     // Kraken divides all ranged damage by 7
-    if monster.info.name.as_str() == "Kraken (Kraken)" && player.is_using_ranged() {
+    if ["Kraken", "Cave kraken"].contains(&monster.name()) && player.is_using_ranged() {
         dist = dist.transform(
             &division_transformer(7, 1),
             &TransformOpts {
@@ -856,7 +920,7 @@ fn apply_limiters(
     }
 
     // Tekton divides all magic damage by 5, with a minimum accurate hit of 1
-    if monster.info.name.contains("Tekton") && player.combat_type() == CombatType::Magic {
+    if monster.info.name.contains("Tekton") && player.is_using_magic() {
         dist = dist.transform(
             &division_transformer(5, 1),
             &TransformOpts {
@@ -866,14 +930,14 @@ fn apply_limiters(
     }
 
     // Vasa crystal takes 1/3 magic damage
-    if monster.info.name.contains("Glowing crystal") && player.combat_type() == CombatType::Magic {
+    if monster.info.name.contains("Glowing crystal") && player.is_using_magic() {
         dist = dist.transform(&division_transformer(3, 0), &TransformOpts::default());
     }
 
     // Olm melee hand or head takes 1/3 magic damage
     if (monster.matches_version("Left claw")
         || (monster.info.name.contains("Great Olm") && monster.matches_version("Head")))
-        && player.combat_type() == CombatType::Magic
+        && player.is_using_magic()
     {
         dist = dist.transform(&division_transformer(3, 0), &TransformOpts::default());
     }
@@ -888,7 +952,10 @@ fn apply_limiters(
     // TODO: Implement updated Efaritay's aid here once wiki calc does
 
     // Ice demon takes 1/3 unless using a fire spell
-    if monster.info.name.contains("Ice demon") && !player.is_using_fire_spell() {
+    if monster.info.name.contains("Ice demon")
+        && !player.is_using_fire_spell()
+        && !player.is_using_demonbane()
+    {
         dist = dist.transform(&division_transformer(3, 0), &TransformOpts::default());
     }
 
@@ -898,7 +965,7 @@ fn apply_limiters(
     }
 
     // Zogres take 1/2 damage from Crumble Undead and 1/4 damage from anything other than ranged with brutal arrows
-    if ["Slash Bash", "Zogre", "Skogre"].contains(&monster.info.name.as_str()) {
+    if ["Slash Bash", "Zogre", "Skogre"].contains(&monster.name()) {
         if player.attrs.spell == Some(Spell::Standard(StandardSpell::CrumbleUndead)) {
             dist = dist.transform(&division_transformer(2, 0), &TransformOpts::default());
         } else if !player.is_using_ranged()
@@ -914,15 +981,24 @@ fn apply_limiters(
     }
 
     // Efaritay's aid with non-silver weapons against T2 vampyres deals 50% damage, applied post-roll
-    if player.is_wearing("Efaritay's aid", None) && monster.vampyre_tier() == Some(2) {
-        dist = dist.transform(&division_transformer(2, 0), &TransformOpts::default());
+    if monster.vampyre_tier() == Some(2) {
+        if !player.is_using_vampyrebane(2) && player.is_wearing("Efaritay's aid", None) {
+            dist = dist.transform(&division_transformer(2, 0), &TransformOpts::default());
+        } else if player.is_wearing_silver_weapon() {
+            dist = dist.transform(&flat_limit_transformer(0, 10), &TransformOpts::default());
+        }
     }
+    if player.is_wearing("Efaritay's aid", None) && monster.vampyre_tier() == Some(2) {}
 
     if monster.info.id == Some(constants::HUEYCOATL_TAIL_ID) {
         let using_crush = player.combat_type() == CombatType::Crush
             && player.bonuses.attack.crush > player.bonuses.attack.stab
             && player.bonuses.attack.crush > player.bonuses.attack.slash;
-        let dist_max = if using_crush { 9 } else { 4 };
+        let dist_max = if using_crush || player.is_using_earth_spell() {
+            9
+        } else {
+            4
+        };
         dist = dist.transform(
             &linear_min_transformer(dist_max, 0),
             &TransformOpts::default(),
@@ -942,10 +1018,9 @@ fn apply_limiters(
     }
 
     // Subtract flat armour from hitsplat, with a minimum of 1 on an accurate hit
-
-    if monster.bonuses.flat_armour > 0 {
+    if monster.bonuses.flat_armour > 0 && player.combat_type() != CombatType::Magic {
         dist = dist.transform(
-            &flat_add_transformer(-monster.bonuses.flat_armour, 1),
+            &flat_add_transformer(-monster.bonuses.flat_armour, 0),
             &TransformOpts {
                 transform_inaccurate: false,
             },
@@ -974,13 +1049,18 @@ pub fn get_expected_damage(
 }
 
 // Get the average damage per tick
-fn get_dpt(dist: &AttackDistribution, player: &Player) -> f64 {
-    dist.get_expected_damage() / player.gear.weapon.speed as f64
+fn get_dpt(dist: &AttackDistribution, player: &Player, using_spec: bool) -> f64 {
+    let speed = if using_spec && player.is_wearing("Eye of ayak", None) {
+        5
+    } else {
+        player.gear.weapon.speed
+    };
+    dist.get_expected_damage() / speed as f64
 }
 
 // Get the average damage per second
-pub fn get_dps(dist: &AttackDistribution, player: &Player) -> f64 {
-    get_dpt(dist, player) / constants::SECONDS_PER_TICK
+pub fn get_dps(dist: &AttackDistribution, player: &Player, using_spec: bool) -> f64 {
+    get_dpt(dist, player, using_spec) / constants::SECONDS_PER_TICK
 }
 
 // Get the expected number of hits per kill
@@ -1151,7 +1231,7 @@ fn dist_is_current_hp_dependent(player: &Player, monster: &Monster) -> bool {
     }
 
     if player.is_wearing("Keris partisan of the sun", None)
-        && constants::TOA_MONSTERS.contains(&monster.info.id.unwrap_or(0))
+        && constants::TOA_MONSTERS.contains(&monster.id_with_default())
     {
         return true;
     }
@@ -1175,7 +1255,7 @@ fn dist_at_hp<'a>(
     if !dist_is_current_hp_dependent(player, monster)
         || hp == monster.stats.hitpoints.current as usize
         || (player.is_wearing("Keris partisan of the sun", None)
-            && constants::TOA_MONSTERS.contains(&monster.info.id.unwrap_or(0))
+            && constants::TOA_MONSTERS.contains(&monster.id_with_default())
             && hp >= monster.stats.hitpoints.current as usize / 4)
         || (player.is_using_ranged()
             && player.is_using_crossbow()
