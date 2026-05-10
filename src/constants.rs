@@ -781,3 +781,4 @@ pub const DEMONBANE_VULNERABILITY: [(&str, i32); 3] =
     [("Duke Sucellus", 70), ("Yama", 120), ("Void Flare", 200)];
 
 pub const THRALL_ATTACK_SPEED: i32 = 4;
+pub const ECLIPSE_MOON_BURN_CHANCE: f64 = 0.2;

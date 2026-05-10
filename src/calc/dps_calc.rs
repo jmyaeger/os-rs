@@ -1,5 +1,6 @@
 // Adapted from the wiki DPS calc - credit to the wiki team
 
+use crate::calc::burn::get_expected_burn;
 use crate::calc::hit_dist::flat_limit_transformer;
 use crate::calc::hit_dist::{
     AttackDistribution, HitDistribution, Hitsplat, TransformOpts, WeightedHit,
@@ -240,6 +241,14 @@ fn get_dot_expected(
         } else {
             Ok(0.0)
         }
+    } else if player.set_effects.full_eclipse_moon {
+        let accuracy = get_hit_chance(player, monster, using_spec)?;
+        let attack_speed = player.gear.weapon.speed as usize;
+        Ok(get_expected_burn(
+            accuracy,
+            attack_speed,
+            constants::ECLIPSE_MOON_BURN_CHANCE,
+        ))
     } else {
         Ok(0.0)
     }

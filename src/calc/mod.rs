@@ -1,4 +1,5 @@
 pub mod analysis;
+pub mod burn;
 pub mod dps_calc;
 pub mod hit_dist;
 pub mod monster_scaling;
