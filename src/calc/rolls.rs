@@ -621,10 +621,8 @@ fn apply_melee_weapon_boosts(
         "Colossal blade" => {
             max_hit += 2 * min(monster.info.size, 5);
         }
-        "Bone mace" => {
-            if monster.is_rat() {
-                max_hit += 10;
-            }
+        "Bone mace" if monster.is_rat() => {
+            max_hit += 10;
         }
         _ => {}
     }

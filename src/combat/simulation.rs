@@ -160,8 +160,6 @@ pub fn assign_limiter(player: &Player, monster: &Monster) -> Option<Box<dyn limi
         return Some(Box::new(limiters::HalfDamage {}));
     }
 
-    if player.is_wearing("Efaritay's aid", None) && monster.vampyre_tier() == Some(2) {}
-
     if monster.vampyre_tier() == Some(2) {
         if !player.is_using_vampyrebane(2) && player.is_wearing("Efaritay's aid", None) {
             return Some(Box::new(limiters::HalfDamage {}));

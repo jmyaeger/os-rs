@@ -988,7 +988,6 @@ fn apply_limiters(
             dist = dist.transform(&flat_limit_transformer(0, 10), &TransformOpts::default());
         }
     }
-    if player.is_wearing("Efaritay's aid", None) && monster.vampyre_tier() == Some(2) {}
 
     if monster.info.id == Some(constants::HUEYCOATL_TAIL_ID) {
         let using_crush = player.combat_type() == CombatType::Crush
