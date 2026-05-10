@@ -1,5 +1,6 @@
 use crate::calc::monster_scaling::build_vard_scaling_table;
 use crate::calc::monster_scaling::scale_monster_hp_only;
+use crate::calc::rolls::calc_active_player_rolls;
 use crate::combat::attacks::standard::AttackFn;
 use crate::combat::limiters::Limiter;
 use crate::combat::mechanics::Mechanics;
@@ -102,19 +103,21 @@ impl Simulation for SingleWayFight {
     }
 
     fn reset(&mut self) {
+        if let Some(stacks) = self.config.reset_soulreaper_stacks {
+            self.player.boosts.soulreaper_stacks = stacks;
+        }
+        self.player.state.first_attack = true;
+        self.player.state.last_attack_hit = true;
+
         if let Some(ref mut spec_config) = self.spec_config {
             let restore_spec = self.spec_state.on_kill(&mut self.player, spec_config);
             self.player.reset_current_stats(restore_spec);
         } else {
             self.player.reset_current_stats(false);
         }
+        calc_active_player_rolls(&mut self.player, &self.monster);
 
         self.monster.reset();
-        self.player.state.first_attack = true;
-        self.player.state.last_attack_hit = true;
-        if let Some(stacks) = self.config.reset_soulreaper_stacks {
-            self.player.boosts.soulreaper_stacks = stacks;
-        }
     }
 }
 
@@ -254,6 +257,7 @@ fn simulate_fight(fight: &mut SingleWayFight) -> Result<FightResult, SimulationE
         .logger
         .log_initial_setup(&fight.player, &fight.monster);
     let mut vars = FightVars::new();
+
     scale_monster_hp_only(&mut fight.monster, true);
 
     while fight.monster.stats.hitpoints.current > 0 {
