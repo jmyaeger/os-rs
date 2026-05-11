@@ -1355,9 +1355,8 @@ impl Player {
 ///     .potion(Potion::SuperCombat)
 ///     .prayer(Prayer::Piety)
 ///     .active_style(CombatStyle::Lunge)
-///     .build()?;
+///     .build();
 ///
-/// Ok(())
 /// ```
 #[derive(Debug, Clone, Default)]
 pub struct PlayerBuilder {

@@ -1,15 +1,15 @@
 // Adapted from the wiki DPS calc - credit to the wiki team
 
 use crate::calc::burn::get_expected_burn;
-use crate::calc::hit_dist::flat_limit_transformer;
 use crate::calc::hit_dist::{
-    AttackDistribution, HitDistribution, Hitsplat, TransformOpts, WeightedHit,
+    AttackDistribution, DelayedHit, HitDistribution, Hitsplat, TransformOpts, WeightedHit,
     capped_reroll_transformer, division_transformer, flat_add_transformer, linear_min_transformer,
     multiply_transformer,
 };
+use crate::calc::hit_dist::{ProbabilisticDelay, WeaponDelayProvider, flat_limit_transformer};
 use crate::calc::monster_scaling;
 use crate::calc::rolls::{calc_active_player_rolls, get_demonbane_factor, monster_def_rolls};
-use crate::constants;
+use crate::constants::{self, TTK_DIST_MAX_ITER_ROUNDS};
 use crate::dists;
 use crate::dists::bolts::{self, BoltContext};
 use crate::error::DpsCalcError;
@@ -1056,14 +1056,35 @@ pub fn get_expected_damage(
     Ok(dist.get_expected_damage() + get_dot_expected(player, monster, using_spec)?)
 }
 
-// Get the average damage per tick
-fn get_dpt(dist: &AttackDistribution, player: &Player, using_spec: bool) -> f64 {
-    let speed = if using_spec && player.is_wearing("Eye of ayak", None) {
+fn get_attack_speed(player: &Player, using_spec: bool) -> u32 {
+    if using_spec && player.is_wearing("Eye of ayak", Some("Charged")) {
         5
     } else {
-        player.gear.weapon.speed
-    };
-    dist.get_expected_damage() / speed as f64
+        player.gear.weapon.speed as u32
+    }
+}
+
+fn has_probabilistic_attack_speed(player: &Player) -> bool {
+    player.set_effects.full_blood_moon
+}
+
+// Get the player's expected attack speed from the attack distribution itself,
+// so probabilistic delays stay consistent with the TTK distribution.
+fn get_expected_attack_speed(dist: &AttackDistribution, player: &Player, using_spec: bool) -> f64 {
+    let delay_provider = get_weapon_delay_provider(player, using_spec);
+    let mut dist = dist.clone();
+
+    dist.zipped()
+        .with_probabilistic_delays(delay_provider.as_ref())
+        .iter()
+        .map(|hit| hit.wh.probability * hit.delay as f64)
+        .sum()
+}
+
+// Get the average damage per tick
+fn get_dpt(dist: &AttackDistribution, player: &Player, using_spec: bool) -> f64 {
+    let speed = get_expected_attack_speed(dist, player, using_spec);
+    dist.get_expected_damage() / speed
 }
 
 // Get the average damage per second
@@ -1104,47 +1125,142 @@ pub fn get_ttk(
     using_spec: bool,
     remove_final_hit_delay: bool,
 ) -> Result<f64, DpsCalcError> {
-    let ttk = if dist_is_current_hp_dependent(player, monster) {
+    let ttk = if dist_is_current_hp_dependent(player, monster)
+        || has_probabilistic_attack_speed(player)
+    {
         // More expensive than get_htk, so only use this if the hit dist changes during the fight
-        let ttk_dist = get_ttk_distribution(&mut dist.clone(), player, monster, using_spec)?;
+        // or attack delay depends on the hit outcome.
+        let ttk_dist = get_ttk_distribution(
+            &mut dist.clone(),
+            player,
+            monster,
+            using_spec,
+            !remove_final_hit_delay,
+        )?;
 
         // Find the expected value of the ttk distribution
-        ttk_dist
+        return Ok(ttk_dist
             .iter()
             .map(|(ticks, prob)| *prob * *ticks as f64)
             .sum::<f64>()
-            * constants::SECONDS_PER_TICK
+            * constants::SECONDS_PER_TICK);
     } else {
-        get_htk(dist, monster) * player.gear.weapon.speed as f64 * constants::SECONDS_PER_TICK
+        get_htk(dist, monster)
+            * get_expected_attack_speed(dist, player, using_spec)
+            * constants::SECONDS_PER_TICK
     };
 
     if remove_final_hit_delay {
-        Ok(ttk - (player.gear.weapon.speed - 1) as f64 * constants::SECONDS_PER_TICK)
+        Ok(ttk - (get_attack_speed(player, using_spec) - 1) as f64 * constants::SECONDS_PER_TICK)
     } else {
         Ok(ttk)
     }
 }
 
-// Get the full ttk distribution
+fn get_weapon_delay_provider(player: &Player, using_spec: bool) -> Box<WeaponDelayProvider> {
+    let base_speed = get_attack_speed(player, using_spec);
+    if player.set_effects.full_blood_moon {
+        Box::new(move |wh: &WeightedHit| {
+            let mut chance_no_effect = 1.0;
+            for hitsplat in &wh.hitsplats {
+                if hitsplat.accurate {
+                    chance_no_effect *= 0.67;
+                } else {
+                    break;
+                }
+            }
+
+            vec![
+                ProbabilisticDelay::new(1.0 - chance_no_effect, base_speed - 1),
+                ProbabilisticDelay::new(chance_no_effect, base_speed),
+            ]
+        })
+    } else {
+        Box::new(move |_| vec![ProbabilisticDelay::new(1.0, base_speed)])
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum TtkTiming {
+    KillTick,
+    AfterFinalDelay,
+}
+
+impl TtkTiming {
+    fn tick(self, attack_tick: usize, delay: usize) -> usize {
+        match self {
+            Self::KillTick => attack_tick,
+            Self::AfterFinalDelay => attack_tick + delay.saturating_sub(1),
+        }
+    }
+}
+
+// Get the full ttk distribution. If include_final_hit_delay is false, entries
+// are keyed by the tick the killing attack lands; if true, entries include the
+// delay after that attack
 pub fn get_ttk_distribution(
     dist: &mut AttackDistribution,
     player: &Player,
     monster: &Monster,
     using_spec: bool,
+    include_final_hit_delay: bool,
 ) -> Result<HashMap<usize, f64>, DpsCalcError> {
-    let speed = player.gear.weapon.speed as usize;
-    let max_hp = monster.stats.hitpoints.current as usize;
-    let mut dist_copy = dist.clone();
-    let dist_single = dist_copy.get_single_hitsplat();
-
     // Return empty distribution if the expected damage is 0
-    if dist_single.expected_hit() == 0.0 {
+    if dist.get_expected_damage() == 0.0 {
         return Ok(HashMap::new());
     }
 
-    // Probability distribution of hp values at current iteration
-    let mut hps = vec![0.0; max_hp + 1];
-    hps[max_hp] = 1.0;
+    let timing = if include_final_hit_delay {
+        TtkTiming::AfterFinalDelay
+    } else {
+        TtkTiming::KillTick
+    };
+
+    let speed = get_attack_speed(player, using_spec) as usize;
+    let iter_max = TTK_DIST_MAX_ITER_ROUNDS * speed;
+    let max_hp = monster.stats.hitpoints.current as usize;
+    let delay_provider = get_weapon_delay_provider(player, using_spec);
+    let dist_with_delays = dist
+        .zipped()
+        .with_probabilistic_delays(delay_provider.as_ref());
+
+    // If the dist is based on current hp, recalculate it at each hp and cache results
+    let recalc_dist_on_hp = dist_is_current_hp_dependent(player, monster);
+    let hp_hit_dists = if recalc_dist_on_hp {
+        let mut hp_hit_dists = Vec::with_capacity(max_hp + 1);
+        for hp in 0..=max_hp {
+            hp_hit_dists.push(dist_at_hp(
+                &dist_with_delays,
+                hp,
+                player,
+                monster,
+                using_spec,
+                delay_provider.as_ref(),
+            )?);
+        }
+        Some(hp_hit_dists)
+    } else {
+        None
+    };
+
+    let max_delay = hp_hit_dists
+        .as_ref()
+        .map(|dists| dists.iter().flatten())
+        .into_iter()
+        .flatten()
+        .chain(dist_with_delays.iter())
+        .map(|hit| hit.delay as usize)
+        .max()
+        .unwrap_or(speed);
+
+    let tick_count = iter_max + max_delay + 1;
+    let width = max_hp + 1;
+    let mut attack_on_tick = vec![0.0; tick_count];
+    attack_on_tick[1] = 1.0;
+
+    // Flattened tick-by-HP table. Index (tick, hp) as tick * width + hp.
+    let mut tick_hps = vec![0.0; tick_count * width];
+    tick_hps[width + max_hp] = 1.0;
 
     // Output map of ttk values and their probabilities
     let mut ttks: HashMap<usize, f64> = HashMap::new();
@@ -1152,44 +1268,36 @@ pub fn get_ttk_distribution(
     // Sum of non-zero hp probabilities
     let mut epsilon = 1.0;
 
-    // If the dist is based on current hp, recalculate it at each hp and cache results
-    let recalc_dist_on_hp = dist_is_current_hp_dependent(player, monster);
-    let mut hp_hit_dists = HashMap::new();
-    hp_hit_dists.insert(max_hp, dist_single.clone());
-    if recalc_dist_on_hp {
-        for hp in 0..max_hp {
-            dist_at_hp(dist, hp, player, monster, &mut hp_hit_dists, using_spec)?;
-        }
-    }
-
     // Loop until the number of non-zero hp probabilities is less than TTK_DIST_EPSILON
     // or the number of iterations exceeds TTK_DIST_MAX_ITER_ROUNDS
-    for hit in 0..=constants::TTK_DIST_MAX_ITER_ROUNDS {
+    for tick in 1..=iter_max {
         if epsilon < constants::TTK_DIST_EPSILON {
             break;
         }
 
-        // Initialize the updated hp probability distribution
-        let mut next_hps = vec![0.0; max_hp + 1];
+        if attack_on_tick[tick] == 0.0 {
+            continue;
+        }
 
         // For each possible hp value
-        for (hp, hp_prob) in hps.iter().enumerate() {
+        let hp_row_offset = tick * width;
+        for hp in 1..=max_hp {
+            let hp_prob = tick_hps[hp_row_offset + hp];
+            if hp_prob == 0.0 {
+                continue;
+            }
+
             // Get the current hit distribution (the original or cached one based on current hp)
-            let current_dist = if recalc_dist_on_hp {
-                hp_hit_dists
-                    .get(&hp)
-                    .ok_or_else(|| DpsCalcError::MissingHpHitDist {
-                        monster_name: monster.info.name.clone(),
-                        hp,
-                    })?
+            let current_dist = if let Some(hp_hit_dists) = &hp_hit_dists {
+                &hp_hit_dists[hp]
             } else {
-                dist_single
+                &dist_with_delays
             };
 
             // For each possible damage amount
-            for h in &current_dist.hits {
-                let dmg_prob = h.probability;
-                let dmg = h.hitsplats[0].damage as usize; // Single hitsplat, so guaranteed to be length 1
+            for h in current_dist {
+                let dmg_prob = h.wh.probability;
+                let dmg = h.wh.get_sum() as usize;
 
                 // Chance of this path being reached is the previous chance of landing here * the chance of hitting this amount
                 let chance_of_action = dmg_prob * hp_prob;
@@ -1197,23 +1305,23 @@ pub fn get_ttk_distribution(
                     continue;
                 }
 
-                let new_hp = hp as i32 - dmg as i32;
-
-                // If the hp we are about to arrive at is <= 0, the NPC is killed, the iteration count is the number of hits done,
-                // and we add this probability path into the delta
-                if new_hp <= 0 {
-                    let tick = (hit + 1) * speed;
-                    ttks.insert(tick, ttks.get(&tick).unwrap_or(&0.0) + chance_of_action);
+                // If the damage is more than the remaining hp, the monster dies on this tick
+                if dmg >= hp {
+                    let ttk_tick = timing.tick(tick, h.delay as usize);
+                    ttks.insert(
+                        ttk_tick,
+                        ttks.get(&ttk_tick).unwrap_or(&0.0) + chance_of_action,
+                    );
                     epsilon -= chance_of_action;
                 } else {
                     // Otherwise, we add the chance of this path to the next iteration's hp value
-                    next_hps[new_hp as usize] += chance_of_action;
+                    let next_tick = tick + h.delay as usize;
+                    let next_hp = hp - dmg;
+                    tick_hps[next_tick * width + next_hp] += chance_of_action;
+                    attack_on_tick[next_tick] += chance_of_action;
                 }
             }
         }
-
-        // Update counters and repeat
-        hps = next_hps;
     }
 
     Ok(ttks)
@@ -1247,19 +1355,18 @@ fn dist_is_current_hp_dependent(player: &Player, monster: &Monster) -> bool {
     false
 }
 
-fn dist_at_hp<'a>(
-    dist: &'a mut AttackDistribution,
+fn dist_at_hp(
+    dist: &[DelayedHit],
     hp: usize,
-    player: &'a Player,
-    monster: &'a Monster,
-    hp_hit_dists: &'a mut HashMap<usize, HitDistribution>,
+    player: &Player,
+    monster: &Monster,
     using_spec: bool,
-) -> Result<(), DpsCalcError> {
+    delay_provider: &WeaponDelayProvider,
+) -> Result<Vec<DelayedHit>, DpsCalcError> {
     // Calculate the hit distribution at a specific hp
 
     // Return the original distribution if applicable to save some computation
     // (rubies above 500 hp, hp = max hp, or no hp scaling at all)
-    let no_scaling = dist.get_single_hitsplat();
     if !dist_is_current_hp_dependent(player, monster)
         || hp == monster.stats.hitpoints.current as usize
         || (player.is_wearing("Keris partisan of the sun", None)
@@ -1271,8 +1378,7 @@ fn dist_at_hp<'a>(
             && monster.stats.hitpoints.current >= 500
             && hp >= 500)
     {
-        hp_hit_dists.insert(hp, no_scaling.clone());
-        return Ok(());
+        return Ok(dist.to_vec());
     }
 
     // Scale monster's stats based on current hp (only applies to Vardorvis currently)
@@ -1280,11 +1386,10 @@ fn dist_at_hp<'a>(
     monster_copy.stats.hitpoints.current = hp as u32;
     monster_scaling::scale_monster_hp_only(&mut monster_copy, true);
 
-    // Return the new hp-scaled distribution
-    let mut new_dist = get_distribution(player, &monster_copy, using_spec)?;
-    hp_hit_dists.insert(hp, new_dist.get_single_hitsplat().clone());
-
-    Ok(())
+    // Insert the new hp-scaled distribution
+    Ok(get_distribution(player, &monster_copy, using_spec)?
+        .zipped()
+        .with_probabilistic_delays(delay_provider))
 }
 
 fn get_wardens_p2_min_max(player: &Player, monster: &Monster) -> Result<(u32, u32), DpsCalcError> {
@@ -1313,6 +1418,29 @@ mod tests {
     use crate::types::potions::Potion;
     use crate::types::prayers::Prayer;
     use crate::types::stats::PlayerStats;
+
+    #[test]
+    fn test_ttk_distribution_can_include_final_delay() {
+        let player = Player::new();
+        let mut monster = Monster::new("Ammonite Crab", None).expect("Error creating monster.");
+        monster.stats.hitpoints.base = 1;
+        monster.stats.hitpoints.current = 1;
+
+        let dist = AttackDistribution::new(vec![HitDistribution::single(
+            1.0,
+            vec![Hitsplat::new(1, true)],
+        )]);
+
+        let kill_tick_dist =
+            get_ttk_distribution(&mut dist.clone(), &player, &monster, false, false)
+                .expect("Error calculating kill-tick ttk distribution.");
+        let final_delay_dist =
+            get_ttk_distribution(&mut dist.clone(), &player, &monster, false, true)
+                .expect("Error calculating final-delay ttk distribution.");
+
+        assert_eq!(kill_tick_dist.get(&1), Some(&1.0));
+        assert_eq!(final_delay_dist.get(&5), Some(&1.0));
+    }
 
     #[test]
     fn test_max_melee_ammonite_crab() {

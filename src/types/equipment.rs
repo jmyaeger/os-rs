@@ -208,9 +208,7 @@ impl Gear {
 ///     .body("Torva platebody", None)
 ///     .legs("Torva platelegs", None)
 ///     .weapon("Osmumten's fang", None)
-///     .build()?;
-///
-/// Ok(())
+///     .build();
 /// ```
 #[derive(Debug, Clone, Default)]
 pub struct GearBuilder {

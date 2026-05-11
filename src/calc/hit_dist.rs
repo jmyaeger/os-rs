@@ -333,7 +333,7 @@ impl HitDistribution {
 
         acc.into_iter()
             .map(|(key, prob)| {
-                let delay = (key & 0x8F00_0000) >> 24;
+                let delay = (key & 0xFF00_0000) >> 24;
                 let dmg = key & 0x00FF_FFFF;
                 DelayedHit::new(
                     WeightedHit::new(prob, vec![Hitsplat::new(dmg as u32, true)]),
@@ -379,6 +379,7 @@ impl HitDistribution {
 pub struct AttackDistribution {
     pub dists: Vec<HitDistribution>,
     single_hitsplat: Option<HitDistribution>, // property accessed through getter method
+    _zipped: Option<HitDistribution>,
 }
 
 impl AttackDistribution {
@@ -386,14 +387,31 @@ impl AttackDistribution {
         AttackDistribution {
             dists,
             single_hitsplat: None,
+            _zipped: None,
         }
+    }
+
+    pub fn zipped(&mut self) -> HitDistribution {
+        if let Some(z) = &self._zipped {
+            return z.clone();
+        }
+
+        let z = self
+            .dists
+            .iter()
+            .cloned()
+            .reduce(|prev, curr| prev.zip(&curr))
+            .expect("Error reducing hit dists.");
+        self._zipped = Some(z.clone());
+        z
     }
 
     pub fn add_dist(&mut self, d: HitDistribution) {
         self.dists.push(d);
 
-        // Reset single hitsplat so it gets recalculated when needed
+        // Reset cached derived distributions so they get recalculated when needed.
         self.single_hitsplat = None;
+        self._zipped = None;
     }
 
     pub fn get_single_hitsplat(&mut self) -> &HitDistribution {
