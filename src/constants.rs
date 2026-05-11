@@ -425,9 +425,9 @@ pub const SILVER_WEAPONS: [(&str, Option<&str>); 17] = [
 
 pub const SECONDS_PER_TICK: f64 = 0.6;
 
-pub const TTK_DIST_MAX_ITER_ROUNDS: usize = 1000;
+pub const TTK_DIST_MAX_ITER_ROUNDS: usize = 2000;
 
-pub const TTK_DIST_EPSILON: f64 = 0.0001;
+pub const TTK_DIST_EPSILON: f64 = 1e-6;
 
 pub const DEFAULT_ATTACK_ROLLS: [(CombatType, i32); 7] = [
     (CombatType::Stab, 0),
