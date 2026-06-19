@@ -167,7 +167,7 @@ pub fn vardorvis() -> Monster {
 pub fn kephri_400() -> Monster {
     let mut monster = Monster::new("Kephri", Some("Shielded")).expect("Error creating monster.");
     monster.info.toa_level = 400;
-    monster.scale_toa();
+    monster.scale_toa(true, true);
     monster
 }
 
@@ -250,7 +250,7 @@ pub fn corp() -> Monster {
 pub fn baba_300() -> Monster {
     let mut monster = Monster::new("Ba-Ba", None).expect("Error creating monster.");
     monster.info.toa_level = 300;
-    monster.scale_toa();
+    monster.scale_toa(true, true);
     monster
 }
 
@@ -1084,6 +1084,6 @@ pub fn efaritays_aid(mut player: Player) -> Player {
 #[allow(unused)]
 pub fn scale_toa(mut monster: Monster, toa_level: u32) -> Monster {
     monster.info.toa_level = toa_level;
-    monster.scale_toa();
+    monster.scale_toa(true, true);
     monster
 }

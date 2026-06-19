@@ -371,6 +371,14 @@ impl SpecState {
         self.spec_regen_timer.reset();
     }
 
+    pub fn advance_ticks(&mut self, player: &mut Player, ticks: u32) {
+        let mut null_logger = FightLogger::new(false, "").unwrap();
+        for _ in 0..ticks {
+            self.increment_spec(player, 0, &mut null_logger);
+            self.increment_timers();
+        }
+    }
+
     pub fn increment_spec(
         &mut self,
         player: &mut Player,

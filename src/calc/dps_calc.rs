@@ -1560,7 +1560,7 @@ mod tests {
 
         let mut monster = Monster::new("Zebak", Some("Normal")).expect("Error creating monster.");
         monster.info.toa_level = 500;
-        monster.scale_toa();
+        monster.scale_toa(true, true);
         calc_active_player_rolls(&mut player, &monster);
 
         let dist = get_distribution(&player, &monster, false)

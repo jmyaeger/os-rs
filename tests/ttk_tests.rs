@@ -694,7 +694,7 @@ fn test_ruby_bolts_zcb_zebak_500(max_ranged_zcb_ruby_player: Player, zebak: Mons
 
     let mut monster = zebak;
     monster.info.toa_level = 500;
-    monster.scale_toa();
+    monster.scale_toa(true, true);
     calc_active_player_rolls(&mut player, &monster);
 
     let simulation = SingleWayFight::new(

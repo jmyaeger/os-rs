@@ -16,6 +16,7 @@ use rand::rngs::SmallRng;
 const VARDORVIS_ATTACK_STYLE: AttackType = AttackType::Slash;
 const VARDORVIS_ATTACK_SPEED: i32 = 5;
 const VARDORVIS_REGEN_TICKS: i32 = 100;
+const VARDORVIS_RESPAWN_TICKS: u32 = 17;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct VardorvisConfig {
@@ -76,6 +77,7 @@ impl VardorvisMechanics {
     ) -> Result<(), SimulationError> {
         let mut hit = vard.attack(player, Some(VARDORVIS_ATTACK_STYLE), rng, false)?;
         hit.damage /= 4; // Assumes Protect from Melee is active
+        hit.damage = hit.damage.min(player.stats.hitpoints.current);
 
         if logger.enabled {
             logger.log_monster_attack(
@@ -205,8 +207,7 @@ impl VardorvisFight {
                 .logger
                 .log_initial_setup(&self.player, &self.vard);
         }
-
-        while self.vard.stats.hitpoints.current > 0 {
+        loop {
             if vars.tick_counter % VARDORVIS_REGEN_TICKS == 0 {
                 // Appears to regen stats but not HP every 100 ticks
                 self.mechanics
@@ -263,6 +264,10 @@ impl VardorvisFight {
                     self.config.logger.log_current_monster_stats(&self.vard);
                     self.config.logger.log_current_monster_rolls(&self.vard);
                 }
+
+                if self.vard.stats.hitpoints.current == 0 {
+                    break;
+                }
             }
 
             if let Some(thrall) = self.config.thralls
@@ -275,10 +280,23 @@ impl VardorvisFight {
                     &mut self.rng,
                     &mut self.config.logger,
                 );
+
+                if logging_enabled {
+                    self.config.logger.log_current_monster_stats(&self.vard);
+                    self.config.logger.log_current_monster_rolls(&self.vard);
+                }
+
+                if self.vard.stats.hitpoints.current == 0 {
+                    break;
+                }
             }
 
             self.mechanics
                 .process_monster_effects(&mut self.vard, &vars, &mut self.config.logger);
+
+            if self.vard.stats.hitpoints.current == 0 {
+                break;
+            }
 
             self.config.spec_state.increment_spec(
                 &mut self.player,
@@ -355,6 +373,9 @@ impl Simulation for VardorvisFight {
                 .spec_state
                 .on_kill(&mut self.player, spec_config);
             self.player.reset_current_stats(restore_spec);
+            self.config
+                .spec_state
+                .advance_ticks(&mut self.player, VARDORVIS_RESPAWN_TICKS);
             if restore_spec {
                 // Assume that the player is not losing stacks between successive kills in a trip
                 // but does lose all stacks when resetting spec energy

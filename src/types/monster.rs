@@ -626,12 +626,16 @@ impl Monster {
         Ok(Hit::new(damage, success))
     }
 
-    pub fn scale_toa(&mut self) {
+    pub fn scale_toa(&mut self, def: bool, hp: bool) {
         // Scale the HP and defence rolls based on the toa_level field of the monster
         let id = &self.id_with_default();
         if constants::TOA_MONSTERS.contains(id) && !constants::KEPHRI_OVERLORD_IDS.contains(id) {
-            self.scale_toa_hp();
-            self.scale_toa_defence();
+            if hp {
+                self.scale_toa_hp();
+            }
+            if def {
+                self.scale_toa_defence();
+            }
         }
     }
     fn scale_toa_hp(&mut self) {
@@ -821,6 +825,13 @@ impl Monster {
         self.stats.defence.restore(1, None);
         self.stats.ranged.restore(1, None);
         self.stats.magic.restore(1, None);
+        self.recalculate_def_rolls();
+    }
+
+    pub fn recalculate_def_rolls(&mut self) {
+        self.base_def_rolls = rolls::monster_def_rolls(self);
+        self.def_rolls.clone_from(&self.base_def_rolls);
+        self.scale_toa(true, false);
     }
 
     pub fn drain_stat(&mut self, stat: &CombatStat, amount: u32, cap: Option<u32>) -> u32 {
@@ -876,9 +887,7 @@ impl Monster {
             }
         }
 
-        self.base_def_rolls = rolls::monster_def_rolls(self);
-        self.def_rolls.clone_from(&self.base_def_rolls);
-        self.scale_toa();
+        self.recalculate_def_rolls();
         remainder
     }
 
@@ -901,7 +910,7 @@ impl Monster {
         self.info.freeze_duration = 0;
         self.base_def_rolls = rolls::monster_def_rolls(self);
         self.def_rolls = self.base_def_rolls;
-        self.scale_toa();
+        self.scale_toa(true, true);
         self.active_effects = Vec::new();
         scale_monster_hp_only(self, false);
     }
@@ -1051,7 +1060,7 @@ impl Monster {
     pub fn set_toa_level(&mut self, level: u32, path: u32) {
         self.info.toa_level = level;
         self.info.toa_path_level = path;
-        self.scale_toa();
+        self.scale_toa(true, true);
     }
 
     fn set_defence_floor(&mut self) {
@@ -1205,7 +1214,7 @@ mod tests {
         assert_ne!(zebak.def_rolls.get(CombatType::Ranged), initial_def_roll);
         let drained_roll = zebak.def_rolls.get(CombatType::Standard);
         zebak.info.toa_level = 400;
-        zebak.scale_toa();
+        zebak.scale_toa(true, false);
         assert_ne!(drained_roll, zebak.def_rolls.get(CombatType::Standard));
     }
 
