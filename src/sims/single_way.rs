@@ -12,6 +12,7 @@ use crate::combat::spec::SpecState;
 use crate::combat::thralls::Thrall;
 use crate::constants::P2_WARDEN_IDS;
 use crate::error::SimulationError;
+use crate::types::player::SwitchType;
 use crate::types::{monster::Monster, player::GearSwitch, player::Player};
 use crate::utils::logging::FightLogger;
 use rand::SeedableRng;
@@ -154,7 +155,11 @@ impl SingleWayMechanics {
 
                 // Make sure the current set of gear is added to the player's gear switches to allow switching back
                 if fight.player.current_switch.is_none() {
-                    let current_gear = GearSwitch::from(&fight.player);
+                    let current_gear = GearSwitch::new(
+                        SwitchType::from(fight.player.combat_type()),
+                        &fight.player,
+                        &fight.monster,
+                    );
                     fight.player.current_switch = Some(current_gear.switch_type.clone());
                     fight.player.switches.push(current_gear);
                 }

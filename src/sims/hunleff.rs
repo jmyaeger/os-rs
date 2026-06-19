@@ -843,7 +843,7 @@ mod tests {
         let hunllef = Monster::new("Corrupted Hunllef", None).expect("Error creating monster.");
         calc_active_player_rolls(&mut player, &hunllef);
 
-        let mage_switch = GearSwitch::from(&player);
+        let mage_switch = GearSwitch::new(SwitchType::Magic, &player, &hunllef);
 
         player.equip("Corrupted bow (perfected)", None).unwrap();
         player.update_bonuses();
@@ -853,7 +853,7 @@ mod tests {
 
         calc_active_player_rolls(&mut player, &hunllef);
 
-        let ranged_switch = GearSwitch::from(&player);
+        let ranged_switch = GearSwitch::new(SwitchType::Ranged, &player, &hunllef);
 
         Rc::make_mut(&mut player.gear).weapon = Weapon::default();
         player.update_bonuses();
@@ -862,7 +862,7 @@ mod tests {
 
         calc_active_player_rolls(&mut player, &hunllef);
 
-        let melee_switch = GearSwitch::from(&player);
+        let melee_switch = GearSwitch::new(SwitchType::Melee, &player, &hunllef);
         player.switches.push(mage_switch);
         player.switches.push(ranged_switch);
         player.switches.push(melee_switch);

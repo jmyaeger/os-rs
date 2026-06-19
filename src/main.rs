@@ -1,3 +1,4 @@
+#![allow(unused)]
 use osrs::calc::analysis::SimulationStats;
 use osrs::calc::rolls::calc_active_player_rolls;
 use osrs::combat::simulation::simulate_n_fights;
@@ -79,7 +80,7 @@ fn simulate_single_way() {
         reset_soulreaper_stacks: Some(0),
     };
 
-    let mut main_hand = GearSwitch::from(&player);
+    let mut main_hand = GearSwitch::new(SwitchType::Melee, &player, &monster);
     player.switches.push(main_hand);
 
     // player.equip("Crimson bludgeon", None).unwrap();
@@ -202,7 +203,7 @@ fn simulate_hunllef() {
     let hunllef = Monster::new("Corrupted Hunllef", None).expect("Error creating monster.");
     calc_active_player_rolls(&mut player, &hunllef);
 
-    let mage_switch = GearSwitch::from(&player);
+    let mage_switch = GearSwitch::new(SwitchType::Magic, &player, &hunllef);
 
     // player.equip("Corrupted bow (perfected)", None).unwrap();
     player.equip("Corrupted bow (attuned)", None).unwrap();
@@ -212,7 +213,7 @@ fn simulate_hunllef() {
 
     calc_active_player_rolls(&mut player, &hunllef);
 
-    let ranged_switch = GearSwitch::from(&player);
+    let ranged_switch = GearSwitch::new(SwitchType::Ranged, &player, &hunllef);
 
     // player.unequip_slot(&GearSlot::Weapon);
     // player.set_active_style(CombatStyle::Kick);
@@ -225,7 +226,7 @@ fn simulate_hunllef() {
 
     calc_active_player_rolls(&mut player, &hunllef);
 
-    let melee_switch = GearSwitch::from(&player);
+    let melee_switch = GearSwitch::new(SwitchType::Melee, &player, &hunllef);
     player.switches.push(mage_switch);
     player.switches.push(ranged_switch);
     player.switches.push(melee_switch);
@@ -279,48 +280,48 @@ fn simulate_hunllef() {
 #[allow(unused)]
 fn simulate_vardorvis() {
     let mut player = loadouts::max_melee_player();
-    player.equip("Verac's helm", None).unwrap();
-    player.equip("Amulet of torture", None).unwrap();
-    player.equip("Dharok's platebody", None).unwrap();
-    player.equip("Verac's plateskirt", None).unwrap();
-    player
-        .equip("Ring of suffering (i)", Some("Recoil"))
-        .unwrap();
-    player.equip("Fire cape", None).unwrap();
+    // player.equip("Verac's helm", None).unwrap();
+    // player.equip("Amulet of torture", None).unwrap();
+    // player.equip("Dharok's platebody", None).unwrap();
+    // player.equip("Verac's plateskirt", None).unwrap();
+    // player
+    //     .equip("Ring of suffering (i)", Some("Recoil"))
+    //     .unwrap();
+    // player.equip("Fire cape", None).unwrap();
     // player.stats.attack = Stat::new(92, None);
     // player.stats.strength = Stat::new(98, None);
     // player.stats.defence = Stat::new(91, None);
     // player.reset_current_stats(false);
-    player.equip("Noxious halberd", None).unwrap();
+    // player.equip("Noxious halberd", None).unwrap();
     // player.equip("Blade of saeldor (c)", None).unwrap();
     // player.equip("Dragon defender", None).unwrap();
     // player.equip("Bandos chestplate", None).unwrap();
     // player.equip("Bandos tassets", None).unwrap();
     // player.equip("Neitiznot faceguard", None).unwrap();
-    // player.equip("Oathplate chest", None).unwrap();
-    // player.equip("Oathplate legs", None).unwrap();
-    // player.equip("Oathplate helm", None).unwrap();
+    player.equip("Oathplate chest", None).unwrap();
+    player.equip("Oathplate legs", None).unwrap();
+    player.equip("Oathplate helm", None).unwrap();
     // player.equip("Berserker ring (i)", None).unwrap();
-    player.equip("Barrows gloves", None).unwrap();
+    // player.equip("Barrows gloves", None).unwrap();
     // player.equip("Dragon boots", None).unwrap();
     // player.equip("Bellator ring", None);
-    player.equip("Avernic treads (max)", None);
+    player.equip("Soulreaper axe", None).unwrap();
     player.update_bonuses();
     player.update_set_effects();
-    player.set_active_style(CombatStyle::Swipe);
+    player.set_active_style(CombatStyle::Hack);
 
     let vard = Monster::new("Vardorvis", Some("Post-quest")).expect("Error creating monster.");
     calc_active_player_rolls(&mut player, &vard);
 
-    let mut main_hand = GearSwitch::from(&player);
+    let mut main_hand = GearSwitch::new(SwitchType::Melee, &player, &vard);
     player.switches.push(main_hand);
 
     player.equip("Voidwaker", None).unwrap();
-    player.equip("Dragon defender", None).unwrap();
+    player.equip("Avernic defender", None).unwrap();
     player.set_active_style(CombatStyle::Slash);
     let vw_switch = GearSwitch::new(SwitchType::Spec("Voidwaker spec".into()), &player, &vard);
     let vw_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&vw_switch)
-        .with_monster_hp_above(100)
+        .with_monster_hp_below(50)
         .build();
     player.switches.push(vw_switch);
 
@@ -332,14 +333,14 @@ fn simulate_vardorvis() {
         &vard,
     );
     let bclaws_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&bclaws_switch)
-        .with_monster_hp_above(100)
+        .with_monster_hp_below(600)
         .build();
     player.switches.push(bclaws_switch);
 
     player.switch(&SwitchType::Melee);
     let spec_config = SpecConfig::new(
-        vec![bclaws_spec_strategy],
-        SpecRestorePolicy::RestoreAfter(5),
+        vec![vw_spec_strategy],
+        SpecRestorePolicy::RestoreAfter(10),
         Some(osrs::combat::spec::DeathCharge::Double),
         false,
     );

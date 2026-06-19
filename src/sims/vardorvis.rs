@@ -231,7 +231,7 @@ impl VardorvisFight {
                                 &mut self.player,
                                 &mut self.vard,
                                 &mut self.rng,
-                                &mut self.limiter,
+                                &self.limiter,
                                 spec_config,
                                 &mut self.config.spec_state,
                                 &(),

@@ -12,6 +12,7 @@ use crate::error::SimulationError;
 use crate::types::monster::{AttackType, Monster};
 use crate::types::player::GearSwitch;
 use crate::types::player::Player;
+use crate::types::player::SwitchType;
 use crate::utils::logging::FightLogger;
 use rand::Rng;
 use rand::rngs::SmallRng;
@@ -81,7 +82,8 @@ pub trait Mechanics {
 
             // Make sure the current set of gear is added to the player's gear switches to allow switching back
             if player.current_switch.is_none() {
-                let current_gear = GearSwitch::from(&*player);
+                let current_gear =
+                    GearSwitch::new(SwitchType::from(player.combat_type()), &*player, &*monster);
                 player.current_switch = Some(current_gear.switch_type.clone());
                 player.switches.push(current_gear);
             }
@@ -94,9 +96,9 @@ pub trait Mechanics {
 
             if logger.enabled {
                 logger.log_gear_switch(fight_vars.tick_counter, &strategy.switch_type);
-                let _ = logger.log_current_player_rolls(&player);
-                logger.log_current_player_stats(&player);
-                logger.log_current_gear(&*player);
+                let _ = logger.log_current_player_rolls(player);
+                logger.log_current_player_stats(player);
+                logger.log_current_gear(player);
             }
 
             let hit = (player.spec)(player, monster, rng, limiter);
@@ -120,8 +122,8 @@ pub trait Mechanics {
                     monster.stats.hitpoints.current,
                     monster.name(),
                 );
-                logger.log_current_monster_stats(&monster);
-                logger.log_current_monster_rolls(&monster);
+                logger.log_current_monster_stats(monster);
+                logger.log_current_monster_rolls(monster);
             }
 
             strategy.state.attempt_count += 1;
@@ -146,7 +148,7 @@ pub trait Mechanics {
 
             if logger.enabled {
                 logger.log_gear_switch(fight_vars.tick_counter, &previous_switch);
-                let _ = logger.log_current_player_rolls(&player);
+                let _ = logger.log_current_player_rolls(player);
             }
 
             return Ok(true);

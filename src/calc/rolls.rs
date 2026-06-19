@@ -403,8 +403,11 @@ fn calc_eff_melee_lvls(player: &Player) -> (u32, u32) {
 
     let att_pray_boost = player.prayers.attack;
     let str_pray_boost = player.prayers.strength;
-    let soulreaper_boost =
-        player.boosts.soulreaper_stacks * player.stats.strength.current * 6 / 100;
+    let soulreaper_boost = if player.is_wearing("Soulreaper axe", None) {
+        player.boosts.soulreaper_stacks * player.stats.strength.current * 6 / 100
+    } else {
+        0
+    };
 
     let mut eff_att = player.stats.attack.current * (100 + att_pray_boost) / 100 + att_stance_bonus;
 

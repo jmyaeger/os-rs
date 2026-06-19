@@ -16,7 +16,7 @@ pub fn max_melee_player() -> Player {
     player.equip("Torva platebody", None).unwrap();
     player.equip("Torva platelegs", None).unwrap();
     player.equip("Ferocious gloves", None).unwrap();
-    player.equip("Primordial boots", None).unwrap();
+    player.equip("Avernic treads (max)", None).unwrap();
     player.equip("Ghrazi rapier", None).unwrap();
     player.equip("Avernic defender", None).unwrap();
     player.equip("Rada's blessing 4", None).unwrap();

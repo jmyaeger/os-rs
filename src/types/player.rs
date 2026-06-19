@@ -112,6 +112,19 @@ pub enum SwitchType {
     ),
 }
 
+impl From<CombatType> for SwitchType {
+    fn from(value: CombatType) -> Self {
+        match value {
+            CombatType::Crush | CombatType::Slash | CombatType::Stab => SwitchType::Melee,
+            CombatType::Heavy | CombatType::Light | CombatType::Standard | CombatType::Ranged => {
+                SwitchType::Ranged
+            }
+            CombatType::Magic => SwitchType::Magic,
+            CombatType::None => panic!("CombatType::None cannot be converted to a SwitchType."),
+        }
+    }
+}
+
 fn serialize_rc_str<S>(rc: &Rc<str>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
@@ -164,6 +177,7 @@ pub struct GearSwitch {
     pub spec: SpecialAttackFn,
     pub att_rolls: PlayerAttRolls,
     pub max_hits: PlayerMaxHits,
+    pub soulreaper_max_hits: Option<[PlayerMaxHits; 6]>,
     pub def_rolls: PlayerDefRolls,
 }
 
@@ -177,6 +191,20 @@ impl GearSwitch {
         let attack = get_attack_functions(&player_copy);
         let spec = get_spec_attack_function(&player_copy);
 
+        let soulreaper_max_hits = if player.is_wearing("Soulreaper axe", None) {
+            let starting_stacks = player_copy.boosts.soulreaper_stacks;
+            let max_hits = std::array::from_fn(|stacks| {
+                player_copy.boosts.soulreaper_stacks = stacks as u32;
+                calc_active_player_rolls(&mut player_copy, monster);
+                player_copy.max_hits
+            });
+            player_copy.boosts.soulreaper_stacks = starting_stacks;
+            calc_active_player_rolls(&mut player_copy, monster);
+            Some(max_hits)
+        } else {
+            None
+        };
+
         Self {
             switch_type,
             gear: player_copy.gear,
@@ -189,35 +217,7 @@ impl GearSwitch {
             att_rolls: player_copy.att_rolls,
             max_hits: player_copy.max_hits,
             def_rolls: player_copy.def_rolls,
-        }
-    }
-}
-
-impl From<&Player> for GearSwitch {
-    fn from(player: &Player) -> Self {
-        let switch_type = match player.combat_type() {
-            CombatType::Crush | CombatType::Slash | CombatType::Stab => SwitchType::Melee,
-            CombatType::Ranged | CombatType::Heavy | CombatType::Light | CombatType::Standard => {
-                SwitchType::Ranged
-            }
-            CombatType::Magic => SwitchType::Magic,
-            _ => SwitchType::Custom("Unknown".into()),
-        };
-        let attack = get_attack_functions(player);
-        let spec = get_spec_attack_function(player);
-
-        Self {
-            switch_type,
-            gear: Rc::clone(&player.gear),
-            prayers: Rc::clone(&player.prayers),
-            spell: player.attrs.spell,
-            active_style: player.attrs.active_style,
-            set_effects: player.set_effects,
-            attack,
-            spec,
-            att_rolls: player.att_rolls,
-            max_hits: player.max_hits,
-            def_rolls: player.def_rolls,
+            soulreaper_max_hits,
         }
     }
 }
@@ -891,7 +891,11 @@ impl Player {
                 self.attack = switch.attack;
                 self.spec = switch.spec;
                 self.att_rolls = switch.att_rolls;
-                self.max_hits = switch.max_hits;
+                self.max_hits = switch
+                    .soulreaper_max_hits
+                    .as_ref()
+                    .map(|stacks| stacks[self.boosts.soulreaper_stacks.min(5) as usize])
+                    .unwrap_or(switch.max_hits);
                 self.def_rolls = switch.def_rolls;
                 self.current_switch = Some(switch.switch_type.clone());
                 self.combat_type =
@@ -1688,6 +1692,51 @@ mod test {
             Armor::new("Neitiznot faceguard", None).expect("Error creating equipment.");
         assert_eq!(player.gear.head.clone().unwrap(), neitiznot_faceguard);
         assert_eq!(player.bonuses, neitiznot_faceguard.bonuses);
+    }
+
+    #[test]
+    fn test_soulreaper_max_hit_is_restored_after_switching() {
+        let monster =
+            Monster::new("Vardorvis", Some("Post-quest")).expect("Error creating monster.");
+        let mut player = Player::new();
+
+        player.equip("Soulreaper axe", None).unwrap();
+        player.set_active_style(CombatStyle::Hack);
+        player.update_bonuses();
+        calc_active_player_rolls(&mut player, &monster);
+
+        let soulreaper_switch = GearSwitch::new(SwitchType::Melee, &player, &monster);
+        let unstacked_soulreaper_max_hit =
+            soulreaper_switch.max_hits.get(CombatType::Slash);
+
+        player.equip("Voidwaker", None).unwrap();
+        player.set_active_style(CombatStyle::Slash);
+        player.update_bonuses();
+        calc_active_player_rolls(&mut player, &monster);
+
+        let voidwaker_switch_type = SwitchType::Spec("Voidwaker spec".into());
+        let voidwaker_switch =
+            GearSwitch::new(voidwaker_switch_type.clone(), &player, &monster);
+        let voidwaker_max_hit = voidwaker_switch.max_hits.get(CombatType::Slash);
+
+        player.switches.push(soulreaper_switch);
+        player.switches.push(voidwaker_switch);
+        player.boosts.soulreaper_stacks = 5;
+
+        player.switch(&SwitchType::Melee).unwrap();
+        let stacked_soulreaper_max_hit = player.max_hits.get(CombatType::Slash);
+        assert!(stacked_soulreaper_max_hit > unstacked_soulreaper_max_hit);
+
+        player.switch(&voidwaker_switch_type).unwrap();
+        assert_eq!(player.boosts.soulreaper_stacks, 5);
+        assert_eq!(player.max_hits.get(CombatType::Slash), voidwaker_max_hit);
+
+        player.switch(&SwitchType::Melee).unwrap();
+        assert_eq!(player.boosts.soulreaper_stacks, 5);
+        assert_eq!(
+            player.max_hits.get(CombatType::Slash),
+            stacked_soulreaper_max_hit
+        );
     }
 
     #[test]
