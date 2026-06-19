@@ -3,10 +3,14 @@ use crate::combat::attacks::effects::CombatEffect;
 use crate::combat::limiters::Limiter;
 use crate::combat::simulation::FightResult;
 use crate::combat::simulation::FightVars;
+use crate::combat::spec::SpecCondition;
+use crate::combat::spec::SpecConfig;
+use crate::combat::spec::SpecState;
 use crate::combat::thralls::Thrall;
 use crate::constants::{self, THRALL_ATTACK_SPEED};
 use crate::error::SimulationError;
 use crate::types::monster::{AttackType, Monster};
+use crate::types::player::GearSwitch;
 use crate::types::player::Player;
 use crate::utils::logging::FightLogger;
 use rand::Rng;
@@ -56,6 +60,98 @@ pub trait Mechanics {
         fight_vars.hit_count += if hit.success { 1 } else { 0 };
         fight_vars.hit_amounts.push(hit.damage);
         fight_vars.attack_tick += player.gear.weapon.speed;
+    }
+
+    fn player_special_attack<C: SpecCondition>(
+        &self,
+        player: &mut Player,
+        monster: &mut Monster,
+        rng: &mut SmallRng,
+        limiter: &Option<Box<dyn Limiter>>,
+        spec_config: &mut SpecConfig<C>,
+        spec_state: &mut SpecState,
+        boss_state: &C::BossState,
+        fight_vars: &mut FightVars,
+        logger: &mut FightLogger,
+    ) -> Result<bool, SimulationError> {
+        for strategy in &mut spec_config.strategies {
+            if !strategy.can_execute(player, monster, boss_state) {
+                continue;
+            }
+
+            // Make sure the current set of gear is added to the player's gear switches to allow switching back
+            if player.current_switch.is_none() {
+                let current_gear = GearSwitch::from(&*player);
+                player.current_switch = Some(current_gear.switch_type.clone());
+                player.switches.push(current_gear);
+            }
+
+            // Store the previous gear set's label for switching back after the spec
+            let previous_switch = player.current_switch.clone().unwrap();
+
+            // Switch to the spec gear and perform the attack
+            player.switch(&strategy.switch_type)?;
+
+            if logger.enabled {
+                logger.log_gear_switch(fight_vars.tick_counter, &strategy.switch_type);
+                let _ = logger.log_current_player_rolls(&player);
+                logger.log_current_player_stats(&player);
+                logger.log_current_gear(&*player);
+            }
+
+            let hit = (player.spec)(player, monster, rng, limiter);
+
+            if logger.enabled {
+                logger.log_player_spec(
+                    fight_vars.tick_counter,
+                    hit.damage,
+                    hit.success,
+                    &strategy.switch_type,
+                );
+            }
+
+            player.state.first_attack = false;
+            monster.take_damage(hit.damage);
+
+            if logger.enabled {
+                logger.log_monster_damage(
+                    fight_vars.tick_counter,
+                    hit.damage,
+                    monster.stats.hitpoints.current,
+                    monster.name(),
+                );
+                logger.log_current_monster_stats(&monster);
+                logger.log_current_monster_rolls(&monster);
+            }
+
+            strategy.state.attempt_count += 1;
+            if hit.success {
+                strategy.state.success_count += 1;
+            }
+
+            handle_blood_fury(player, &hit, fight_vars, logger, rng);
+            scale_monster_hp_only(monster, true);
+            fight_vars.hit_attempts += 1;
+            fight_vars.hit_count += u32::from(hit.success);
+            fight_vars.hit_amounts.push(hit.damage);
+            fight_vars.attack_tick += player.gear.weapon.speed;
+
+            player.stats.spec.drain(strategy.spec_cost);
+            if !spec_state.spec_regen_timer.is_active() {
+                spec_state.spec_regen_timer.activate();
+            }
+
+            // Switch back to the previous set of gear
+            player.switch(&previous_switch)?;
+
+            if logger.enabled {
+                logger.log_gear_switch(fight_vars.tick_counter, &previous_switch);
+                let _ = logger.log_current_player_rolls(&player);
+            }
+
+            return Ok(true);
+        }
+        Ok(false)
     }
 
     fn monster_attack(

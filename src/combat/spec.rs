@@ -27,6 +27,7 @@ pub enum CoreCondition {
     TargetAttackReduction(u32),
     TargetStrengthReduction(u32),
     TargetRangedReduction(u32),
+    FirstAttackOnly,
 }
 
 impl SpecCondition for CoreCondition {
@@ -94,6 +95,7 @@ impl SpecCondition for CoreCondition {
                     .saturating_sub(monster.bonuses.defence.magic)
                     < *amt
             }
+            Self::FirstAttackOnly => player.state.first_attack,
         }
     }
 
@@ -313,6 +315,10 @@ impl<C: SpecCondition> SpecStrategyBuilder<C> {
 
     pub fn with_target_def_reduction(self, amount: u32) -> Self {
         self.with_condition(C::from_core(CoreCondition::TargetDefenceReduction(amount)))
+    }
+
+    pub fn on_first_attack_only(self) -> Self {
+        self.with_condition(C::from_core(CoreCondition::FirstAttackOnly))
     }
 
     pub fn build(self) -> SpecStrategy<C> {

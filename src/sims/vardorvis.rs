@@ -1,7 +1,9 @@
 use crate::calc::monster_scaling::{build_vard_scaling_table, scale_monster_hp_only};
+use crate::calc::rolls::calc_active_player_rolls;
 use crate::combat::limiters::Limiter;
 use crate::combat::mechanics::{Mechanics, handle_recoil};
 use crate::combat::simulation::{FightResult, FightVars, Simulation, assign_limiter};
+use crate::combat::spec::{CoreCondition, SpecConfig, SpecState};
 use crate::combat::thralls::Thrall;
 use crate::constants;
 use crate::error::SimulationError;
@@ -22,6 +24,8 @@ pub struct VardorvisConfig {
     pub eat_strategy: VardorvisEatStrategy,
     pub thralls: Option<Thrall>,
     pub logger: FightLogger,
+    pub spec_config: Option<SpecConfig<CoreCondition>>,
+    pub spec_state: SpecState,
 }
 
 impl Default for VardorvisConfig {
@@ -32,6 +36,8 @@ impl Default for VardorvisConfig {
             eat_strategy: VardorvisEatStrategy::EatAtHp(20),
             thralls: None,
             logger: FightLogger::new(false, "vardorvis").expect("Error initializing logger."),
+            spec_config: None,
+            spec_state: SpecState::default(),
         }
     }
 }
@@ -218,14 +224,41 @@ impl VardorvisFight {
                 .handle_eating(&mut self.config, &mut vars, &mut self.player);
 
             if vars.tick_counter == vars.attack_tick {
-                self.mechanics.player_attack(
-                    &mut self.player,
-                    &mut self.vard,
-                    &mut self.rng,
-                    &self.limiter,
-                    &mut vars,
-                    &mut self.config.logger,
-                );
+                let did_spec = if let Some(ref mut spec_config) = self.config.spec_config {
+                    if let Some(lowest) = spec_config.lowest_cost() {
+                        if self.player.stats.spec.value() >= lowest {
+                            self.mechanics.player_special_attack(
+                                &mut self.player,
+                                &mut self.vard,
+                                &mut self.rng,
+                                &mut self.limiter,
+                                spec_config,
+                                &mut self.config.spec_state,
+                                &(),
+                                &mut vars,
+                                &mut self.config.logger,
+                            )?
+                        } else {
+                            false
+                        }
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                };
+
+                if !did_spec {
+                    self.mechanics.player_attack(
+                        &mut self.player,
+                        &mut self.vard,
+                        &mut self.rng,
+                        &self.limiter,
+                        &mut vars,
+                        &mut self.config.logger,
+                    );
+                }
+
                 if logging_enabled {
                     self.config.logger.log_current_monster_stats(&self.vard);
                     self.config.logger.log_current_monster_rolls(&self.vard);
@@ -246,6 +279,18 @@ impl VardorvisFight {
 
             self.mechanics
                 .process_monster_effects(&mut self.vard, &vars, &mut self.config.logger);
+
+            self.config.spec_state.increment_spec(
+                &mut self.player,
+                vars.tick_counter,
+                &mut self.config.logger,
+            );
+            self.config.spec_state.increment_timers();
+            if let Some(ref spec_config) = self.config.spec_config {
+                self.config
+                    .spec_state
+                    .process_surge_potion(&mut self.player, spec_config);
+            }
 
             if vars.tick_counter == state.vardorvis_attack_tick {
                 self.mechanics.vardorvis_attack(
@@ -301,7 +346,27 @@ impl Simulation for VardorvisFight {
     }
 
     fn reset(&mut self) {
-        self.player.reset_current_stats(true);
+        self.player.state.first_attack = true;
+        self.player.state.last_attack_hit = true;
+
+        if let Some(ref mut spec_config) = self.config.spec_config {
+            let restore_spec = self
+                .config
+                .spec_state
+                .on_kill(&mut self.player, spec_config);
+            self.player.reset_current_stats(restore_spec);
+            if restore_spec {
+                // Assume that the player is not losing stacks between successive kills in a trip
+                // but does lose all stacks when resetting spec energy
+                // TODO: Make this a bit more flexible if it turns out that the new stack mechanics
+                // allow players to maintain any stacks when banking/resettin
+                self.player.boosts.soulreaper_stacks = 0;
+            }
+        } else {
+            self.player.reset_current_stats(false);
+        }
+        calc_active_player_rolls(&mut self.player, &self.vard);
+
         self.vard.reset();
     }
 }
