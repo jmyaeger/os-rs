@@ -321,7 +321,8 @@ fn simulate_vardorvis() {
     player.set_active_style(CombatStyle::Slash);
     let vw_switch = GearSwitch::new(SwitchType::Spec("Voidwaker spec".into()), &player, &vard);
     let vw_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&vw_switch)
-        .with_monster_hp_below(50)
+        // .with_monster_hp_below(50)
+        .not_on_first_attack()
         .build();
     player.switches.push(vw_switch);
 
@@ -333,14 +334,14 @@ fn simulate_vardorvis() {
         &vard,
     );
     let bclaws_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&bclaws_switch)
-        .with_monster_hp_below(500)
-        .with_monster_hp_above(200)
+        .with_monster_hp_below(50)
+        // .with_monster_hp_above(50)
         .build();
     player.switches.push(bclaws_switch);
 
     player.switch(&SwitchType::Melee);
     let spec_config = SpecConfig::new(
-        vec![bclaws_spec_strategy],
+        vec![vw_spec_strategy],
         SpecRestorePolicy::RestoreAfter(10),
         Some(osrs::combat::spec::DeathCharge::Double),
         false,

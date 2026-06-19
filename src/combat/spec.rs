@@ -201,6 +201,14 @@ impl<C: SpecCondition> SpecConfig<C> {
             }
         }
 
+        if conditions.contains(&C::from_core(CoreCondition::FirstAttackOnly))
+            && conditions.contains(&C::from_core(CoreCondition::NotFirstAttack))
+        {
+            return Err(
+                "Conflicting spec conditions: first attack only and not on first attack".into(),
+            );
+        }
+
         Ok(())
     }
 }
@@ -321,6 +329,10 @@ impl<C: SpecCondition> SpecStrategyBuilder<C> {
 
     pub fn on_first_attack_only(self) -> Self {
         self.with_condition(C::from_core(CoreCondition::FirstAttackOnly))
+    }
+
+    pub fn not_on_first_attack(self) -> Self {
+        self.with_condition(C::from_core(CoreCondition::NotFirstAttack))
     }
 
     pub fn build(self) -> SpecStrategy<C> {
