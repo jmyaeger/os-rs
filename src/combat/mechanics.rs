@@ -101,7 +101,15 @@ pub trait Mechanics {
                 logger.log_current_gear(player);
             }
 
-            let hit = (player.spec)(player, monster, rng, limiter);
+            let hit = if player.is_wearing("Voidwaker", None)
+                && monster.info.name == "Vardorvis"
+                && player.state.first_attack
+            {
+                // Vardorvis is immune to voidwaker spec as the first attack
+                Hit::inaccurate()
+            } else {
+                (player.spec)(player, monster, rng, limiter)
+            };
 
             if logger.enabled {
                 logger.log_player_spec(

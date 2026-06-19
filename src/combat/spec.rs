@@ -28,6 +28,7 @@ pub enum CoreCondition {
     TargetStrengthReduction(u32),
     TargetRangedReduction(u32),
     FirstAttackOnly,
+    NotFirstAttack,
 }
 
 impl SpecCondition for CoreCondition {
@@ -96,6 +97,7 @@ impl SpecCondition for CoreCondition {
                     < *amt
             }
             Self::FirstAttackOnly => player.state.first_attack,
+            Self::NotFirstAttack => !player.state.first_attack,
         }
     }
 

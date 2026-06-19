@@ -333,13 +333,14 @@ fn simulate_vardorvis() {
         &vard,
     );
     let bclaws_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&bclaws_switch)
-        .with_monster_hp_below(600)
+        .with_monster_hp_below(500)
+        .with_monster_hp_above(200)
         .build();
     player.switches.push(bclaws_switch);
 
     player.switch(&SwitchType::Melee);
     let spec_config = SpecConfig::new(
-        vec![vw_spec_strategy],
+        vec![bclaws_spec_strategy],
         SpecRestorePolicy::RestoreAfter(10),
         Some(osrs::combat::spec::DeathCharge::Double),
         false,
