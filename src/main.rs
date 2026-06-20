@@ -280,6 +280,13 @@ fn simulate_hunllef() {
 #[allow(unused)]
 fn simulate_vardorvis() {
     let mut player = loadouts::max_melee_player();
+    player.equip("Helm of neitiznot", None).unwrap();
+    player.equip("Amulet of fury", None).unwrap();
+    player.equip("Fighter torso", None).unwrap();
+    player.equip("Abyssal tentacle", None).unwrap();
+    player.set_active_style(CombatStyle::Lash);
+    player.equip("Torag's platelegs", None).unwrap();
+    player.equip("Fire cape", None).unwrap();
     // player.equip("Verac's helm", None).unwrap();
     // player.equip("Amulet of torture", None).unwrap();
     // player.equip("Dharok's platebody", None).unwrap();
@@ -294,21 +301,20 @@ fn simulate_vardorvis() {
     // player.reset_current_stats(false);
     // player.equip("Noxious halberd", None).unwrap();
     // player.equip("Blade of saeldor (c)", None).unwrap();
-    // player.equip("Dragon defender", None).unwrap();
+    player.equip("Dragon defender", None).unwrap();
     // player.equip("Bandos chestplate", None).unwrap();
     // player.equip("Bandos tassets", None).unwrap();
     // player.equip("Neitiznot faceguard", None).unwrap();
-    player.equip("Oathplate chest", None).unwrap();
-    player.equip("Oathplate legs", None).unwrap();
-    player.equip("Oathplate helm", None).unwrap();
-    // player.equip("Berserker ring (i)", None).unwrap();
-    // player.equip("Barrows gloves", None).unwrap();
-    // player.equip("Dragon boots", None).unwrap();
+    // player.equip("Oathplate chest", None).unwrap();
+    // player.equip("Oathplate legs", None).unwrap();
+    // player.equip("Oathplate helm", None).unwrap();
+    player.equip("Berserker ring (i)", None).unwrap();
+    player.equip("Barrows gloves", None).unwrap();
+    player.equip("Dragon boots", None).unwrap();
     // player.equip("Bellator ring", None);
-    player.equip("Soulreaper axe", None).unwrap();
+    // player.equip("Soulreaper axe", None).unwrap();
     player.update_bonuses();
     player.update_set_effects();
-    player.set_active_style(CombatStyle::Hack);
 
     let vard = Monster::new("Vardorvis", Some("Post-quest")).expect("Error creating monster.");
     calc_active_player_rolls(&mut player, &vard);
@@ -321,7 +327,7 @@ fn simulate_vardorvis() {
     player.set_active_style(CombatStyle::Slash);
     let vw_switch = GearSwitch::new(SwitchType::Spec("Voidwaker spec".into()), &player, &vard);
     let vw_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&vw_switch)
-        // .with_monster_hp_below(50)
+        .with_monster_hp_below(50)
         .not_on_first_attack()
         .build();
     player.switches.push(vw_switch);
@@ -339,17 +345,63 @@ fn simulate_vardorvis() {
         .build();
     player.switches.push(bclaws_switch);
 
+    player.equip("Dragon claws", None).unwrap();
+    player.set_active_style(CombatStyle::Slash);
+    let dclaws_switch =
+        GearSwitch::new(SwitchType::Spec("Dragon claws spec".into()), &player, &vard);
+    let dclaws_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&dclaws_switch)
+        .with_monster_hp_below(50)
+        // .with_monster_hp_above(50)
+        .build();
+    player.switches.push(dclaws_switch);
+
+    player.equip("Dragon dagger", Some("Unpoisoned")).unwrap();
+    player.equip("Dragon defender", None).unwrap();
+    player.set_active_style(CombatStyle::Stab);
+    let dds_switch = GearSwitch::new(
+        SwitchType::Spec("Dragon dagger spec".into()),
+        &player,
+        &vard,
+    );
+    let dds_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&dds_switch)
+        // .with_monster_hp_below(50)
+        .with_monster_hp_above(100)
+        .build();
+    player.switches.push(dds_switch);
+
+    player.equip("Arkan blade", None).unwrap();
+    player.set_active_style(CombatStyle::Slash);
+    let arkan_switch = GearSwitch::new(SwitchType::Spec("Arkan blade spec".into()), &player, &vard);
+    let arkan_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&arkan_switch)
+        // .with_monster_hp_below(50)
+        .with_monster_hp_above(100)
+        .build();
+    player.switches.push(arkan_switch);
+
+    player.equip("Crystal halberd", Some("Active")).unwrap();
+    player.set_active_style(CombatStyle::Swipe);
+    let chally_switch = GearSwitch::new(
+        SwitchType::Spec("Crystal halberd spec".into()),
+        &player,
+        &vard,
+    );
+    let chally_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&chally_switch)
+        .with_monster_hp_below(50)
+        // .with_monster_hp_above(100)
+        .build();
+    player.switches.push(chally_switch);
+
     player.switch(&SwitchType::Melee);
     let spec_config = SpecConfig::new(
-        vec![vw_spec_strategy],
-        SpecRestorePolicy::RestoreAfter(10),
+        vec![dds_spec_strategy],
+        SpecRestorePolicy::RestoreAfter(5),
         Some(osrs::combat::spec::DeathCharge::Double),
         false,
     );
 
     let fight_config = VardorvisConfig {
-        food_heal_amount: 22,
-        food_eat_delay: 3,
+        food_heal_amount: 18,
+        food_eat_delay: 2,
         eat_strategy: VardorvisEatStrategy::EatAtHp(10),
         thralls: Some(Thrall::GreaterMagic),
         logger: FightLogger::new(false, "vardorvis").expect("Error initializing logger."),

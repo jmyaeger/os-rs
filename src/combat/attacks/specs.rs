@@ -438,7 +438,7 @@ pub fn crystal_halberd_spec(
         if hit2.success {
             hit2.apply_transforms(player, monster, rng, limiter);
         }
-        hit.combine(&hit2);
+        hit = hit.combine(&hit2);
     }
 
     hit
@@ -1847,6 +1847,7 @@ pub fn get_spec_attack_function(player: &Player) -> AttackFn {
         "Crimson bludgeon" => crimson_bludgeon_spec,
         "Eye of ayak" => eye_of_ayak_spec,
         "Rosewood blowpipe" => rosewood_bp_spec,
+        "Arkan blade" => arkan_blade_spec,
         _ => player.attack,
     }
 }
