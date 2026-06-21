@@ -1281,7 +1281,11 @@ impl Player {
             | CombatEffect::Burn { tick_counter, .. }
             | CombatEffect::DelayedHeal { tick_counter, .. }
             | CombatEffect::DamageOverTime { tick_counter, .. } => tick_counter.is_some(),
-            CombatEffect::DelayedAttack { tick_delay, .. } => tick_delay.is_some(),
+            CombatEffect::DelayedAttack { tick_delay, .. }
+            | CombatEffect::DelayedBurn {
+                tick_delay,
+                burn_ticks: _,
+            } => tick_delay.is_some(),
         });
     }
 

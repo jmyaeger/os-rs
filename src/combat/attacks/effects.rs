@@ -6,32 +6,36 @@ use crate::error::MonsterError;
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub enum CombatEffect {
     Poison {
-        tick_counter: Option<i32>,
+        tick_counter: Option<u32>,
         severity: u32,
     },
     Venom {
-        tick_counter: Option<i32>,
+        tick_counter: Option<u32>,
         damage: u32,
     },
     Burn {
-        tick_counter: Option<i32>,
+        tick_counter: Option<u32>,
         stacks: Vec<u32>,
     },
     DelayedAttack {
-        tick_delay: Option<i32>,
+        tick_delay: Option<u32>,
         damage: u32,
     },
     DelayedHeal {
-        tick_delay: i32,
-        tick_counter: Option<i32>,
+        tick_delay: u32,
+        tick_counter: Option<u32>,
         num_heals: u32,
         heal: u32,
     },
+    DelayedBurn {
+        tick_delay: Option<u32>,
+        burn_ticks: u32,
+    },
     DamageOverTime {
-        tick_counter: Option<i32>,
-        tick_interval: i32,
+        tick_counter: Option<u32>,
+        tick_interval: u32,
         damage_per_hit: u32,
-        total_hits: i32,
+        total_hits: u32,
         apply_on_hit: bool,
     },
 }
@@ -58,6 +62,7 @@ impl CombatEffect {
                 num_heals,
                 heal,
             } => apply_delayed_heal(*tick_delay, tick_counter, num_heals, heal),
+            Self::DelayedBurn { .. } => 0, // handled in Monster::process_delayed_burns()
             Self::DamageOverTime {
                 tick_counter,
                 tick_interval,
@@ -81,7 +86,7 @@ pub struct Poison {
     pub severity: u32,
 }
 
-fn apply_poison(tick_counter: &mut Option<i32>, severity: &mut u32) -> u32 {
+fn apply_poison(tick_counter: &mut Option<u32>, severity: &mut u32) -> u32 {
     // If the severity is 0, the poison effect has worn off and the tick counter can be reset
     if *severity == 0 {
         *tick_counter = None;
@@ -104,7 +109,7 @@ fn apply_poison(tick_counter: &mut Option<i32>, severity: &mut u32) -> u32 {
     }
 }
 
-fn apply_venom(tick_counter: &mut Option<i32>, damage: &mut u32) -> u32 {
+fn apply_venom(tick_counter: &mut Option<u32>, damage: &mut u32) -> u32 {
     if let &mut Some(mut tick) = tick_counter {
         // Increment tick counter, apply venom damage every 30 ticks, and increase damage
         tick += 1;
@@ -123,7 +128,7 @@ fn apply_venom(tick_counter: &mut Option<i32>, damage: &mut u32) -> u32 {
     }
 }
 
-fn apply_burn(tick_counter: &mut Option<i32>, stacks: &mut Vec<u32>) -> u32 {
+fn apply_burn(tick_counter: &mut Option<u32>, stacks: &mut Vec<u32>) -> u32 {
     // Default to a damage of 0
     let mut damage = 0;
 
@@ -148,8 +153,9 @@ fn apply_burn(tick_counter: &mut Option<i32>, stacks: &mut Vec<u32>) -> u32 {
         // If tick counter is None, burn has just been inflicted
         *tick_counter = Some(0);
 
-        // Apply damage on the first active tick of the effect
-        damage += stacks.len() as u32;
+        // Damage is bugged to be 1 on the first hitsplat when multiple burns are applied
+        // on the same tick
+        damage = 1;
 
         // Decrease each stack by 1 and remove stacks with 0 values
         *stacks = stacks.iter().map(|&s| s.saturating_sub(1)).collect();
@@ -163,29 +169,29 @@ fn apply_burn(tick_counter: &mut Option<i32>, stacks: &mut Vec<u32>) -> u32 {
     damage
 }
 
-fn apply_delayed_attack(tick_delay: &mut Option<i32>, damage: &mut u32) -> u32 {
-    if let Some(delay) = tick_delay {
-        if *delay == 1 {
+fn apply_delayed_attack(tick_delay: &mut Option<u32>, damage: &mut u32) -> u32 {
+    match tick_delay {
+        Some(0) => {
             *tick_delay = None;
             *damage
-        } else {
+        }
+        Some(delay) => {
             *delay -= 1;
             0
         }
-    } else {
-        0
+        None => 0,
     }
 }
 
 fn apply_delayed_heal(
-    tick_delay: i32,
-    tick_counter: &mut Option<i32>,
+    tick_delay: u32,
+    tick_counter: &mut Option<u32>,
     num_heals: &mut u32,
     heal: &mut u32,
 ) -> u32 {
     // Effect is only active when tick counter is Some
     if let Some(counter) = tick_counter {
-        if *counter == 1 {
+        if *counter == 0 {
             if *num_heals == 1 {
                 // Set tick counter to None to indicate all heals are done
                 *tick_counter = None;
@@ -205,10 +211,10 @@ fn apply_delayed_heal(
 }
 
 fn apply_damage_over_time(
-    tick_counter: &mut Option<i32>,
-    tick_interval: &mut i32,
+    tick_counter: &mut Option<u32>,
+    tick_interval: &mut u32,
     damage_per_hit: &mut u32,
-    total_hits: &mut i32,
+    total_hits: &mut u32,
     apply_on_hit: &mut bool,
 ) -> u32 {
     if let Some(tick) = tick_counter {

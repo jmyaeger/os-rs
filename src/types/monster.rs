@@ -1020,6 +1020,46 @@ impl Monster {
             .is_some_and(|v| v.contains(version))
     }
 
+    pub fn active_burn_stacks(&self) -> u32 {
+        match self
+            .active_effects
+            .iter()
+            .find(|effect| matches!(effect, CombatEffect::Burn { .. }))
+        {
+            Some(CombatEffect::Burn { stacks, .. }) => stacks.len() as u32,
+            _ => 0,
+        }
+    }
+
+    pub fn process_delayed_burns(&mut self) {
+        let mut due_burns = vec![];
+
+        self.active_effects.retain_mut(|effect| {
+            let CombatEffect::DelayedBurn {
+                tick_delay,
+                burn_ticks,
+            } = effect
+            else {
+                return true;
+            };
+            match tick_delay {
+                Some(0) => {
+                    due_burns.push(*burn_ticks);
+                    false
+                }
+                Some(delay) => {
+                    *delay = delay.saturating_sub(1);
+                    true
+                }
+                None => false,
+            }
+        });
+
+        for burn_ticks in due_burns {
+            self.add_burn_stack(burn_ticks);
+        }
+    }
+
     pub fn add_burn_stack(&mut self, burn_ticks: u32) {
         // Add one burn effect stack, up to a maximum of 5 concurrent stacks
         match self
@@ -1034,10 +1074,24 @@ impl Monster {
                 }
             }
             _ => self.active_effects.push(CombatEffect::Burn {
-                tick_counter: Some(0),
+                tick_counter: None,
                 stacks: vec![burn_ticks],
             }),
         }
+    }
+
+    pub fn add_delayed_burn_stack(&mut self, burn_ticks: u32, tick_delay: u32) {
+        self.active_effects.push(CombatEffect::DelayedBurn {
+            tick_delay: Some(tick_delay),
+            burn_ticks,
+        })
+    }
+
+    pub fn add_delayed_attack(&mut self, tick_delay: u32, damage: u32) {
+        self.active_effects.push(CombatEffect::DelayedAttack {
+            tick_delay: Some(tick_delay),
+            damage,
+        })
     }
 
     pub fn clear_inactive_effects(&mut self) {
@@ -1048,7 +1102,11 @@ impl Monster {
             | CombatEffect::Burn { tick_counter, .. }
             | CombatEffect::DelayedHeal { tick_counter, .. }
             | CombatEffect::DamageOverTime { tick_counter, .. } => tick_counter.is_some(),
-            CombatEffect::DelayedAttack { tick_delay, .. } => tick_delay.is_some(),
+            CombatEffect::DelayedAttack { tick_delay, .. }
+            | CombatEffect::DelayedBurn {
+                tick_delay,
+                burn_ticks: _,
+            } => tick_delay.is_some(),
         });
     }
 

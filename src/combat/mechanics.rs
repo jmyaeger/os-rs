@@ -254,6 +254,7 @@ pub trait Mechanics {
         logger: &mut FightLogger,
     ) {
         // Process effects and apply damage
+        monster.process_delayed_burns();
         let mut effect_damage = 0;
         for effect in &mut monster.active_effects {
             match effect {

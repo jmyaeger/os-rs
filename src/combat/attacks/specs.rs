@@ -176,12 +176,12 @@ pub fn ancient_gs_spec(
         // Add delayed attack and heal if the hit is successful
         hit.apply_transforms(player, monster, rng, limiter);
         monster.active_effects.push(CombatEffect::DelayedAttack {
-            tick_delay: Some(9),
+            tick_delay: Some(8),
             damage: 25,
         });
         player.active_effects.push(CombatEffect::DelayedHeal {
             tick_delay: 9,
-            tick_counter: Some(9),
+            tick_counter: Some(8),
             num_heals: 1,
             heal: 25,
         });
@@ -1211,20 +1211,16 @@ pub fn burning_claw_spec(
         let mut hit3 = hit2.clone();
 
         hit1.apply_transforms(player, monster, rng, limiter);
-        hit1.apply_flat_armour(monster);
         hit2.apply_transforms(player, monster, rng, limiter);
-        hit2.apply_flat_armour(monster);
         hit3.apply_transforms(player, monster, rng, limiter);
-        hit3.apply_flat_armour(monster);
 
         // 15% chance for each hit to apply a burn
-        for _ in 0..3 {
-            if !monster.is_immune_to_normal_burn() && rng.random::<f64>() <= 0.15 {
-                monster.add_burn_stack(10);
-            }
-        }
+        apply_bclaw_burns(monster, rng, 0.15);
 
-        return hit1.combine(&hit2).combine(&hit3);
+        // Third hit occurs a tick later
+        monster.add_delayed_attack(1, hit3.damage);
+
+        return hit1.combine(&hit2);
     }
 
     // Second accuracy roll
@@ -1239,20 +1235,16 @@ pub fn burning_claw_spec(
         let mut hit3 = hit2.clone();
 
         hit1.apply_transforms(player, monster, rng, limiter);
-        hit1.apply_flat_armour(monster);
         hit2.apply_transforms(player, monster, rng, limiter);
-        hit2.apply_flat_armour(monster);
         hit3.apply_transforms(player, monster, rng, limiter);
-        hit3.apply_flat_armour(monster);
 
         // 30% chance for each hit to apply a burn
-        for _ in 0..3 {
-            if !monster.is_immune_to_normal_burn() && rng.random::<f64>() <= 0.3 {
-                monster.add_burn_stack(10);
-            }
-        }
+        apply_bclaw_burns(monster, rng, 0.3);
 
-        return hit1.combine(&hit2).combine(&hit3);
+        // Third hit occurs a tick later
+        monster.add_delayed_attack(1, hit3.damage);
+
+        return hit1.combine(&hit2);
     }
 
     // Third accuracy roll
@@ -1267,20 +1259,16 @@ pub fn burning_claw_spec(
         let mut hit3 = Hit::accurate(total_damage - 2);
 
         hit1.apply_transforms(player, monster, rng, limiter);
-        hit1.apply_flat_armour(monster);
         hit2.apply_transforms(player, monster, rng, limiter);
-        hit2.apply_flat_armour(monster);
         hit3.apply_transforms(player, monster, rng, limiter);
-        hit3.apply_flat_armour(monster);
 
         // 45% chance for each hit to apply a burn
-        for _ in 0..3 {
-            if !monster.is_immune_to_normal_burn() && rng.random::<f64>() <= 0.45 {
-                monster.add_burn_stack(10);
-            }
-        }
+        apply_bclaw_burns(monster, rng, 0.45);
 
-        return hit1.combine(&hit2).combine(&hit3);
+        // Third hit occurs a tick later
+        monster.add_delayed_attack(1, hit3.damage);
+
+        return hit1.combine(&hit2);
     }
 
     // If all accuracy rolls fail
@@ -1289,22 +1277,38 @@ pub fn burning_claw_spec(
         // 2/5 chance of 1-0-0
         let mut hit = Hit::accurate(1);
         hit.apply_transforms(player, monster, rng, limiter);
-        hit.apply_flat_armour(monster);
 
         hit
     } else if miss_roll < 4 {
         // 2/5 chance of 1-1-0
         let mut hit = Hit::accurate(1);
         hit.apply_transforms(player, monster, rng, limiter);
-        hit.apply_flat_armour(monster);
         let mut hit2 = Hit::accurate(1);
         hit2.apply_transforms(player, monster, rng, limiter);
-        hit2.apply_flat_armour(monster);
 
         hit.combine(&hit2)
     } else {
         // 1/5 chance of 0-0-0
         Hit::inaccurate()
+    }
+}
+
+fn apply_bclaw_burns(monster: &mut Monster, rng: &mut SmallRng, burn_chance: f64) {
+    if !monster.is_immune_to_normal_burn() {
+        let hit1_burn = rng.random::<f64>() <= burn_chance;
+        let hit2_burn = rng.random::<f64>() <= burn_chance;
+        let hit3_burn = rng.random::<f64>() <= burn_chance;
+
+        if hit1_burn {
+            monster.add_burn_stack(10);
+        }
+        if hit2_burn {
+            monster.add_burn_stack(10);
+        }
+        if hit3_burn {
+            // Third hit occurs on the next tick, so the burn stack is added a tick later as well
+            monster.add_delayed_burn_stack(10, 1);
+        }
     }
 }
 

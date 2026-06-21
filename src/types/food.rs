@@ -1,4 +1,3 @@
-#![allow(unused)]
 use crate::combat::attacks::effects::CombatEffect;
 use crate::types::player::Player;
 use std::collections::HashMap;
