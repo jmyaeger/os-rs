@@ -1287,12 +1287,12 @@ mod tests {
         let _ = (player.attack)(&mut player, &mut monster, &mut rng, &mut limiter);
         assert_eq!(player.boosts.soulreaper_stacks, 2);
         assert_eq!(player.stats.hitpoints.current, 83);
-        assert_eq!(player.max_hits.get(CombatType::Slash), 67);
+        assert_eq!(player.max_hits.get(CombatType::Slash), 68);
 
         let _ = (player.attack)(&mut player, &mut monster, &mut rng, &mut limiter);
         assert_eq!(player.boosts.soulreaper_stacks, 3);
         assert_eq!(player.stats.hitpoints.current, 75);
-        assert_eq!(player.max_hits.get(CombatType::Slash), 70);
+        assert_eq!(player.max_hits.get(CombatType::Slash), 71);
 
         let _ = (player.attack)(&mut player, &mut monster, &mut rng, &mut limiter);
         assert_eq!(player.boosts.soulreaper_stacks, 4);

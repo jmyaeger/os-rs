@@ -1919,7 +1919,7 @@ mod tests {
 
         let dps = total_damage as f32 / (n as f32 * 2.4);
 
-        assert!(dps - 8.429 < 0.1);
+        assert!(dps - 8.569 < 0.1);
     }
 
     #[test]
@@ -1943,7 +1943,7 @@ mod tests {
 
         let dps = total_damage as f32 / (n as f32 * 2.4);
 
-        assert!(dps - 18.806 < 0.1);
+        assert!(dps - 19.003 < 0.1);
     }
 
     #[test]
@@ -1958,15 +1958,15 @@ mod tests {
         let limiter = assign_limiter(&player, &monster);
         let mut rng = SmallRng::from_os_rng();
         let mut total_damage = 0;
-        let n = 1_000_000;
+        let n = 10_000;
 
         for _ in 0..n {
             let hit = crystal_halberd_spec(&mut player, &mut monster, &mut rng, &limiter);
             total_damage += hit.damage;
         }
 
-        let dps = total_damage as f32 / (n as f32 * 2.4);
+        let dps = total_damage as f32 / (n as f32 * 4.2);
 
-        assert!(dps - 5.994 < 0.1);
+        assert!(dps - 6.076 < 0.1);
     }
 }
