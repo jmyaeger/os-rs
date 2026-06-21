@@ -803,7 +803,7 @@ impl Monster {
     }
 
     pub fn is_freezable(&self) -> bool {
-        self.immunities.freeze != 100 && !self.info.freeze_duration == 0
+        self.immunities.freeze != 100 && self.info.freeze_duration == 0
     }
 
     pub fn is_immune_to_weak_burn(&self) -> bool {

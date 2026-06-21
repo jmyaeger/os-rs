@@ -93,14 +93,8 @@ impl Hit {
     }
 
     pub fn apply_flat_armour(&mut self, monster: &Monster) {
-        // Subtract flat armour from damage, post-roll (clamping at 1 damage)
-        if monster.bonuses.flat_armour > 0 {
-            self.damage = max(
-                0,
-                self.damage
-                    .saturating_sub(monster.bonuses.flat_armour.try_into().unwrap_or(0)),
-            );
-        }
+        // Subtract flat armour from damage, post-roll
+        self.damage = max(0, self.damage as i32 - monster.bonuses.flat_armour) as u32;
     }
 
     pub fn apply_limiters(&mut self, rng: &mut SmallRng, limiter: &Option<Box<dyn Limiter>>) {
@@ -203,7 +197,8 @@ pub fn fang_attack(
     let (damage, success) = if att_roll1 > def_roll1 {
         // Skip second roll if first roll was successful
         (damage_roll(min_hit, max_hit, rng), true)
-    } else {
+    } else if player.combat_type() == CombatType::Stab {
+        // Second accuracy roll occurs only if using stab
         let att_roll2 = accuracy_roll(max_att_roll, rng);
 
         // Only re-roll defense if in ToA
@@ -217,6 +212,8 @@ pub fn fang_attack(
         } else {
             (0, false)
         }
+    } else {
+        (0, false)
     };
 
     let mut hit = Hit::new(damage, success);
@@ -298,7 +295,7 @@ pub fn veracs_flail_attack(
     let combat_type = player.combat_type();
     if player.set_effects.full_veracs && rng.random_range(0..4) == 0 {
         // Set effect rolls 25% chance to guarantee hit (minimum 1 damage)
-        let mut hit = Hit::accurate(1 + damage_roll(1, player.max_hits.get(combat_type) + 1, rng));
+        let mut hit = Hit::accurate(damage_roll(1, player.max_hits.get(combat_type) + 1, rng));
         hit.apply_transforms(player, monster, rng, limiter);
         hit
     } else {
@@ -318,7 +315,7 @@ pub fn karils_crossbow_attack(
     {
         // Set effect rolls 25% chance to hit an additional time for half the first hit's damage
         let hit1 = standard_attack(player, monster, rng, limiter);
-        let hit2 = Hit::new(hit1.damage / 2, true);
+        let hit2 = Hit::new(hit1.damage / 2, hit1.success);
         hit1.combine(&hit2)
     } else {
         standard_attack(player, monster, rng, limiter)
@@ -410,11 +407,16 @@ pub fn keris_attack(
     rng: &mut SmallRng,
     limiter: &Option<Box<dyn Limiter>>,
 ) -> Hit {
-    let mut hit = standard_attack(player, monster, rng, limiter);
+    let info = AttackInfo::new(player, monster);
+    let mut hit = base_attack(&info, rng, false);
 
-    // 1/51 chance to deal triple damage (post-roll)
-    if monster.is_kalphite() && rng.random_range(0..51) == 0 {
-        hit.damage *= 3;
+    if hit.success {
+        // 1/51 chance to deal triple damage (post-roll)
+        if monster.is_kalphite() && rng.random_range(0..51) == 0 {
+            hit.damage *= 3;
+        }
+
+        hit.apply_transforms(player, monster, rng, limiter);
     }
 
     hit
@@ -436,14 +438,14 @@ pub fn yellow_keris_attack(
 
     let mut hit = base_attack(&info, rng, false);
 
+    if hit.success {
+        hit.apply_transforms(player, monster, rng, limiter);
+    }
+
     if monster.stats.hitpoints.current.saturating_sub(hit.damage) == 0 && monster.is_toa_monster() {
         // Killing a ToA monster heals the player by 12 and costs 5 prayer points
         player.heal(12, Some(player.stats.hitpoints.base / 5));
         player.stats.prayer.drain(5);
-    }
-
-    if hit.success {
-        hit.apply_transforms(player, monster, rng, limiter);
     }
 
     hit
@@ -520,7 +522,7 @@ pub fn emerald_bolt_attack(
 
     let hit = standard_attack(player, monster, rng, limiter);
 
-    if hit.success && rng.random::<f64>() <= proc_chance {
+    if hit.success && !monster.immunities.poison && rng.random::<f64>() <= proc_chance {
         // TODO: Change this to use a CombatEffect
         monster.info.poison_severity = poison_severity;
     }
@@ -654,8 +656,8 @@ pub fn smoke_spell_attack(
     rng: &mut SmallRng,
     limiter: &Option<Box<dyn Limiter>>,
 ) -> Hit {
-    // Assuming that it always applies poison if the monster is not immune
-    if !monster.immunities.poison {
+    let hit = standard_attack(player, monster, rng, limiter);
+    if hit.success && !monster.immunities.poison {
         monster.info.poison_severity =
             match (player.is_wearing_ancient_spectre(), player.attrs.spell) {
                 (
@@ -677,8 +679,7 @@ pub fn smoke_spell_attack(
                 _ => 0,
             };
     }
-
-    standard_attack(player, monster, rng, limiter)
+    hit
 }
 
 pub fn shadow_spell_attack(
@@ -769,6 +770,7 @@ pub fn ice_spell_attack(
     if monster.is_freezable() {
         // Monster is freezable if not immune and not currently frozen or on cooldown
         let mut info = AttackInfo::new(player, monster);
+        info.apply_brimstone_ring(player, rng);
 
         if player.is_wearing("Ice ancient sceptre", None) {
             // Ice ancient sceptre is 10% more accurate on unfrozen, freezable targets
@@ -855,15 +857,20 @@ pub fn gadderhammer_attack(
     rng: &mut SmallRng,
     limiter: &Option<Box<dyn Limiter>>,
 ) -> Hit {
-    let mut hit = standard_attack(player, monster, rng, limiter);
+    let info = AttackInfo::new(player, monster);
+    let mut hit = base_attack(&info, rng, false);
 
-    if hit.success && monster.is_shade() {
-        // 25% damage boost with 5% chance to double unboosted damage on shades (all post-roll)
-        if rng.random_range(0..20) == 0 {
-            hit.damage *= 2;
-        } else {
-            hit.damage = hit.damage * 5 / 4;
+    if hit.success {
+        if monster.is_shade() {
+            // 25% damage boost with 5% chance to double unboosted damage on shades (all post-roll)
+            if rng.random_range(0..20) == 0 {
+                hit.damage *= 2;
+            } else {
+                hit.damage = hit.damage * 5 / 4;
+            }
         }
+
+        hit.apply_transforms(player, monster, rng, limiter);
     }
 
     hit
@@ -997,17 +1004,24 @@ pub fn demonbane_spell_attack(
     rng: &mut SmallRng,
     limiter: &Option<Box<dyn Limiter>>,
 ) -> Hit {
-    let mut hit = standard_attack(player, monster, rng, limiter);
-    if player.boosts.mark_of_darkness {
-        let damage_boost = if player.is_wearing("Purging staff", None) {
-            50
-        } else {
-            25
-        };
-        let added_damage = rolls::get_demonbane_factor(100, monster)
-            .multiply_to_int(hit.damage * damage_boost / 100);
-        hit.damage += added_damage;
+    let info = AttackInfo::new(player, monster);
+    let mut hit = base_attack(&info, rng, false);
+
+    if hit.success {
+        if player.boosts.mark_of_darkness && monster.is_demon() {
+            let damage_boost = if player.is_wearing("Purging staff", None) {
+                50
+            } else {
+                25
+            };
+            let added_damage = rolls::get_demonbane_factor(100, monster)
+                .multiply_to_int(hit.damage * damage_boost / 100);
+            hit.damage += added_damage;
+        }
+
+        hit.apply_transforms(player, monster, rng, limiter);
     }
+
     hit
 }
 
