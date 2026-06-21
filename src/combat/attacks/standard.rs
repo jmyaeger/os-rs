@@ -92,7 +92,7 @@ impl Hit {
         Hit::new(0, false)
     }
 
-    fn apply_flat_armour(&mut self, monster: &Monster) {
+    pub fn apply_flat_armour(&mut self, monster: &Monster) {
         // Subtract flat armour from damage, post-roll (clamping at 1 damage)
         if monster.bonuses.flat_armour > 0 {
             self.damage = max(

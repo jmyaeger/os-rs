@@ -2,9 +2,10 @@ use crate::calc::rolls::calc_active_player_rolls;
 use crate::combat::attacks::effects::CombatEffect;
 use crate::combat::attacks::standard::{
     AttackFn, AttackInfo, Hit, accuracy_roll, base_attack, damage_roll, defence_roll,
+    standard_attack,
 };
 use crate::combat::limiters::Limiter;
-use crate::constants::{IMMUNE_TO_MAGIC_MONSTERS, IMMUNE_TO_STAT_DRAIN, VERZIK_IDS};
+use crate::constants;
 use crate::types::equipment::CombatType;
 use crate::types::monster::{CombatStat, Monster, StatDrain};
 use crate::types::player::Player;
@@ -76,16 +77,13 @@ pub fn dragon_crossbow_spec(
     rng: &mut SmallRng,
     limiter: &Option<Box<dyn Limiter>>,
 ) -> Hit {
-    let mut info = AttackInfo::new(player, monster);
+    let mut hit = standard_attack(player, monster, rng, limiter);
 
-    // Boost max hit by 20%
-    info.max_hit = info.max_hit * 6 / 5;
-
-    let damage = damage_roll(info.min_hit, info.max_hit, rng);
-
-    // Hit is always successful
-    let mut hit = Hit::accurate(damage);
-    hit.apply_transforms(player, monster, rng, limiter);
+    if hit.success {
+        // Damage on the primary target is boosted post-roll by 20%
+        hit.damage = hit.damage * 6 / 5;
+        hit.apply_transforms(player, monster, rng, limiter);
+    }
 
     hit
 }
@@ -207,10 +205,7 @@ pub fn eldritch_staff_spec(
         .unwrap_or_else(|_| panic!("Error setting spell to Invocate."));
     calc_active_player_rolls(player, monster);
 
-    // Perform an accurate hit
-    let info = AttackInfo::new(player, monster);
-    let mut hit = Hit::accurate(damage_roll(info.min_hit, info.max_hit, rng));
-    hit.apply_transforms(player, monster, rng, limiter);
+    let hit = standard_attack(player, monster, rng, limiter);
 
     // Restore prayer by half the damage, up to 120 prayer points
     player.restore_prayer(hit.damage / 2, Some(120));
@@ -303,19 +298,13 @@ pub fn bgs_spec(
     if hit.success {
         hit.damage = max(1, hit.damage);
 
-        if !IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
-            let cap = if monster.info.name.contains("Tekton") && !hit.success {
-                Some(10)
-            } else {
-                None
-            };
-
+        if !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
             let stat_order = vec![
-                StatDrain::new(CombatStat::Defence, cap),
-                StatDrain::new(CombatStat::Strength, cap),
-                StatDrain::new(CombatStat::Attack, cap),
-                StatDrain::new(CombatStat::Magic, cap),
-                StatDrain::new(CombatStat::Ranged, cap),
+                StatDrain::new(CombatStat::Defence, None),
+                StatDrain::new(CombatStat::Strength, None),
+                StatDrain::new(CombatStat::Attack, None),
+                StatDrain::new(CombatStat::Magic, None),
+                StatDrain::new(CombatStat::Ranged, None),
             ];
 
             monster.drain_stats_in_order(hit.damage, stat_order);
@@ -323,6 +312,9 @@ pub fn bgs_spec(
 
         // Other transforms happen after drains
         hit.apply_transforms(player, monster, rng, limiter);
+    } else if monster.info.name.contains("Tekton") {
+        // Missing a BGS spec on Tekton still drains 10 defence
+        monster.drain_stat(&CombatStat::Defence, 10, None);
     }
 
     hit
@@ -354,55 +346,57 @@ pub fn bulwark_spec(
         if hit2.success {
             hit2.apply_transforms(player, monster, rng, limiter);
         }
-        hit.combine(&hit2);
+        hit = hit.combine(&hit2);
 
-        // Reverse order of priority so that attack gets set to highest if it's equal to the other highest stat(s)
-        let stats = vec![
-            CombatStat::Magic,
-            CombatStat::Ranged,
-            CombatStat::Strength,
-            CombatStat::Attack,
-        ];
+        if hit.success {
+            // In order of priority so that attack gets set to highest if it's equal to the other highest stat(s)
+            let stats = vec![
+                CombatStat::Attack,
+                CombatStat::Strength,
+                CombatStat::Ranged,
+                CombatStat::Magic,
+            ];
 
-        // Find the highest stat of the monster
-        let mut highest_stat = (CombatStat::Attack, 0);
-        for stat in stats {
-            match stat {
-                CombatStat::Attack => {
-                    if monster.stats.attack.current > highest_stat.1 {
-                        highest_stat = (stat, monster.stats.attack.current);
+            // Find the highest stat of the monster
+            let mut highest_stat = (CombatStat::Attack, 0);
+            for stat in stats {
+                match stat {
+                    CombatStat::Attack => {
+                        if monster.stats.attack.current > highest_stat.1 {
+                            highest_stat = (stat, monster.stats.attack.current);
+                        }
                     }
-                }
-                CombatStat::Strength => {
-                    if monster.stats.strength.current > highest_stat.1 {
-                        highest_stat = (stat, monster.stats.strength.current);
+                    CombatStat::Strength => {
+                        if monster.stats.strength.current > highest_stat.1 {
+                            highest_stat = (stat, monster.stats.strength.current);
+                        }
                     }
-                }
-                CombatStat::Ranged => {
-                    if monster.stats.ranged.current > highest_stat.1 {
-                        highest_stat = (stat, monster.stats.ranged.current);
+                    CombatStat::Ranged => {
+                        if monster.stats.ranged.current > highest_stat.1 {
+                            highest_stat = (stat, monster.stats.ranged.current);
+                        }
                     }
-                }
-                CombatStat::Magic => {
-                    if monster.stats.magic.current > highest_stat.1 {
-                        highest_stat = (stat, monster.stats.magic.current);
+                    CombatStat::Magic => {
+                        if monster.stats.magic.current > highest_stat.1 {
+                            highest_stat = (stat, monster.stats.magic.current);
+                        }
                     }
+                    _ => unreachable!(),
                 }
-                _ => unreachable!(),
             }
-        }
 
-        // If either attack or strength is the highest stat, drain both of them by 5%
-        if highest_stat.0 == CombatStat::Attack || highest_stat.0 == CombatStat::Strength {
-            monster.drain_stat(&CombatStat::Attack, monster.stats.attack.base / 20, None);
-            monster.drain_stat(
-                &CombatStat::Strength,
-                monster.stats.strength.base / 20,
-                None,
-            );
-        } else {
-            // Otherwise, drain the highest stat by 5%
-            monster.drain_stat(&highest_stat.0, highest_stat.1 / 20, None);
+            // If either attack or strength is the highest stat, drain both of them by 5%
+            if highest_stat.0 == CombatStat::Attack || highest_stat.0 == CombatStat::Strength {
+                monster.drain_stat(&CombatStat::Attack, monster.stats.attack.base / 20, None);
+                monster.drain_stat(
+                    &CombatStat::Strength,
+                    monster.stats.strength.base / 20,
+                    None,
+                );
+            } else {
+                // Otherwise, drain the highest stat by 5%
+                monster.drain_stat(&highest_stat.0, highest_stat.1 / 20, None);
+            }
         }
     }
 
@@ -483,12 +477,12 @@ pub fn accursed_sceptre_spec(
         let magic_level_cap = monster.stats.magic.base - monster.stats.magic.base * 15 / 100;
 
         if monster.stats.defence.current > def_level_cap {
-            let def_drain_cap = monster.stats.defence.base - def_level_cap;
+            let def_drain_cap = monster.stats.defence.current - def_level_cap;
             monster.drain_stat(&CombatStat::Defence, def_drain_cap, Some(def_level_cap));
         }
 
         if monster.stats.magic.current > magic_level_cap {
-            let magic_drain_cap = monster.stats.magic.base - magic_level_cap;
+            let magic_drain_cap = monster.stats.magic.current - magic_level_cap;
             monster.drain_stat(&CombatStat::Magic, magic_drain_cap, Some(magic_level_cap));
         }
     }
@@ -562,10 +556,9 @@ pub fn barrelchest_anchor_spec(
         // Stat drains happen before transforms, according to Mod Ash
         let drain_order = vec![
             StatDrain::new(CombatStat::Defence, None),
-            StatDrain::new(CombatStat::Strength, None),
             StatDrain::new(CombatStat::Attack, None),
-            StatDrain::new(CombatStat::Magic, None),
             StatDrain::new(CombatStat::Ranged, None),
+            StatDrain::new(CombatStat::Magic, None),
         ];
         monster.drain_stats_in_order(hit.damage / 10, drain_order);
 
@@ -596,7 +589,7 @@ pub fn dorgeshuun_weapon_spec(
 
         // Drains defence by damage, but only if it hasn't been drained already
         if monster.stats.defence.current == monster.stats.defence.base
-            && !IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default())
+            && !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default())
         {
             monster.drain_stat(&CombatStat::Defence, hit.damage, None);
         }
@@ -673,7 +666,7 @@ pub fn dragon_warhammer_spec(
         if hit.success {
             hit.apply_transforms(player, monster, rng, limiter);
 
-            if !IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
+            if !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
                 monster.drain_stat(&CombatStat::Defence, def_drain, None);
             }
         }
@@ -699,7 +692,7 @@ pub fn seercull_spec(
     // Stat drain is determined from damage roll after 0 -> 1 transform
     hit.damage = max(hit.damage, 1);
 
-    if !IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
+    if !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
         monster.drain_stat(&CombatStat::Magic, hit.damage, None);
     }
 
@@ -818,7 +811,7 @@ pub fn dawnbringer_spec(
     _limiter: &Option<Box<dyn Limiter>>,
 ) -> Hit {
     // Rolls 75-150 damage regardless of bonuses or levels, but only on Verzik P1
-    if VERZIK_IDS.contains(&monster.id_with_default()) {
+    if constants::VERZIK_P1_IDS.contains(&monster.id_with_default()) {
         Hit::accurate(damage_roll(75, 150, rng))
     } else {
         Hit::inaccurate()
@@ -1125,9 +1118,13 @@ pub fn dragon_claw_spec(
 
         // In-game tests indicate accurate zeros are not transformed to 1s
         hit1.apply_limiters(rng, limiter);
+        hit1.apply_flat_armour(monster);
         hit2.apply_limiters(rng, limiter);
+        hit2.apply_flat_armour(monster);
         hit3.apply_limiters(rng, limiter);
+        hit3.apply_flat_armour(monster);
         hit4.apply_limiters(rng, limiter);
+        hit4.apply_flat_armour(monster);
 
         return hit1.combine(&hit2).combine(&hit3).combine(&hit4);
     }
@@ -1142,8 +1139,11 @@ pub fn dragon_claw_spec(
         let mut hit3 = Hit::accurate(hit2.damage + 1);
 
         hit1.apply_limiters(rng, limiter);
+        hit1.apply_flat_armour(monster);
         hit2.apply_limiters(rng, limiter);
+        hit2.apply_flat_armour(monster);
         hit3.apply_limiters(rng, limiter);
+        hit3.apply_flat_armour(monster);
 
         return hit1.combine(&hit2).combine(&hit3);
     }
@@ -1157,7 +1157,9 @@ pub fn dragon_claw_spec(
         let mut hit2 = Hit::accurate(hit1.damage + 1);
 
         hit1.apply_limiters(rng, limiter);
+        hit1.apply_flat_armour(monster);
         hit2.apply_limiters(rng, limiter);
+        hit2.apply_flat_armour(monster);
 
         return hit1.combine(&hit2);
     }
@@ -1170,6 +1172,7 @@ pub fn dragon_claw_spec(
         let mut hit = Hit::accurate(total_damage + 1);
 
         hit.apply_limiters(rng, limiter);
+        hit.apply_flat_armour(monster);
 
         return hit;
     }
@@ -1179,6 +1182,7 @@ pub fn dragon_claw_spec(
         // ~2/3 chance of 0-0-1-1 (NOTE: 2/3 comes from the wiki/GeChallengeM, and in-game testing is close enough)
         let mut hit = Hit::accurate(2);
         hit.apply_transforms(player, monster, rng, limiter);
+        hit.apply_flat_armour(monster);
 
         hit
     } else {
@@ -1207,8 +1211,11 @@ pub fn burning_claw_spec(
         let mut hit3 = hit2.clone();
 
         hit1.apply_transforms(player, monster, rng, limiter);
+        hit1.apply_flat_armour(monster);
         hit2.apply_transforms(player, monster, rng, limiter);
+        hit2.apply_flat_armour(monster);
         hit3.apply_transforms(player, monster, rng, limiter);
+        hit3.apply_flat_armour(monster);
 
         // 15% chance for each hit to apply a burn
         for _ in 0..3 {
@@ -1231,9 +1238,12 @@ pub fn burning_claw_spec(
         let mut hit2 = Hit::accurate(total_damage / 2 - 1);
         let mut hit3 = hit2.clone();
 
-        hit1.apply_limiters(rng, limiter);
-        hit2.apply_limiters(rng, limiter);
-        hit3.apply_limiters(rng, limiter);
+        hit1.apply_transforms(player, monster, rng, limiter);
+        hit1.apply_flat_armour(monster);
+        hit2.apply_transforms(player, monster, rng, limiter);
+        hit2.apply_flat_armour(monster);
+        hit3.apply_transforms(player, monster, rng, limiter);
+        hit3.apply_flat_armour(monster);
 
         // 30% chance for each hit to apply a burn
         for _ in 0..3 {
@@ -1256,9 +1266,12 @@ pub fn burning_claw_spec(
         let mut hit2 = hit1.clone();
         let mut hit3 = Hit::accurate(total_damage - 2);
 
-        hit1.apply_limiters(rng, limiter);
-        hit2.apply_limiters(rng, limiter);
-        hit3.apply_limiters(rng, limiter);
+        hit1.apply_transforms(player, monster, rng, limiter);
+        hit1.apply_flat_armour(monster);
+        hit2.apply_transforms(player, monster, rng, limiter);
+        hit2.apply_flat_armour(monster);
+        hit3.apply_transforms(player, monster, rng, limiter);
+        hit3.apply_flat_armour(monster);
 
         // 45% chance for each hit to apply a burn
         for _ in 0..3 {
@@ -1276,14 +1289,18 @@ pub fn burning_claw_spec(
         // 2/5 chance of 1-0-0
         let mut hit = Hit::accurate(1);
         hit.apply_transforms(player, monster, rng, limiter);
+        hit.apply_flat_armour(monster);
 
         hit
     } else if miss_roll < 4 {
         // 2/5 chance of 1-1-0
         let mut hit = Hit::accurate(1);
         hit.apply_transforms(player, monster, rng, limiter);
+        hit.apply_flat_armour(monster);
         let mut hit2 = Hit::accurate(1);
         hit2.apply_transforms(player, monster, rng, limiter);
+        hit2.apply_flat_armour(monster);
+
         hit.combine(&hit2)
     } else {
         // 1/5 chance of 0-0-0
@@ -1332,8 +1349,13 @@ pub fn dragon_knife_spec(
     let mut hit1 = base_attack(&info, rng, false);
     let mut hit2 = base_attack(&info, rng, false);
 
-    hit1.apply_transforms(player, monster, rng, limiter);
-    hit2.apply_transforms(player, monster, rng, limiter);
+    if hit1.success {
+        hit1.apply_transforms(player, monster, rng, limiter);
+    }
+
+    if hit2.success {
+        hit2.apply_transforms(player, monster, rng, limiter);
+    }
 
     hit1.combine(&hit2)
 }
@@ -1356,8 +1378,13 @@ pub fn magic_shortbow_spec(
     let mut hit1 = base_attack(&info, rng, false);
     let mut hit2 = base_attack(&info, rng, false);
 
-    hit1.apply_transforms(player, monster, rng, limiter);
-    hit2.apply_transforms(player, monster, rng, limiter);
+    if hit1.success {
+        hit1.apply_transforms(player, monster, rng, limiter);
+    }
+
+    if hit2.success {
+        hit2.apply_transforms(player, monster, rng, limiter);
+    }
 
     hit1.combine(&hit2)
 }
@@ -1378,9 +1405,12 @@ pub fn sara_sword_spec(
 
     let mut hit = base_attack(&info, rng, false);
 
-    if hit.success && !IMMUNE_TO_MAGIC_MONSTERS.contains(&monster.id_with_default()) {
-        // Add a random amount between 1 and 16 to damage
-        hit.damage += rng.random_range(1..=16);
+    if hit.success {
+        // Add 1-16 magic damage if successful
+        if !constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&monster.id_with_default()) {
+            hit.damage += rng.random_range(1..=16);
+        }
+
         hit.apply_transforms(player, monster, rng, limiter);
     }
 
@@ -1664,7 +1694,7 @@ pub fn elder_maul_spec(
         if hit.success {
             hit.apply_transforms(player, monster, rng, limiter);
 
-            if !IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
+            if !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
                 monster.drain_stat(&CombatStat::Defence, def_drain, None);
             }
         }
@@ -1729,6 +1759,7 @@ pub fn eye_of_ayak_spec(
     if hit.success {
         // Drain the monster's magic defence bonus by the damage dealt, capped at 0
         monster.bonuses.defence.magic = max(0, monster.bonuses.defence.magic - hit.damage as i32);
+        monster.recalculate_def_rolls();
 
         hit.apply_transforms(player, monster, rng, limiter);
     }
@@ -1784,8 +1815,13 @@ pub fn rosewood_bp_spec(
     let mut hit1 = base_attack(&info, rng, false);
     let mut hit2 = base_attack(&info, rng, false);
 
-    hit1.apply_transforms(player, monster, rng, limiter);
-    hit2.apply_transforms(player, monster, rng, limiter);
+    if hit1.success {
+        hit1.apply_transforms(player, monster, rng, limiter);
+    }
+
+    if hit2.success {
+        hit2.apply_transforms(player, monster, rng, limiter);
+    }
 
     hit1.combine(&hit2)
 }

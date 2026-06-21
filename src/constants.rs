@@ -11,6 +11,12 @@ pub const ICE_DEMON_IDS: &[i32] = &[
 
 pub const HUEYCOATL_TAIL_ID: i32 = 14014;
 
+pub const VERZIK_P1_IDS: [i32; 9] = [
+    10830, 10831, 10832, // P1 Entry
+    8369, 8370, 8371, // P1 Normal
+    10847, 10848, 10849, // P1 Hard
+];
+
 pub const VERZIK_IDS: [i32; 18] = [
     10830, 10831, 10832, // P1 Entry
     8369, 8370, 8371, // P1 Normal

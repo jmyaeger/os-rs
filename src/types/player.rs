@@ -1287,7 +1287,9 @@ impl Player {
 
     pub fn restore_prayer(&mut self, amount: u32, max_level: Option<u32>) {
         let cap = max_level.unwrap_or(self.stats.prayer.base);
-        self.stats.prayer.restore(amount, Some(cap));
+        self.stats
+            .prayer
+            .restore(amount, Some(cap - self.stats.prayer.base));
     }
 
     pub fn seercull_spec_max(&self) -> u32 {
@@ -1706,8 +1708,7 @@ mod test {
         calc_active_player_rolls(&mut player, &monster);
 
         let soulreaper_switch = GearSwitch::new(SwitchType::Melee, &player, &monster);
-        let unstacked_soulreaper_max_hit =
-            soulreaper_switch.max_hits.get(CombatType::Slash);
+        let unstacked_soulreaper_max_hit = soulreaper_switch.max_hits.get(CombatType::Slash);
 
         player.equip("Voidwaker", None).unwrap();
         player.set_active_style(CombatStyle::Slash);
@@ -1715,8 +1716,7 @@ mod test {
         calc_active_player_rolls(&mut player, &monster);
 
         let voidwaker_switch_type = SwitchType::Spec("Voidwaker spec".into());
-        let voidwaker_switch =
-            GearSwitch::new(voidwaker_switch_type.clone(), &player, &monster);
+        let voidwaker_switch = GearSwitch::new(voidwaker_switch_type.clone(), &player, &monster);
         let voidwaker_max_hit = voidwaker_switch.max_hits.get(CombatType::Slash);
 
         player.switches.push(soulreaper_switch);
