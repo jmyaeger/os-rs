@@ -5,6 +5,7 @@ use crate::types::equipment::CombatType;
 use crate::types::monster::Monster;
 use crate::types::player::Player;
 use crate::types::spells::{Spell, StandardSpell};
+use crate::utils::logging::{FightLog, FightLogs};
 
 #[derive(Debug, PartialEq, Clone, Default)]
 pub struct FightResult {
@@ -92,7 +93,8 @@ impl FightVars {
 }
 
 pub trait Simulation {
-    fn simulate(&mut self) -> Result<FightResult, SimulationError>;
+    fn simulate(&mut self, log: &mut Option<&mut FightLog>)
+    -> Result<FightResult, SimulationError>;
     fn is_immune(&self) -> bool;
     fn player(&self) -> &Player;
     fn monster(&self) -> &Monster;
@@ -168,7 +170,7 @@ pub fn assign_limiter(player: &Player, monster: &Monster) -> Option<Box<dyn limi
         }
     }
 
-    if monster.info.id == Some(HUEYCOATL_TAIL_ID) {
+    if monster.id() == HUEYCOATL_TAIL_ID {
         let using_crush = player.combat_type() == CombatType::Crush
             && player.bonuses.attack.crush > player.bonuses.attack.stab
             && player.bonuses.attack.crush > player.bonuses.attack.slash;
@@ -199,7 +201,7 @@ pub fn simulate_n_fights(
 
     for _ in 0..n {
         // Run a single fight simulation and update the result variables
-        let result = simulation.simulate();
+        let result = simulation.simulate(&mut None);
         match result {
             Ok(result) => {
                 results.push(&result);
@@ -224,9 +226,39 @@ pub fn simulate_n_fights(
     }
 
     Ok(results)
+}
 
-    // Return a struct with average ttk, average accuracy, and hit distribution
-    // SimulationStats::new(&results)
+pub fn simulate_log_fights(
+    mut simulation: Box<dyn Simulation>,
+    n: u32,
+) -> Result<FightLogs, SimulationError> {
+    // Check if the monster is immune before running simulations
+    if simulation.is_immune() {
+        return Err(SimulationError::MonsterImmune(
+            simulation.monster().info.name.clone(),
+        ));
+    }
+
+    // Retrieve attack function and limiter
+    simulation.set_attack_function();
+
+    // Set up fight logger
+    let mut logger = FightLogs::default();
+
+    for _ in 0..n {
+        let mut log = FightLog::empty();
+        let result = simulation.simulate(&mut Some(&mut log));
+        match result {
+            Ok(_) => {
+                logger.logs.push(log);
+            }
+            Err(e) => return Err(e),
+        }
+
+        simulation.reset();
+    }
+
+    Ok(logger)
 }
 
 #[cfg(test)]
@@ -265,9 +297,8 @@ mod tests {
         player.set_active_style(CombatStyle::Lunge);
         let monster = Monster::new("Ammonite Crab", None).expect("Error creating monster.");
         calc_active_player_rolls(&mut player, &monster);
-        let simulation =
-            SingleWayFight::new(player, monster, SingleWayConfig::default(), None, false)
-                .expect("Error setting up single way fight.");
+        let simulation = SingleWayFight::new(player, monster, SingleWayConfig::default(), None)
+            .expect("Error setting up single way fight.");
         let results =
             simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
         let stats = SimulationStats::new(&results);

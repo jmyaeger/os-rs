@@ -192,7 +192,6 @@ mod spec_tests {
             immune_monster,
             SingleWayConfig::default(),
             None,
-            false,
         )
         .expect("Error setting up single way fight.");
         assert!(fight.is_immune());

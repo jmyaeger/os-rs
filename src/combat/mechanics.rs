@@ -13,7 +13,7 @@ use crate::types::monster::{AttackType, Monster};
 use crate::types::player::GearSwitch;
 use crate::types::player::Player;
 use crate::types::player::SwitchType;
-use crate::utils::logging::FightLogger;
+use crate::utils::logging::{Event, EventType, FightLog};
 use rand::Rng;
 use rand::rngs::SmallRng;
 
@@ -27,16 +27,20 @@ pub trait Mechanics {
         rng: &mut SmallRng,
         limiter: &Option<Box<dyn Limiter>>,
         fight_vars: &mut FightVars,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) {
         let hit = (player.attack)(player, monster, rng, limiter);
-        if logger.enabled {
-            logger.log_player_attack(
-                fight_vars.tick_counter,
-                hit.damage,
-                hit.success,
-                player.combat_type(),
-            );
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::PlayerAttack {
+                    player_id: player.id(),
+                    success: hit.success,
+                    damage: hit.damage,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            })
         }
 
         player.state.first_attack = false;
@@ -44,17 +48,20 @@ pub trait Mechanics {
 
         if hit.damage > 0 {
             monster.take_damage(hit.damage);
-            handle_blood_fury(player, &hit, fight_vars, logger, rng);
+            handle_blood_fury(player, monster, &hit, fight_vars, log, rng);
             scale_monster_hp_only(monster, true);
         }
 
-        if logger.enabled {
-            logger.log_monster_damage(
-                fight_vars.tick_counter,
-                hit.damage,
-                monster.stats.hitpoints.current,
-                monster.name(),
-            );
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::MonsterDamaged {
+                    monster_id: monster.id(),
+                    damage: hit.damage,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
         }
 
         fight_vars.hit_attempts += 1;
@@ -73,7 +80,7 @@ pub trait Mechanics {
         spec_state: &mut SpecState,
         boss_state: &C::BossState,
         fight_vars: &mut FightVars,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) -> Result<bool, SimulationError> {
         for strategy in &mut spec_config.strategies {
             if !strategy.can_execute(player, monster, boss_state) {
@@ -94,11 +101,16 @@ pub trait Mechanics {
             // Switch to the spec gear and perform the attack
             player.switch(&strategy.switch_type)?;
 
-            if logger.enabled {
-                logger.log_gear_switch(fight_vars.tick_counter, &strategy.switch_type);
-                let _ = logger.log_current_player_rolls(player);
-                logger.log_current_player_stats(player);
-                logger.log_current_gear(player);
+            if let Some(log) = log {
+                log.add_event(Event {
+                    tick: fight_vars.tick_counter,
+                    event_type: EventType::GearSwitch {
+                        player_id: player.id(),
+                        switch_type: strategy.switch_type.clone(),
+                    },
+                    player_states: vec![player.clone()],
+                    monster_states: vec![monster.clone()],
+                });
             }
 
             let hit = if player.is_wearing("Voidwaker", None)
@@ -111,27 +123,33 @@ pub trait Mechanics {
                 (player.spec)(player, monster, rng, limiter)
             };
 
-            if logger.enabled {
-                logger.log_player_spec(
-                    fight_vars.tick_counter,
-                    hit.damage,
-                    hit.success,
-                    &strategy.switch_type,
-                );
+            if let Some(log) = log {
+                log.add_event(Event {
+                    tick: fight_vars.tick_counter,
+                    event_type: EventType::PlayerSpec {
+                        player_id: player.id(),
+                        success: hit.success,
+                        damage: hit.damage,
+                        switch_type: strategy.switch_type.clone(),
+                    },
+                    player_states: vec![player.clone()],
+                    monster_states: vec![monster.clone()],
+                });
             }
 
             player.state.first_attack = false;
             monster.take_damage(hit.damage);
 
-            if logger.enabled {
-                logger.log_monster_damage(
-                    fight_vars.tick_counter,
-                    hit.damage,
-                    monster.stats.hitpoints.current,
-                    monster.name(),
-                );
-                logger.log_current_monster_stats(monster);
-                logger.log_current_monster_rolls(monster);
+            if let Some(log) = log {
+                log.add_event(Event {
+                    tick: fight_vars.tick_counter,
+                    event_type: EventType::MonsterDamaged {
+                        monster_id: monster.id(),
+                        damage: hit.damage,
+                    },
+                    player_states: vec![player.clone()],
+                    monster_states: vec![monster.clone()],
+                });
             }
 
             strategy.state.attempt_count += 1;
@@ -139,7 +157,7 @@ pub trait Mechanics {
                 strategy.state.success_count += 1;
             }
 
-            handle_blood_fury(player, &hit, fight_vars, logger, rng);
+            handle_blood_fury(player, monster, &hit, fight_vars, log, rng);
             scale_monster_hp_only(monster, true);
             fight_vars.hit_attempts += 1;
             fight_vars.hit_count += u32::from(hit.success);
@@ -154,9 +172,16 @@ pub trait Mechanics {
             // Switch back to the previous set of gear
             player.switch(&previous_switch)?;
 
-            if logger.enabled {
-                logger.log_gear_switch(fight_vars.tick_counter, &previous_switch);
-                let _ = logger.log_current_player_rolls(player);
+            if let Some(log) = log {
+                log.add_event(Event {
+                    tick: fight_vars.tick_counter,
+                    event_type: EventType::GearSwitch {
+                        player_id: player.id(),
+                        switch_type: previous_switch,
+                    },
+                    player_states: vec![player.clone()],
+                    monster_states: vec![monster.clone()],
+                });
             }
 
             return Ok(true);
@@ -171,30 +196,38 @@ pub trait Mechanics {
         attack_type: Option<AttackType>,
         fight_vars: &mut FightVars,
         rng: &mut SmallRng,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) -> Result<(), SimulationError> {
         // Note: does not increment monster attack tick for flexibility
         let hit = monster.attack(player, attack_type, rng, true)?;
 
-        if logger.enabled {
-            logger.log_monster_attack(
-                monster,
-                fight_vars.tick_counter,
-                hit.damage,
-                hit.success,
-                attack_type,
-            );
-            logger.log_player_damage(
-                fight_vars.tick_counter,
-                hit.damage,
-                player.stats.hitpoints.current,
-            );
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::MonsterAttack {
+                    monster_id: monster.id(),
+                    success: hit.success,
+                    damage: hit.damage,
+                    style: attack_type,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::PlayerDamaged {
+                    player_id: player.id(),
+                    damage: hit.damage,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
         }
         player.take_damage(hit.damage);
         fight_vars.damage_taken += hit.damage;
 
         if hit.success {
-            handle_recoil(player, monster, &hit, fight_vars, logger);
+            handle_recoil(player, monster, &hit, fight_vars, log);
         }
 
         Ok(())
@@ -202,21 +235,25 @@ pub trait Mechanics {
 
     fn thrall_attack(
         &self,
+        player: &Player,
         monster: &mut Monster,
         thrall: Thrall,
         fight_vars: &mut FightVars,
         rng: &mut SmallRng,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) {
-        if logger.enabled && monster.is_immune_to_thrall(thrall) {
-            logger.log_custom(
-                fight_vars.tick_counter,
-                format!(
-                    "Thrall hit for 0 damage because {} is immune to it.",
-                    monster.info.name
-                )
-                .as_str(),
-            );
+        if let Some(log) = log
+            && monster.is_immune_to_thrall(thrall)
+        {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::ThrallAttack {
+                    player_id: player.id(),
+                    damage: 0,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
             return;
         }
 
@@ -225,8 +262,16 @@ pub trait Mechanics {
             monster.stats.hitpoints.current,
         );
 
-        if logger.enabled {
-            logger.log_thrall_attack(fight_vars.tick_counter, thrall_hit);
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::ThrallAttack {
+                    player_id: player.id(),
+                    damage: thrall_hit,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
         }
 
         if thrall_hit > 0 {
@@ -234,13 +279,16 @@ pub trait Mechanics {
             scale_monster_hp_only(monster, true);
         }
 
-        if logger.enabled {
-            logger.log_monster_damage(
-                fight_vars.tick_counter,
-                thrall_hit,
-                monster.stats.hitpoints.current,
-                monster.name(),
-            );
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::MonsterDamaged {
+                    monster_id: monster.id(),
+                    damage: thrall_hit,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
         }
 
         fight_vars.thrall_attack_tick += THRALL_ATTACK_SPEED;
@@ -249,9 +297,10 @@ pub trait Mechanics {
 
     fn process_monster_effects(
         &self,
+        player: &Player,
         monster: &mut Monster,
         fight_vars: &FightVars,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) {
         // Process effects and apply damage
         monster.process_delayed_burns();
@@ -279,13 +328,16 @@ pub trait Mechanics {
         if effect_damage > 0 {
             monster.take_damage(effect_damage);
 
-            if logger.enabled {
-                logger.log_monster_effect_damage(
-                    fight_vars.tick_counter,
-                    effect_damage,
-                    monster.name(),
-                    monster.stats.hitpoints.current,
-                );
+            if let Some(log) = log {
+                log.add_event(Event {
+                    tick: fight_vars.tick_counter,
+                    event_type: EventType::MonsterEffectDamage {
+                        monster_id: monster.id(),
+                        damage: effect_damage,
+                    },
+                    player_states: vec![player.clone()],
+                    monster_states: vec![monster.clone()],
+                });
             }
 
             scale_monster_hp_only(monster, true);
@@ -296,16 +348,24 @@ pub trait Mechanics {
 
     fn process_freeze(
         &self,
+        player: &Player,
         monster: &mut Monster,
         fight_vars: &mut FightVars,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) {
         // Decrement freeze duration if it's active
         if monster.info.freeze_duration > 0 {
             monster.info.freeze_duration -= 1;
             if monster.info.freeze_duration == 0 {
-                if logger.enabled {
-                    logger.log_freeze_end(fight_vars.tick_counter, monster.name());
+                if let Some(log) = log {
+                    log.add_event(Event {
+                        tick: fight_vars.tick_counter,
+                        event_type: EventType::MonsterFreezeEnded {
+                            monster_id: monster.id(),
+                        },
+                        player_states: vec![player.clone()],
+                        monster_states: vec![monster.clone()],
+                    });
                 }
 
                 // 5 tick freeze immunity when it runs out
@@ -326,13 +386,21 @@ pub trait Mechanics {
 
     fn get_fight_result(
         &self,
+        player: &Player,
         monster: &Monster,
         fight_vars: &FightVars,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
         remove_final_attack_delay: bool,
     ) -> Result<FightResult, SimulationError> {
-        if logger.enabled {
-            logger.log_monster_death(fight_vars.tick_counter, monster.name());
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::MonsterDeath {
+                    monster_id: monster.id(),
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
         }
 
         let ttk_ticks = if remove_final_attack_delay {
@@ -356,12 +424,20 @@ pub trait Mechanics {
 
     fn process_player_death(
         &self,
+        player: &Player,
         fight_vars: &FightVars,
         monster: &Monster,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) -> Result<FightResult, SimulationError> {
-        if logger.enabled {
-            logger.log_player_death(fight_vars.tick_counter);
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::PlayerDeath {
+                    player_id: player.id(),
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
         }
 
         let leftover_burn = calc_leftover_burn(monster);
@@ -380,44 +456,76 @@ pub trait Mechanics {
 
     fn monster_regen_hp(
         &self,
+        player: &Player,
         monster: &mut Monster,
         fight_vars: &FightVars,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) {
         monster.heal(1);
 
-        if logger.enabled {
-            logger.log_hp_regen(
-                fight_vars.tick_counter,
-                monster.stats.hitpoints.current,
-                monster.name(),
-            );
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::MonsterHpRegen {
+                    monster_id: monster.id(),
+                    amount: 1,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
         }
     }
 
     fn monster_regen_stats(
         &self,
+        player: &Player,
         monster: &mut Monster,
         fight_vars: &FightVars,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) {
         monster.regen_stats();
 
-        if logger.enabled {
-            logger.log_stats_regen(fight_vars.tick_counter, monster.name());
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::MonsterStatsRegen {
+                    monster_id: monster.id(),
+                    amount: 1,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
         }
     }
 
-    fn player_regen(&self, player: &mut Player, fight_vars: &FightVars, logger: &mut FightLogger) {
+    fn player_regen(
+        &self,
+        player: &mut Player,
+        monster: &Monster,
+        fight_vars: &FightVars,
+        log: &mut Option<&mut FightLog>,
+    ) {
         player.regen_all_stats();
 
-        if logger.enabled {
-            logger.log_hp_regen(
-                fight_vars.tick_counter,
-                player.stats.hitpoints.current,
-                "Player",
-            );
-            logger.log_stats_regen(fight_vars.tick_counter, "Player");
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::PlayerHpRegen {
+                    player_id: player.id(),
+                    amount: 1,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::PlayerStatsRegen {
+                    player_id: player.id(),
+                    amount: 1,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
         }
     }
 
@@ -430,20 +538,25 @@ pub trait Mechanics {
     fn eat_food(
         &self,
         player: &mut Player,
+        monster: &Monster,
         heal_amount: u32,
         overheal: Option<u32>,
         fight_vars: &mut FightVars,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) {
         // Note: Does not increment attack delay for flexibility
         player.heal(heal_amount, overheal);
 
-        if logger.enabled {
-            logger.log_food_eaten(
-                fight_vars.tick_counter,
-                heal_amount,
-                player.stats.hitpoints.current,
-            );
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::FoodEaten {
+                    player_id: player.id(),
+                    heal_amount,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
         }
 
         fight_vars.food_eaten += 1;
@@ -453,19 +566,26 @@ pub trait Mechanics {
     fn process_redemption(
         &self,
         player: &mut Player,
+        monster: &Monster,
         fight_vars: &FightVars,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) {
         let current_prayer = player.stats.prayer.current;
         let heal_amount = player.stats.prayer.base / 4;
         player.stats.prayer.drain(current_prayer);
         player.heal(heal_amount, None);
 
-        logger.log_redemption_proc(
-            fight_vars.tick_counter,
-            heal_amount,
-            player.stats.hitpoints.current,
-        );
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::RedemptionProc {
+                    player_id: player.id(),
+                    heal_amount,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
+        }
     }
 }
 
@@ -489,10 +609,9 @@ pub fn handle_recoil(
     monster: &mut Monster,
     hit: &Hit,
     fight_vars: &mut FightVars,
-    logger: &mut FightLogger,
+    log: &mut Option<&mut FightLog>,
 ) {
-    if !constants::IMMUNE_TO_RECOIL_MONSTERS.contains(&monster.id_with_default()) && hit.damage > 0
-    {
+    if !constants::IMMUNE_TO_RECOIL_MONSTERS.contains(&monster.id()) && hit.damage > 0 {
         if player.is_wearing("Ring of suffering", Some("Recoil"))
             || player.is_wearing("Ring of suffering (i)", Some("Recoil"))
             || player.is_wearing("Ring of recoil", None)
@@ -500,22 +619,32 @@ pub fn handle_recoil(
             let recoil_damage = hit.damage / 10 + 1;
             monster.take_damage(recoil_damage);
 
-            if logger.enabled {
-                logger.log_custom(
-                    fight_vars.tick_counter,
-                    format!("{} took {} recoil damage", monster.info.name, recoil_damage).as_str(),
-                );
+            if let Some(log) = log {
+                log.add_event(Event {
+                    tick: fight_vars.tick_counter,
+                    event_type: EventType::MonsterRecoilDamage {
+                        monster_id: monster.id(),
+                        damage: recoil_damage,
+                    },
+                    player_states: vec![player.clone()],
+                    monster_states: vec![monster.clone()],
+                });
             }
         }
 
         if player.is_wearing("Echo boots", None) && player.is_using_melee() {
             monster.take_damage(1);
 
-            if logger.enabled {
-                logger.log_custom(
-                    fight_vars.tick_counter,
-                    format!("{} took 1 recoil damage from echo boots", monster.info.name).as_str(),
-                );
+            if let Some(log) = log {
+                log.add_event(Event {
+                    tick: fight_vars.tick_counter,
+                    event_type: EventType::MonsterRecoilDamage {
+                        monster_id: monster.id(),
+                        damage: 1,
+                    },
+                    player_states: vec![player.clone()],
+                    monster_states: vec![monster.clone()],
+                });
             }
         }
     }
@@ -523,19 +652,26 @@ pub fn handle_recoil(
 
 pub fn handle_blood_fury(
     player: &mut Player,
+    monster: &Monster,
     hit: &Hit,
     fight_vars: &mut FightVars,
-    logger: &mut FightLogger,
+    log: &mut Option<&mut FightLog>,
     rng: &mut SmallRng,
 ) {
     if player.is_wearing("Amulet of blood fury", None) && rng.random_range(0..5) == 0 {
-        player.heal(hit.damage * 3 / 10, None);
+        let heal_amount = hit.damage * 3 / 10;
+        player.heal(heal_amount, None);
 
-        if logger.enabled {
-            logger.log_custom(
-                fight_vars.tick_counter,
-                format!("Blood fury healed for {} HP", hit.damage * 3 / 10).as_str(),
-            );
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::BloodFuryHeal {
+                    player_id: player.id(),
+                    heal_amount,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![monster.clone()],
+            });
         }
     }
 }

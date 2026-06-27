@@ -49,6 +49,8 @@ pub enum Prayer {
     MysticVigour,
     #[strum(to_string = "Augury")]
     Augury,
+    #[strum(to_string = "Rapid Heal")]
+    RapidHeal,
 }
 
 macro_rules! prayer_boost {

@@ -31,7 +31,7 @@ pub fn monster_def_rolls(monster: &Monster) -> MonsterDefRolls {
     }
 
     // Use magic level for magic defence in most cases
-    if constants::MAGIC_DEF_EXCEPTIONS.contains(&monster.id_with_default()) {
+    if constants::MAGIC_DEF_EXCEPTIONS.contains(&monster.id()) {
         // Use defence level in some special cases
         def_rolls.set(
             CombatType::Magic,
@@ -162,7 +162,7 @@ fn calc_player_melee_rolls(player: &mut Player, monster: &Monster) {
     let obsidian_boost = obsidian_boost(player);
 
     let keris_penalties = if player.is_wearing("Keris partisan of amascut", None)
-        && !constants::TOA_MONSTERS.contains(&monster.id_with_default())
+        && !constants::TOA_MONSTERS.contains(&monster.id())
     {
         (-50, -22)
     } else {
@@ -784,9 +784,7 @@ fn apply_ranged_weapon_boosts(
     att_roll = att_factor.multiply_to_int(att_roll);
     max_hit = max_hit_factor.multiply_to_int(max_hit);
 
-    if constants::P2_WARDEN_IDS.contains(&monster.id_with_default())
-        && player.is_wearing("Twisted bow", None)
-    {
+    if constants::P2_WARDEN_IDS.contains(&monster.id()) && player.is_wearing("Twisted bow", None) {
         // Tbow accuracy bonus is applied a second time at P2 Wardens
         let (second_acc_bonus, _) = monster.tbow_bonuses();
         att_roll = att_roll * second_acc_bonus / 100;

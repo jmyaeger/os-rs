@@ -10,23 +10,23 @@ use osrs::sims::graardor::{GraardorConfig, GraardorFight, GraardorMethod};
 use osrs::sims::hunleff::{AttackStrategy, HunllefConfig, HunllefEatStrategy, HunllefFight};
 use osrs::sims::single_way::{SingleWayConfig, SingleWayFight};
 use osrs::sims::vardorvis::{VardorvisConfig, VardorvisEatStrategy, VardorvisFight};
-use osrs::types::equipment::{CombatStyle, GearSlot};
+use osrs::types::equipment::{CombatStyle, GearBuilder, GearSlot};
 use osrs::types::monster::Monster;
-use osrs::types::player::{GearSwitch, Player, SwitchType};
+use osrs::types::player::{GearSwitch, Player, PlayerBuilder, SwitchType};
 use osrs::types::potions::Potion;
 use osrs::types::prayers::Prayer;
 use osrs::types::stats::Stat;
-use osrs::utils::{loadouts, logging::FightLogger};
+use osrs::utils::loadouts;
 
 fn main() {
     let start_time = std::time::Instant::now();
     // simulate_door_altar_graardor();
 
-    // simulate_single_way();
+    simulate_single_way();
 
     // simulate_hunllef();
 
-    simulate_vardorvis();
+    // simulate_vardorvis();
 
     let end_time = std::time::Instant::now();
 
@@ -38,44 +38,44 @@ fn main() {
 
 #[allow(unused)]
 fn simulate_single_way() {
-    let mut player = loadouts::max_melee_player();
-    player.equip("Avernic treads (max)", None).unwrap();
-    player.equip("Scythe of vitur", Some("Charged")).unwrap();
-    player.set_active_style(CombatStyle::Jab);
-    // player.equip("Dragon hunter lance", None).unwrap();
-    player.equip("Slayer helmet (i)", None).unwrap();
-    player.equip("Inquisitor's hauberk", None).unwrap();
-    player.equip("Inquisitor's plateskirt", None).unwrap();
-    // player.equip("Soulreaper axe", None).unwrap();
+    let gear = GearBuilder::new()
+        .head("Helm of neitiznot", None)
+        .neck("Amulet of torture", None)
+        .body("Fighter torso", None)
+        .legs("Blood moon tassets", None)
+        .feet("Aranea boots", None)
+        .ring("Lightbearer", None)
+        .cape("Fire cape", None)
+        .weapon("Osmumten's fang", None)
+        .shield("Dragon defender", None)
+        .hands("Barrows gloves", None)
+        .build()
+        .expect("Error building gear.");
+    let mut player = PlayerBuilder::new()
+        .attack(97)
+        .strength(99)
+        .defence(95)
+        .ranged(98)
+        .magic(96)
+        .prayer(Prayer::Piety)
+        .potion(Potion::SuperCombat)
+        .gear(gear)
+        .active_style(CombatStyle::Lunge)
+        .build()
+        .expect("Error building player.");
 
-    // player.set_active_style(CombatStyle::Swipe);
-    // player.equip("Amulet of torture", None).unwrap();
-    // player.equip("Scythe of vitur", Some("Charged")).unwrap();
-    // player.equip("Oathplate helm", None).unwrap();
-    // player.equip("Oathplate chest", None).unwrap();
-    // player.equip("Oathplate legs", None).unwrap();
-    // player.equip("Neitiznot faceguard", None).unwrap();
-    // player.equip("Bandos chestplate", None).unwrap();
-    // player.equip("Bandos tassets", None).unwrap();
+    let mut monster = Monster::new("Kephri", Some("Shielded")).expect("Error creating monster.");
 
-    // player.equip("Lightbearer", None).unwrap();
-    // player.add_potion(Potion::OverloadPlus);
-
-    player.update_bonuses();
-    player.update_set_effects();
-
-    let mut monster = Monster::new("Araxxor", None).expect("Error creating monster.");
-
-    // let single_shield_hp = monster.stats.hitpoints.base;
-    // monster.stats.hitpoints = Stat::new(single_shield_hp * 3, None);
-    // monster.info.toa_level = 400;
-    // monster.info.toa_path_level = 0;
-    // monster.scale_toa();
+    let single_shield_hp = monster.stats.hitpoints.base;
+    monster.stats.hitpoints = Stat::new(single_shield_hp * 2, None);
+    monster.info.toa_level = 350;
+    monster.info.toa_path_level = 0;
+    monster.scale_toa(true, true);
 
     calc_active_player_rolls(&mut player, &monster);
 
     let config = SingleWayConfig {
-        thralls: None,
+        thralls: Some(Thrall::GreaterMagic),
         remove_final_attack_delay: true,
         reset_soulreaper_stacks: Some(0),
     };
@@ -101,79 +101,79 @@ fn simulate_single_way() {
     player.set_active_style(CombatStyle::Slash);
     let vw_switch = GearSwitch::new(SwitchType::Spec("Voidwaker spec".into()), &player, &monster);
     let vw_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&vw_switch)
-        .with_max_attempts(1)
+        // .with_max_attempts(1)
         .build();
     player.switches.push(vw_switch);
 
-    player.equip("Dragon warhammer", None).unwrap();
-    player.equip("Avernic defender", None).unwrap();
-    player.set_active_style(CombatStyle::Pound);
-    let dwh_switch = GearSwitch::new(SwitchType::Spec("DWH spec".into()), &player, &monster);
-    let dwh_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&dwh_switch)
-        .with_max_attempts(1)
-        .build();
-    player.switches.push(dwh_switch);
+    // player.equip("Dragon warhammer", None).unwrap();
+    // player.equip("Avernic defender", None).unwrap();
+    // player.set_active_style(CombatStyle::Pound);
+    // let dwh_switch = GearSwitch::new(SwitchType::Spec("DWH spec".into()), &player, &monster);
+    // let dwh_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&dwh_switch)
+    //     .with_max_attempts(1)
+    //     .build();
+    // player.switches.push(dwh_switch);
 
-    player.equip("Dragon claws", None).unwrap();
-    player.set_active_style(CombatStyle::Slash);
-    let dclaws_switch = GearSwitch::new(
-        SwitchType::Spec("Dragon claws spec".into()),
-        &player,
-        &monster,
-    );
-    let dclaws_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&dclaws_switch)
-        .with_max_attempts(1)
-        // .with_monster_hp_above(100)
-        .build();
-    player.switches.push(dclaws_switch);
+    // player.equip("Dragon claws", None).unwrap();
+    // player.set_active_style(CombatStyle::Slash);
+    // let dclaws_switch = GearSwitch::new(
+    //     SwitchType::Spec("Dragon claws spec".into()),
+    //     &player,
+    //     &monster,
+    // );
+    // let dclaws_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&dclaws_switch)
+    //     .with_max_attempts(1)
+    //     // .with_monster_hp_above(100)
+    //     .build();
+    // player.switches.push(dclaws_switch);
 
-    player.equip("Burning claws", None).unwrap();
-    player.set_active_style(CombatStyle::Slash);
-    let bclaws_switch = GearSwitch::new(
-        SwitchType::Spec("Burning claws spec".into()),
-        &player,
-        &monster,
-    );
-    let bclaws_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&bclaws_switch)
-        // .with_max_attempts(2)
-        .with_monster_hp_above(100)
-        // .with_monster_hp_below(50)
-        .build();
-    player.switches.push(bclaws_switch);
+    // player.equip("Burning claws", None).unwrap();
+    // player.set_active_style(CombatStyle::Slash);
+    // let bclaws_switch = GearSwitch::new(
+    //     SwitchType::Spec("Burning claws spec".into()),
+    //     &player,
+    //     &monster,
+    // );
+    // let bclaws_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&bclaws_switch)
+    //     // .with_max_attempts(2)
+    //     .with_monster_hp_above(100)
+    //     // .with_monster_hp_below(50)
+    //     .build();
+    // player.switches.push(bclaws_switch);
 
     player.equip("Bandos godsword", None).unwrap();
     player.set_active_style(CombatStyle::Slash);
     let bgs_switch = GearSwitch::new(SwitchType::Spec("BGS spec".into()), &player, &monster);
     let bgs_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&bgs_switch)
-        .with_max_attempts(1)
+        .with_max_attempts(2)
+        .with_min_successes(1)
         .build();
     player.switches.push(bgs_switch);
 
-    player.equip("Elder maul", None).unwrap();
-    player.set_active_style(CombatStyle::Pound);
-    let maul_switch = GearSwitch::new(
-        SwitchType::Spec("Elder maul spec".into()),
-        &player,
-        &monster,
-    );
-    let maul_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&maul_switch)
-        .with_min_successes(1)
-        // .with_max_attempts(1)
-        .build();
-    player.switches.push(maul_switch);
+    // player.equip("Elder maul", None).unwrap();
+    // player.set_active_style(CombatStyle::Pound);
+    // let maul_switch = GearSwitch::new(
+    //     SwitchType::Spec("Elder maul spec".into()),
+    //     &player,
+    //     &monster,
+    // );
+    // let maul_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&maul_switch)
+    //     .with_min_successes(1)
+    //     // .with_max_attempts(1)
+    //     .build();
+    // player.switches.push(maul_switch);
 
     player.switch(&SwitchType::Melee);
     let spec_config = SpecConfig::new(
-        vec![bclaws_spec_strategy],
-        SpecRestorePolicy::RestoreAfter(5),
+        vec![bgs_spec_strategy, vw_spec_strategy],
+        SpecRestorePolicy::RestoreEveryKill,
         Some(osrs::combat::spec::DeathCharge::Double),
         false,
     );
 
-    let simulation = SingleWayFight::new(player, monster, config, Some(spec_config), false)
+    let simulation = SingleWayFight::new(player, monster, config, Some(spec_config))
         .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 1_000_000, true).expect("Simulation failed.");
+    let results = simulate_n_fights(Box::new(simulation), 1, true).expect("Simulation failed.");
     let stats = SimulationStats::new(&results);
 
     println!("Ttk: {:.4} seconds", stats.ttk);
@@ -255,7 +255,6 @@ fn simulate_hunllef() {
             other_style2: SwitchType::Melee,
         },
         lost_ticks: 0,
-        logger: FightLogger::new(false, "hunllef").expect("Error initializing logger."),
         armor_tier: 0,
         only_success_stats: true,
     };
@@ -397,7 +396,6 @@ fn simulate_vardorvis() {
         food_eat_delay: 2,
         eat_strategy: VardorvisEatStrategy::EatAtHp(10),
         thralls: Some(Thrall::GreaterMagic),
-        logger: FightLogger::new(false, "vardorvis").expect("Error initializing logger."),
         spec_config: Some(spec_config),
         spec_state: SpecState::default(),
     };
@@ -454,7 +452,6 @@ fn simulate_door_altar_graardor() {
         method: GraardorMethod::DoorAltar,
         eat_hp: 20,
         heal_amount: 18,
-        logger: FightLogger::new(false, "graardor").expect("Error initializing logger."),
     };
 
     let fight = GraardorFight::new(player, fight_config).expect("Error setting up Graardor fight.");

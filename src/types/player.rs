@@ -228,6 +228,7 @@ pub struct PlayerAttrs {
     pub name: Option<String>,
     pub active_style: CombatStyle,
     pub spell: Option<spells::Spell>,
+    pub id: i32,
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -1245,7 +1246,20 @@ impl Player {
 
     pub fn regen_all_stats(&mut self) {
         if self.stats.hitpoints.current < self.stats.hitpoints.base {
-            self.stats.hitpoints.restore(1, None);
+            let wearing_hp_cape =
+                self.is_wearing_any(vec![("Hitpoints cape", None), ("Hitpoints cape(t)", None)]);
+            let wearing_regen_bracelet = self.is_wearing("Regen bracelet", None);
+            let using_rapid_heal = self.prayers.contains_prayer(Prayer::RapidHeal);
+            let heal_amount = if using_rapid_heal {
+                if wearing_regen_bracelet { 2 } else { 1 }
+            } else if wearing_hp_cape && wearing_regen_bracelet {
+                4
+            } else if wearing_hp_cape || wearing_regen_bracelet {
+                2
+            } else {
+                1
+            };
+            self.stats.hitpoints.restore(heal_amount, None);
         }
 
         if self.stats.attack.current < self.stats.attack.base {
@@ -1347,6 +1361,10 @@ impl Player {
             && self.is_wearing("Confliction gauntlets", None)
             && !self.gear.weapon.is_two_handed
     }
+
+    pub fn id(&self) -> i32 {
+        self.attrs.id
+    }
 }
 
 /// Builder for constructing `Player` instances.
@@ -1377,6 +1395,7 @@ pub struct PlayerBuilder {
     boosts: Option<StatusBoosts>,
     spell: Option<spells::Spell>,
     active_style: Option<CombatStyle>,
+    id: Option<i32>,
 }
 
 impl PlayerBuilder {
@@ -1506,6 +1525,12 @@ impl PlayerBuilder {
         self
     }
 
+    /// Set the player id for cases with multiple players in a simulation
+    pub fn id(mut self, id: i32) -> Self {
+        self.id = Some(id);
+        self
+    }
+
     /// Build the `Player` instance.
     pub fn build(self) -> Result<Player, PlayerError> {
         let mut player = Player {
@@ -1521,6 +1546,7 @@ impl PlayerBuilder {
                 name: None,
                 active_style: self.active_style.unwrap_or(CombatStyle::Punch),
                 spell: self.spell,
+                id: self.id.unwrap_or(0),
             },
             att_rolls: PlayerAttRolls::default(),
             max_hits: PlayerMaxHits::default(),

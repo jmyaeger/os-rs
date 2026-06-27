@@ -298,7 +298,7 @@ pub fn bgs_spec(
     if hit.success {
         hit.damage = max(1, hit.damage);
 
-        if !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
+        if !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id()) {
             let stat_order = vec![
                 StatDrain::new(CombatStat::Defence, None),
                 StatDrain::new(CombatStat::Strength, None),
@@ -589,7 +589,7 @@ pub fn dorgeshuun_weapon_spec(
 
         // Drains defence by damage, but only if it hasn't been drained already
         if monster.stats.defence.current == monster.stats.defence.base
-            && !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default())
+            && !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id())
         {
             monster.drain_stat(&CombatStat::Defence, hit.damage, None);
         }
@@ -666,7 +666,7 @@ pub fn dragon_warhammer_spec(
         if hit.success {
             hit.apply_transforms(player, monster, rng, limiter);
 
-            if !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
+            if !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id()) {
                 monster.drain_stat(&CombatStat::Defence, def_drain, None);
             }
         }
@@ -692,7 +692,7 @@ pub fn seercull_spec(
     // Stat drain is determined from damage roll after 0 -> 1 transform
     hit.damage = max(hit.damage, 1);
 
-    if !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
+    if !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id()) {
         monster.drain_stat(&CombatStat::Magic, hit.damage, None);
     }
 
@@ -811,7 +811,7 @@ pub fn dawnbringer_spec(
     _limiter: &Option<Box<dyn Limiter>>,
 ) -> Hit {
     // Rolls 75-150 damage regardless of bonuses or levels, but only on Verzik P1
-    if constants::VERZIK_P1_IDS.contains(&monster.id_with_default()) {
+    if constants::VERZIK_P1_IDS.contains(&monster.id()) {
         Hit::accurate(damage_roll(75, 150, rng))
     } else {
         Hit::inaccurate()
@@ -1411,7 +1411,7 @@ pub fn sara_sword_spec(
 
     if hit.success {
         // Add 1-16 magic damage if successful
-        if !constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&monster.id_with_default()) {
+        if !constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&monster.id()) {
             hit.damage += rng.random_range(1..=16);
         }
 
@@ -1698,7 +1698,7 @@ pub fn elder_maul_spec(
         if hit.success {
             hit.apply_transforms(player, monster, rng, limiter);
 
-            if !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id_with_default()) {
+            if !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id()) {
                 monster.drain_stat(&CombatStat::Defence, def_drain, None);
             }
         }

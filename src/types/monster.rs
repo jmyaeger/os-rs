@@ -157,7 +157,7 @@ impl MonsterMaxHit {
 // Contains a variety of information about a monster - may separate into multiple structs later
 #[derive(Debug, PartialEq, Default, Clone, Deserialize)]
 pub struct MonsterInfo {
-    pub id: Option<i32>,
+    pub id: i32,
     pub name: String,
     pub version: Option<String>,
     pub combat_level: u32,
@@ -512,8 +512,8 @@ impl Monster {
         self.info.name.as_str()
     }
 
-    pub fn id_with_default(&self) -> i32 {
-        self.info.id.unwrap_or(0)
+    pub fn id(&self) -> i32 {
+        self.info.id
     }
 
     pub fn attack(
@@ -628,7 +628,7 @@ impl Monster {
 
     pub fn scale_toa(&mut self, def: bool, hp: bool) {
         // Scale the HP and defence rolls based on the toa_level field of the monster
-        let id = &self.id_with_default();
+        let id = &self.id();
         if constants::TOA_MONSTERS.contains(id) && !constants::KEPHRI_OVERLORD_IDS.contains(id) {
             if hp {
                 self.scale_toa_hp();
@@ -660,13 +660,12 @@ impl Monster {
         let level_scaled_hp = self.stats.hitpoints.base * toa_level_bonus / 100;
 
         // If the NPC is affected by path scaling, apply it
-        self.stats.hitpoints.current =
-            if constants::TOA_PATH_MONSTERS.contains(&self.id_with_default()) {
-                let path_scaled_hp = level_scaled_hp * toa_path_level_bonus / 100;
-                round_toa_hp(path_scaled_hp)
-            } else {
-                round_toa_hp(level_scaled_hp)
-            };
+        self.stats.hitpoints.current = if constants::TOA_PATH_MONSTERS.contains(&self.id()) {
+            let path_scaled_hp = level_scaled_hp * toa_path_level_bonus / 100;
+            round_toa_hp(path_scaled_hp)
+        } else {
+            round_toa_hp(level_scaled_hp)
+        };
     }
 
     fn scale_toa_defence(&mut self) {
@@ -787,11 +786,11 @@ impl Monster {
     }
 
     pub fn is_toa_monster(&self) -> bool {
-        constants::TOA_MONSTERS.contains(&self.id_with_default())
+        constants::TOA_MONSTERS.contains(&self.id())
     }
 
     pub fn is_toa_path_monster(&self) -> bool {
-        constants::TOA_PATH_MONSTERS.contains(&self.id_with_default())
+        constants::TOA_PATH_MONSTERS.contains(&self.id())
     }
 
     pub fn heal(&mut self, amount: u32) {
@@ -920,11 +919,11 @@ impl Monster {
         let combat_type = &player.combat_type();
 
         if combat_type == &CombatType::Magic
-            && constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&self.id_with_default())
+            && constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&self.id())
             || (player.is_using_ranged()
-                && constants::IMMUNE_TO_RANGED_MONSTERS.contains(&self.id_with_default()))
+                && constants::IMMUNE_TO_RANGED_MONSTERS.contains(&self.id()))
             || (player.is_using_melee()
-                && (constants::IMMUNE_TO_MELEE_MONSTERS.contains(&self.id_with_default())
+                && (constants::IMMUNE_TO_MELEE_MONSTERS.contains(&self.id())
                     || (self.info.name == "Zulrah" && player.gear.weapon.attack_range < 2)))
         {
             return true;
@@ -933,8 +932,7 @@ impl Monster {
         if player.is_using_melee()
             && (player.gear.weapon.attack_range < 2
                 && !(player.is_wearing_salamander() && player.is_using_melee()))
-            && (constants::IMMUNE_TO_NON_HALBERD_MELEE_DAMAGE_MONSTERS
-                .contains(&self.id_with_default())
+            && (constants::IMMUNE_TO_NON_HALBERD_MELEE_DAMAGE_MONSTERS.contains(&self.id())
                 || (self.is_flying() && self.name() != "Vespula"))
         {
             return true;
@@ -1001,11 +999,11 @@ impl Monster {
 
     pub fn is_immune_to_thrall(&self, thrall: Thrall) -> bool {
         if thrall.attack_type() == AttackType::Melee
-            && constants::IMMUNE_TO_MELEE_MONSTERS.contains(&self.id_with_default())
+            && constants::IMMUNE_TO_MELEE_MONSTERS.contains(&self.id())
             || thrall.attack_type() == AttackType::Ranged
-                && constants::IMMUNE_TO_RANGED_MONSTERS.contains(&self.id_with_default())
+                && constants::IMMUNE_TO_RANGED_MONSTERS.contains(&self.id())
             || thrall.attack_type() == AttackType::Magic
-                && constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&self.id_with_default())
+                && constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&self.id())
         {
             return true;
         }

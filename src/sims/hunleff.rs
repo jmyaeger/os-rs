@@ -5,7 +5,7 @@ use crate::constants;
 use crate::error::SimulationError;
 use crate::types::monster::{AttackType, Monster, MonsterMaxHit};
 use crate::types::player::{Player, SwitchType};
-use crate::utils::logging::FightLogger;
+use crate::utils::logging::{Event, EventType, FightLog};
 use rand::Rng;
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
@@ -65,7 +65,6 @@ pub struct HunllefConfig {
     pub redemption_strategy: Option<HunllefRedemptionStrat>,
     pub attack_strategy: AttackStrategy,
     pub lost_ticks: i32,
-    pub logger: FightLogger,
     pub armor_tier: u32,
     pub only_success_stats: bool,
 }
@@ -81,7 +80,6 @@ impl Default for HunllefConfig {
                 style2: SwitchType::Magic,
             },
             lost_ticks: 0,
-            logger: FightLogger::new(false, "hunllef").expect("Error initializing logger."),
             armor_tier: 0,
             only_success_stats: true,
         }
@@ -150,33 +148,40 @@ impl HunllefMechanics {
     fn player_attack(
         &self,
         player: &mut Player,
-        monster: &mut Monster,
+        hunllef: &mut Monster,
         rng: &mut SmallRng,
         limiter: &Option<Box<dyn Limiter>>,
         fight_vars: &mut FightVars,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) {
-        let hit = (player.attack)(player, monster, rng, limiter);
-        if logger.enabled {
-            logger.log_player_attack(
-                fight_vars.tick_counter,
-                hit.damage,
-                hit.success,
-                player.combat_type(),
-            );
+        let hit = (player.attack)(player, hunllef, rng, limiter);
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::PlayerAttack {
+                    player_id: player.id(),
+                    success: hit.success,
+                    damage: hit.damage,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![hunllef.clone()],
+            });
         }
 
         player.state.first_attack = false;
         player.state.last_attack_hit = hit.success;
-        monster.take_damage(hit.damage);
+        hunllef.take_damage(hit.damage);
 
-        if logger.enabled {
-            logger.log_monster_damage(
-                fight_vars.tick_counter,
-                hit.damage,
-                monster.stats.hitpoints.current,
-                monster.name(),
-            );
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: fight_vars.tick_counter,
+                event_type: EventType::MonsterDamaged {
+                    monster_id: hunllef.id(),
+                    damage: hit.damage,
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![hunllef.clone()],
+            });
         }
 
         fight_vars.hit_attempts += 1;
@@ -189,14 +194,24 @@ impl HunllefMechanics {
         &self,
         state: &mut HunllefState,
         player: &mut Player,
-        logger: &mut FightLogger,
+        hunllef: &Monster,
+        log: &mut Option<&mut FightLog>,
         vars: &mut FightVars,
     ) {
         if let Some(damage) = state.queued_damage {
             player.take_damage(damage);
-            if logger.enabled {
-                logger.log_player_damage(vars.tick_counter, damage, player.stats.hitpoints.current);
+            if let Some(log) = log {
+                log.add_event(Event {
+                    tick: vars.tick_counter,
+                    event_type: EventType::PlayerDamaged {
+                        player_id: player.id(),
+                        damage,
+                    },
+                    player_states: vec![player.clone()],
+                    monster_states: vec![hunllef.clone()],
+                });
             }
+
             vars.damage_taken += damage;
             state.queued_damage = None;
         }
@@ -204,10 +219,12 @@ impl HunllefMechanics {
 
     fn process_tornadoes(
         &self,
+        player: &Player,
+        hunllef: &Monster,
         state: &mut HunllefState,
         vars: &mut FightVars,
         rng: &mut SmallRng,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) -> bool {
         state.tornado_cd = state.tornado_cd.saturating_sub(1);
         if state.tornado_cd == 0 {
@@ -215,8 +232,15 @@ impl HunllefMechanics {
                 && state.hunllef_attack_count % 4 != 3
             {
                 // Tornado procs act like an empty attack
-                if logger.enabled {
-                    logger.log_custom(vars.tick_counter, "Tornadoes spawned.");
+                if let Some(log) = log {
+                    log.add_event(Event {
+                        tick: vars.tick_counter,
+                        event_type: EventType::Custom {
+                            message: "Tornadoes spawned.".to_string(),
+                        },
+                        player_states: vec![player.clone()],
+                        monster_states: vec![hunllef.clone()],
+                    });
                 }
 
                 state.hunllef_attack_tick += HUNLLEF_ATTACK_SPEED;
@@ -244,6 +268,7 @@ impl HunllefMechanics {
         config: &mut HunllefConfig,
         vars: &mut FightVars,
         rng: &mut SmallRng,
+        log: &mut Option<&mut FightLog>,
     ) -> Result<(), SimulationError> {
         // Choose Hunllef's attack style, alternating every 4 attacks (starting with ranged)
         let hunllef_style = if (state.hunllef_attack_count / 4).is_multiple_of(2) {
@@ -261,14 +286,18 @@ impl HunllefMechanics {
         let hp_capped_damage = min(hit.damage, player.stats.hitpoints.current);
         hit.damage = hp_capped_damage;
 
-        if config.logger.enabled {
-            config.logger.log_monster_attack(
-                hunllef,
-                vars.tick_counter,
-                hit.damage,
-                hit.success,
-                Some(hunllef_style),
-            );
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: vars.tick_counter,
+                event_type: EventType::MonsterAttack {
+                    monster_id: hunllef.id(),
+                    success: hit.success,
+                    damage: hit.damage,
+                    style: Some(hunllef_style),
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![hunllef.clone()],
+            });
         }
 
         // Queue the damage for the next tick to allow for tick eating
@@ -284,9 +313,10 @@ impl HunllefMechanics {
         state: &mut HunllefState,
         vars: &mut FightVars,
         player: &mut Player,
+        hunllef: &Monster,
         eat_strategy: &HunllefEatStrategy,
         hunllef_max: u32,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) {
         // Handle eating based on set strategy
         match eat_strategy {
@@ -297,7 +327,7 @@ impl HunllefMechanics {
                     && vars.eat_delay == 0
                     && state.food_count > 0
                 {
-                    self.eat_food(player, PADDLEFISH_HEAL, None, vars, logger);
+                    self.eat_food(player, hunllef, PADDLEFISH_HEAL, None, vars, log);
                     state.food_count -= 1;
                     vars.attack_tick += PADDLEFISH_DELAY;
                 }
@@ -308,7 +338,7 @@ impl HunllefMechanics {
                     && vars.eat_delay == 0
                     && state.food_count > 0
                 {
-                    self.eat_food(player, PADDLEFISH_HEAL, None, vars, logger);
+                    self.eat_food(player, hunllef, PADDLEFISH_HEAL, None, vars, log);
                     state.food_count -= 1;
                     vars.attack_tick += PADDLEFISH_DELAY;
                 }
@@ -321,7 +351,7 @@ impl HunllefMechanics {
                     && vars.eat_delay == 0
                     && state.food_count > 0
                 {
-                    self.eat_food(player, PADDLEFISH_HEAL, None, vars, logger);
+                    self.eat_food(player, hunllef, PADDLEFISH_HEAL, None, vars, log);
                     state.food_count -= 1;
                     vars.attack_tick += PADDLEFISH_DELAY;
                 }
@@ -364,7 +394,10 @@ impl HunllefFight {
         })
     }
 
-    fn simulate_hunllef_fight(&mut self) -> Result<FightResult, SimulationError> {
+    fn simulate_hunllef_fight(
+        &mut self,
+        log: &mut Option<&mut FightLog>,
+    ) -> Result<FightResult, SimulationError> {
         let mut vars = FightVars::new();
         let mut state = HunllefState {
             food_count: self.config.food_count,
@@ -372,14 +405,6 @@ impl HunllefFight {
         };
         state.food_count = self.config.food_count;
         vars.attack_tick += self.config.lost_ticks;
-
-        let logger_enabled = self.config.logger.enabled;
-
-        if logger_enabled {
-            self.config
-                .logger
-                .log_initial_setup(&self.player, &self.hunllef);
-        }
 
         let attack_strategy = self.config.attack_strategy.clone();
 
@@ -389,6 +414,11 @@ impl HunllefFight {
             3 => T3_MAX_HIT,
             _ => T0_MAX_HIT,
         };
+
+        if let Some(log) = log {
+            log.initial_player_states.push(self.player.clone());
+            log.initial_monster_states.push(self.hunllef.clone());
+        }
 
         match &attack_strategy {
             AttackStrategy::TwoT3Weapons { style1, style2 } => {
@@ -402,10 +432,16 @@ impl HunllefFight {
                 // Ensure the player is switched to the correct starting style
                 self.player.switch(current_style)?;
 
-                if logger_enabled {
-                    self.config
-                        .logger
-                        .log_gear_switch(vars.tick_counter, current_style);
+                if let Some(log) = log {
+                    log.add_event(Event {
+                        tick: vars.tick_counter,
+                        event_type: EventType::GearSwitch {
+                            player_id: self.player.id(),
+                            switch_type: current_style.clone(),
+                        },
+                        player_states: vec![self.player.clone()],
+                        monster_states: vec![self.hunllef.clone()],
+                    });
                 }
 
                 // Combat loop
@@ -413,19 +449,17 @@ impl HunllefFight {
                     // Regen 1 HP for Hunllef every 100 ticks
                     if vars.tick_counter % HUNLLEF_REGEN_TICKS == 0 {
                         self.mechanics.monster_regen_hp(
+                            &self.player,
                             &mut self.hunllef,
                             &vars,
-                            &mut self.config.logger,
+                            log,
                         );
                     }
 
                     // Regen 1 HP for player every 100 ticks
                     if vars.tick_counter % constants::PLAYER_REGEN_TICKS == 0 {
-                        self.mechanics.player_regen(
-                            &mut self.player,
-                            &vars,
-                            &mut self.config.logger,
-                        );
+                        self.mechanics
+                            .player_regen(&mut self.player, &self.hunllef, &vars, log);
                     }
 
                     // Decrement the tornado timer if active
@@ -445,9 +479,10 @@ impl HunllefFight {
                                 &mut state,
                                 &mut vars,
                                 &mut self.player,
+                                &self.hunllef,
                                 &self.config.eat_strategy,
                                 hunllef_max,
-                                &mut self.config.logger,
+                                log,
                             );
                         }
                     }
@@ -456,7 +491,8 @@ impl HunllefFight {
                     self.mechanics.apply_queued_damage(
                         &mut state,
                         &mut self.player,
-                        &mut self.config.logger,
+                        &self.hunllef,
+                        log,
                         &mut vars,
                     );
 
@@ -472,8 +508,9 @@ impl HunllefFight {
                                 vars.redemption_procs += 1;
                                 self.mechanics.process_redemption(
                                     &mut self.player,
+                                    &self.hunllef,
                                     &vars,
-                                    &mut self.config.logger,
+                                    log,
                                 );
                             }
                             Some(HunllefRedemptionStrat::NoFoodLeft(max_procs))
@@ -482,8 +519,9 @@ impl HunllefFight {
                                 vars.redemption_procs += 1;
                                 self.mechanics.process_redemption(
                                     &mut self.player,
+                                    &self.hunllef,
                                     &vars,
-                                    &mut self.config.logger,
+                                    log,
                                 );
                             }
                             _ => {}
@@ -497,7 +535,7 @@ impl HunllefFight {
                             &mut self.rng,
                             &self.limiter,
                             &mut vars,
-                            &mut self.config.logger,
+                            log,
                         );
 
                         // Increment attack count and switch styles every six attacks
@@ -507,10 +545,16 @@ impl HunllefFight {
                             std::mem::swap(&mut current_style, &mut other_style);
                             self.player.switch(current_style)?;
 
-                            if logger_enabled {
-                                self.config
-                                    .logger
-                                    .log_gear_switch(vars.tick_counter, current_style);
+                            if let Some(log) = log {
+                                log.add_event(Event {
+                                    tick: vars.tick_counter,
+                                    event_type: EventType::GearSwitch {
+                                        player_id: self.player.id(),
+                                        switch_type: current_style.clone(),
+                                    },
+                                    player_states: vec![self.player.clone()],
+                                    monster_states: vec![self.hunllef.clone()],
+                                });
                             }
                         }
                     }
@@ -521,10 +565,12 @@ impl HunllefFight {
                     if vars.tick_counter == state.hunllef_attack_tick {
                         // Roll for tornado spawn if off cooldown and not about to switch styles
                         let tornado_proc = self.mechanics.process_tornadoes(
+                            &self.player,
+                            &self.hunllef,
                             &mut state,
                             &mut vars,
                             &mut self.rng,
-                            &mut self.config.logger,
+                            log,
                         );
                         if !tornado_proc {
                             self.mechanics.hunllef_attack(
@@ -534,6 +580,7 @@ impl HunllefFight {
                                 &mut self.config,
                                 &mut vars,
                                 &mut self.rng,
+                                log,
                             )?;
                         }
                     }
@@ -543,9 +590,10 @@ impl HunllefFight {
 
                     if self.player.stats.hitpoints.current == 0 {
                         return self.mechanics.process_player_death(
+                            &self.player,
                             &vars,
                             &self.hunllef,
-                            &mut self.config.logger,
+                            log,
                         );
                     }
                 }
@@ -565,10 +613,16 @@ impl HunllefFight {
                 // Ensure the player is switched to the correct starting style
                 self.player.switch(current_style)?;
 
-                if logger_enabled {
-                    self.config
-                        .logger
-                        .log_gear_switch(vars.tick_counter, current_style);
+                if let Some(log) = log {
+                    log.add_event(Event {
+                        tick: vars.tick_counter,
+                        event_type: EventType::GearSwitch {
+                            player_id: self.player.id(),
+                            switch_type: current_style.clone(),
+                        },
+                        player_states: vec![self.player.clone()],
+                        monster_states: vec![self.hunllef.clone()],
+                    });
                 }
 
                 // Combat loop
@@ -576,19 +630,17 @@ impl HunllefFight {
                     // Regen 1 HP for Hunllef every 100 ticks
                     if vars.tick_counter % HUNLLEF_REGEN_TICKS == 0 {
                         self.mechanics.monster_regen_hp(
+                            &self.player,
                             &mut self.hunllef,
                             &vars,
-                            &mut self.config.logger,
+                            log,
                         );
                     }
 
                     // Regen 1 HP for player every 100 ticks
                     if vars.tick_counter % constants::PLAYER_REGEN_TICKS == 0 {
-                        self.mechanics.player_regen(
-                            &mut self.player,
-                            &vars,
-                            &mut self.config.logger,
-                        );
+                        self.mechanics
+                            .player_regen(&mut self.player, &self.hunllef, &vars, log);
                     }
 
                     // Decrement the tornado timer if active
@@ -608,9 +660,10 @@ impl HunllefFight {
                                 &mut state,
                                 &mut vars,
                                 &mut self.player,
+                                &self.hunllef,
                                 &self.config.eat_strategy,
                                 hunllef_max,
-                                &mut self.config.logger,
+                                log,
                             );
                         }
                     }
@@ -619,7 +672,8 @@ impl HunllefFight {
                     self.mechanics.apply_queued_damage(
                         &mut state,
                         &mut self.player,
-                        &mut self.config.logger,
+                        &self.hunllef,
+                        log,
                         &mut vars,
                     );
 
@@ -635,8 +689,9 @@ impl HunllefFight {
                                 vars.redemption_procs += 1;
                                 self.mechanics.process_redemption(
                                     &mut self.player,
+                                    &self.hunllef,
                                     &vars,
-                                    &mut self.config.logger,
+                                    log,
                                 );
                             }
                             Some(HunllefRedemptionStrat::NoFoodLeft(max_procs))
@@ -645,8 +700,9 @@ impl HunllefFight {
                                 vars.redemption_procs += 1;
                                 self.mechanics.process_redemption(
                                     &mut self.player,
+                                    &self.hunllef,
                                     &vars,
-                                    &mut self.config.logger,
+                                    log,
                                 );
                             }
                             _ => {}
@@ -660,7 +716,7 @@ impl HunllefFight {
                             &mut self.rng,
                             &self.limiter,
                             &mut vars,
-                            &mut self.config.logger,
+                            log,
                         );
 
                         // Increment attack count and switch to melee every 5 attacks
@@ -669,10 +725,16 @@ impl HunllefFight {
                             std::mem::swap(&mut current_style, &mut next_style);
                             self.player.switch(current_style)?;
 
-                            if logger_enabled {
-                                self.config
-                                    .logger
-                                    .log_gear_switch(vars.tick_counter, current_style);
+                            if let Some(log) = log {
+                                log.add_event(Event {
+                                    tick: vars.tick_counter,
+                                    event_type: EventType::GearSwitch {
+                                        player_id: self.player.id(),
+                                        switch_type: current_style.clone(),
+                                    },
+                                    player_states: vec![self.player.clone()],
+                                    monster_states: vec![self.hunllef.clone()],
+                                });
                             }
                         }
                         if state.player_attack_count == 6 {
@@ -681,10 +743,16 @@ impl HunllefFight {
                             std::mem::swap(&mut next_style, &mut other_style);
                             self.player.switch(current_style)?;
 
-                            if logger_enabled {
-                                self.config
-                                    .logger
-                                    .log_gear_switch(vars.tick_counter, current_style);
+                            if let Some(log) = log {
+                                log.add_event(Event {
+                                    tick: vars.tick_counter,
+                                    event_type: EventType::GearSwitch {
+                                        player_id: self.player.id(),
+                                        switch_type: current_style.clone(),
+                                    },
+                                    player_states: vec![self.player.clone()],
+                                    monster_states: vec![self.hunllef.clone()],
+                                });
                             }
                         }
                     }
@@ -695,10 +763,12 @@ impl HunllefFight {
                     if vars.tick_counter == state.hunllef_attack_tick {
                         // Roll for tornado spawn if off cooldown and not about to switch styles
                         let tornado_proc = self.mechanics.process_tornadoes(
+                            &self.player,
+                            &self.hunllef,
                             &mut state,
                             &mut vars,
                             &mut self.rng,
-                            &mut self.config.logger,
+                            log,
                         );
                         if !tornado_proc {
                             self.mechanics.hunllef_attack(
@@ -708,6 +778,7 @@ impl HunllefFight {
                                 &mut self.config,
                                 &mut vars,
                                 &mut self.rng,
+                                log,
                             )?;
                         }
                     }
@@ -717,9 +788,10 @@ impl HunllefFight {
 
                     if self.player.stats.hitpoints.current == 0 {
                         return self.mechanics.process_player_death(
+                            &self.player,
                             &vars,
                             &self.hunllef,
-                            &mut self.config.logger,
+                            log,
                         );
                     }
                 }
@@ -728,17 +800,21 @@ impl HunllefFight {
 
         let remove_final_attack_delay = true;
         self.mechanics.get_fight_result(
+            &self.player,
             &self.hunllef,
             &vars,
-            &mut self.config.logger,
+            log,
             remove_final_attack_delay,
         )
     }
 }
 
 impl Simulation for HunllefFight {
-    fn simulate(&mut self) -> Result<FightResult, SimulationError> {
-        self.simulate_hunllef_fight()
+    fn simulate(
+        &mut self,
+        log: &mut Option<&mut FightLog>,
+    ) -> Result<FightResult, SimulationError> {
+        self.simulate_hunllef_fight(log)
     }
 
     fn is_immune(&self) -> bool {
@@ -889,7 +965,6 @@ mod tests {
                 other_style2: SwitchType::Melee,
             },
             lost_ticks: 0,
-            logger: FightLogger::new(false, "hunllef").expect("Error initializing logger."),
             armor_tier: 0,
             only_success_stats: true,
         };
@@ -897,7 +972,7 @@ mod tests {
         let mut fight =
             HunllefFight::new(player, fight_config).expect("Error setting up Hunllef fight.");
 
-        let result = fight.simulate();
+        let result = fight.simulate(&mut None);
 
         fight.reset();
 

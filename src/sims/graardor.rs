@@ -5,7 +5,7 @@ use crate::constants;
 use crate::error::SimulationError;
 use crate::types::monster::{AttackType, Monster};
 use crate::types::player::Player;
-use crate::utils::logging::FightLogger;
+use crate::utils::logging::FightLog;
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
 
@@ -29,7 +29,6 @@ pub struct GraardorConfig {
     pub method: GraardorMethod,
     pub eat_hp: u32,
     pub heal_amount: u32,
-    pub logger: FightLogger,
 }
 
 impl Default for GraardorConfig {
@@ -38,7 +37,6 @@ impl Default for GraardorConfig {
             method: GraardorMethod::DoorAltar,
             eat_hp: 30,
             heal_amount: 20,
-            logger: FightLogger::new(false, "graardor").expect("Error initializing logger."),
         }
     }
 }
@@ -101,7 +99,10 @@ impl GraardorFight {
         })
     }
 
-    fn simulate_door_altar_fight(&mut self) -> Result<FightResult, SimulationError> {
+    fn simulate_door_altar_fight(
+        &mut self,
+        log: &mut Option<&mut FightLog>,
+    ) -> Result<FightResult, SimulationError> {
         if self.player.gear.weapon.speed != 4 {
             let error_msg = format!(
                 "GraardorFight::simulate_door_altar_fight: player weapon speed must be 4, got {}",
@@ -113,9 +114,13 @@ impl GraardorFight {
         let mut vars = FightVars::new();
         let mut state = GraardorState::default();
 
-        self.config
-            .logger
-            .log_initial_setup(&self.player, &self.graardor);
+        if let Some(log) = log {
+            log.initial_player_states.push(self.player.clone());
+            log.initial_monster_states.push(self.graardor.clone());
+            log.initial_monster_states.push(self.mage_minion.clone());
+            log.initial_monster_states.push(self.melee_minion.clone());
+            log.initial_monster_states.push(self.ranged_minion.clone());
+        }
 
         while self.graardor.stats.hitpoints.current > 0 {
             // Player attack
@@ -130,17 +135,14 @@ impl GraardorFight {
                         &mut self.rng,
                         &self.limiter,
                         &mut vars,
-                        &mut self.config.logger,
+                        log,
                     );
                 }
             }
 
             // Process active effects on Graardor
-            self.mechanics.process_monster_effects(
-                &mut self.graardor,
-                &vars,
-                &mut self.config.logger,
-            );
+            self.mechanics
+                .process_monster_effects(&self.player, &mut self.graardor, &vars, log);
 
             // Mage minion attack
             if vars.tick_counter == state.mage_attack_tick {
@@ -150,7 +152,7 @@ impl GraardorFight {
                     Some(AttackType::Magic),
                     &mut vars,
                     &mut self.rng,
-                    &mut self.config.logger,
+                    log,
                 )?;
                 if vars.tick_counter == 6 {
                     state.mage_attack_tick += 7;
@@ -167,7 +169,7 @@ impl GraardorFight {
                     Some(AttackType::Crush),
                     &mut vars,
                     &mut self.rng,
-                    &mut self.config.logger,
+                    log,
                 )?;
                 if vars.tick_counter == 5 {
                     state.melee_attack_tick += 22;
@@ -179,9 +181,10 @@ impl GraardorFight {
             // Check for player death and return if dead
             if self.player.stats.hitpoints.current == 0 {
                 return self.mechanics.process_player_death(
+                    &self.player,
                     &vars,
                     &self.graardor,
-                    &mut self.config.logger,
+                    log,
                 );
             }
 
@@ -195,10 +198,11 @@ impl GraardorFight {
             {
                 self.mechanics.eat_food(
                     &mut self.player,
+                    &self.graardor,
                     self.config.heal_amount,
                     None,
                     &mut vars,
-                    &mut self.config.logger,
+                    log,
                 );
                 state.skip_next_attack = true;
             }
@@ -206,18 +210,15 @@ impl GraardorFight {
             // Regen all stats by 1 for Graardor every 10 ticks
             if vars.tick_counter % GRAARDOR_REGEN_TICKS == 0 {
                 self.mechanics
-                    .monster_regen_hp(&mut self.graardor, &vars, &mut self.config.logger);
-                self.mechanics.monster_regen_stats(
-                    &mut self.graardor,
-                    &vars,
-                    &mut self.config.logger,
-                );
+                    .monster_regen_hp(&self.player, &mut self.graardor, &vars, log);
+                self.mechanics
+                    .monster_regen_stats(&self.player, &mut self.graardor, &vars, log);
             }
 
             // Regen all stats by 1 for player every 100 ticks
             if vars.tick_counter % constants::PLAYER_REGEN_TICKS == 0 {
                 self.mechanics
-                    .player_regen(&mut self.player, &vars, &mut self.config.logger);
+                    .player_regen(&mut self.player, &self.graardor, &vars, log);
             }
 
             // Increment tick counter
@@ -233,18 +234,22 @@ impl GraardorFight {
 
         let remove_final_attack_delay = true;
         self.mechanics.get_fight_result(
+            &self.player,
             &self.graardor,
             &vars,
-            &mut self.config.logger,
+            log,
             remove_final_attack_delay,
         )
     }
 }
 
 impl Simulation for GraardorFight {
-    fn simulate(&mut self) -> Result<FightResult, SimulationError> {
+    fn simulate(
+        &mut self,
+        log: &mut Option<&mut FightLog>,
+    ) -> Result<FightResult, SimulationError> {
         match self.config.method {
-            GraardorMethod::DoorAltar => self.simulate_door_altar_fight(),
+            GraardorMethod::DoorAltar => self.simulate_door_altar_fight(log),
         }
     }
 
@@ -312,13 +317,12 @@ mod tests {
             method: GraardorMethod::DoorAltar,
             eat_hp: 30,
             heal_amount: 22,
-            logger: FightLogger::new(false, "graardor").expect("Error initializing logger."),
         };
 
         let mut fight =
             GraardorFight::new(player, fight_config).expect("Error setting up Graardor fight.");
 
-        let result = fight.simulate();
+        let result = fight.simulate(&mut None);
 
         if let Ok(result) = result {
             assert!(result.ttk_ticks > 0);

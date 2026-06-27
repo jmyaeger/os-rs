@@ -9,7 +9,8 @@ use crate::constants;
 use crate::error::SimulationError;
 use crate::types::monster::{AttackType, Monster, MonsterMaxHit};
 use crate::types::player::Player;
-use crate::utils::logging::FightLogger;
+use crate::types::prayers::Prayer;
+use crate::utils::logging::{Event, EventType, FightLog};
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
 
@@ -24,7 +25,6 @@ pub struct VardorvisConfig {
     pub food_eat_delay: i32,
     pub eat_strategy: VardorvisEatStrategy,
     pub thralls: Option<Thrall>,
-    pub logger: FightLogger,
     pub spec_config: Option<SpecConfig<CoreCondition>>,
     pub spec_state: SpecState,
 }
@@ -36,7 +36,6 @@ impl Default for VardorvisConfig {
             food_eat_delay: 3,
             eat_strategy: VardorvisEatStrategy::EatAtHp(20),
             thralls: None,
-            logger: FightLogger::new(false, "vardorvis").expect("Error initializing logger."),
             spec_config: None,
             spec_state: SpecState::default(),
         }
@@ -73,54 +72,44 @@ impl VardorvisMechanics {
         state: &mut VardorvisState,
         vars: &mut FightVars,
         rng: &mut SmallRng,
-        logger: &mut FightLogger,
+        log: &mut Option<&mut FightLog>,
     ) -> Result<(), SimulationError> {
         let mut hit = vard.attack(player, Some(VARDORVIS_ATTACK_STYLE), rng, false)?;
         hit.damage /= 4; // Assumes Protect from Melee is active
         hit.damage = hit.damage.min(player.stats.hitpoints.current);
 
-        if logger.enabled {
-            logger.log_monster_attack(
-                vard,
-                vars.tick_counter,
-                hit.damage,
-                hit.success,
-                Some(VARDORVIS_ATTACK_STYLE),
-            );
+        if let Some(log) = log {
+            log.add_event(Event {
+                tick: vars.tick_counter,
+                event_type: EventType::MonsterAttack {
+                    monster_id: vard.id(),
+                    success: hit.success,
+                    damage: hit.damage,
+                    style: Some(VARDORVIS_ATTACK_STYLE),
+                },
+                player_states: vec![player.clone()],
+                monster_states: vec![vard.clone()],
+            });
         }
 
         if hit.success {
             player.take_damage(hit.damage);
             vars.damage_taken += hit.damage;
-            vard.heal(hit.damage / 2);
-            handle_recoil(player, vard, &hit, vars, logger);
+            let heal_amount = hit.damage / 2;
+            vard.heal(heal_amount);
+            handle_recoil(player, vard, &hit, vars, log);
             scale_monster_hp_only(vard, true);
 
-            if logger.enabled {
-                logger.log_custom(
-                    vars.tick_counter,
-                    format!("Vardorvis healed {} HP", hit.damage / 2).as_str(),
-                );
-                logger.log_custom(
-                    vars.tick_counter,
-                    format!("Vardorvis HP: {}", vard.stats.hitpoints.current).as_str(),
-                );
-                logger.log_custom(
-                    vars.tick_counter,
-                    format!("Vardorvis defence level: {}", vard.stats.defence.current).as_str(),
-                );
-                logger.log_custom(
-                    vars.tick_counter,
-                    format!("Vardorvis strength level: {}", vard.stats.strength.current).as_str(),
-                );
-                logger.log_custom(
-                    vars.tick_counter,
-                    format!(
-                        "Vardorvis max hit: {}",
-                        vard.max_hits.as_ref().unwrap()[0].value
-                    )
-                    .as_str(),
-                );
+            if let Some(log) = log {
+                log.add_event(Event {
+                    tick: vars.tick_counter,
+                    event_type: EventType::MonsterHeal {
+                        monster_id: vard.id(),
+                        amount: heal_amount,
+                    },
+                    player_states: vec![player.clone()],
+                    monster_states: vec![vard.clone()],
+                });
             }
         }
 
@@ -134,19 +123,15 @@ impl VardorvisMechanics {
         config: &mut VardorvisConfig,
         vars: &mut FightVars,
         player: &mut Player,
+        vard: &Monster,
+        log: &mut Option<&mut FightLog>,
     ) {
         // Handle eating based on set strategy
         match config.eat_strategy {
             VardorvisEatStrategy::EatAtHp(threshold) => {
                 // Eat if at or below the provided threshold and force the player to skip the next attack
                 if player.stats.hitpoints.current <= threshold && vars.eat_delay == 0 {
-                    self.eat_food(
-                        player,
-                        config.food_heal_amount,
-                        None,
-                        vars,
-                        &mut config.logger,
-                    );
+                    self.eat_food(player, vard, config.food_heal_amount, None, vars, log);
                     vars.attack_tick += config.food_eat_delay;
                 }
             }
@@ -198,31 +183,38 @@ impl VardorvisFight {
         })
     }
 
-    fn simulate_vardorvis_fight(&mut self) -> Result<FightResult, SimulationError> {
+    fn simulate_vardorvis_fight(
+        &mut self,
+        log: &mut Option<&mut FightLog>,
+    ) -> Result<FightResult, SimulationError> {
         let mut vars = FightVars::new();
         let mut state = VardorvisState::default();
-        let logging_enabled = self.config.logger.enabled;
-        if logging_enabled {
-            self.config
-                .logger
-                .log_initial_setup(&self.player, &self.vard);
-        }
+        let player_regen_ticks = if self.player.prayers.contains_prayer(Prayer::RapidHeal) {
+            constants::PLAYER_REGEN_TICKS / 2
+        } else {
+            constants::PLAYER_REGEN_TICKS
+        };
         loop {
             if vars.tick_counter % VARDORVIS_REGEN_TICKS == 0 {
                 // Appears to regen stats but not HP every 100 ticks
                 self.mechanics
-                    .monster_regen_stats(&mut self.vard, &vars, &mut self.config.logger);
+                    .monster_regen_stats(&self.player, &mut self.vard, &vars, log);
             }
 
             // Regen 1 HP for player every 100 ticks
-            if vars.tick_counter % constants::PLAYER_REGEN_TICKS == 0 {
+            if vars.tick_counter % player_regen_ticks == 0 {
                 self.mechanics
-                    .player_regen(&mut self.player, &vars, &mut self.config.logger);
+                    .player_regen(&mut self.player, &self.vard, &vars, log);
             }
 
             self.mechanics.decrement_eat_delay(&mut vars);
-            self.mechanics
-                .handle_eating(&mut self.config, &mut vars, &mut self.player);
+            self.mechanics.handle_eating(
+                &mut self.config,
+                &mut vars,
+                &mut self.player,
+                &self.vard,
+                log,
+            );
 
             if vars.tick_counter == vars.attack_tick {
                 let did_spec = if let Some(ref mut spec_config) = self.config.spec_config {
@@ -237,7 +229,7 @@ impl VardorvisFight {
                                 &mut self.config.spec_state,
                                 &(),
                                 &mut vars,
-                                &mut self.config.logger,
+                                log,
                             )?
                         } else {
                             false
@@ -256,13 +248,8 @@ impl VardorvisFight {
                         &mut self.rng,
                         &self.limiter,
                         &mut vars,
-                        &mut self.config.logger,
+                        log,
                     );
-                }
-
-                if logging_enabled {
-                    self.config.logger.log_current_monster_stats(&self.vard);
-                    self.config.logger.log_current_monster_rolls(&self.vard);
                 }
 
                 if self.vard.stats.hitpoints.current == 0 {
@@ -274,17 +261,13 @@ impl VardorvisFight {
                 && vars.tick_counter == vars.thrall_attack_tick
             {
                 self.mechanics.thrall_attack(
+                    &self.player,
                     &mut self.vard,
                     thrall,
                     &mut vars,
                     &mut self.rng,
-                    &mut self.config.logger,
+                    log,
                 );
-
-                if logging_enabled {
-                    self.config.logger.log_current_monster_stats(&self.vard);
-                    self.config.logger.log_current_monster_rolls(&self.vard);
-                }
 
                 if self.vard.stats.hitpoints.current == 0 {
                     break;
@@ -292,7 +275,7 @@ impl VardorvisFight {
             }
 
             self.mechanics
-                .process_monster_effects(&mut self.vard, &vars, &mut self.config.logger);
+                .process_monster_effects(&self.player, &mut self.vard, &vars, log);
 
             if self.vard.stats.hitpoints.current == 0 {
                 break;
@@ -300,14 +283,19 @@ impl VardorvisFight {
 
             self.config.spec_state.increment_spec(
                 &mut self.player,
+                &self.vard,
                 vars.tick_counter,
-                &mut self.config.logger,
+                log,
             );
             self.config.spec_state.increment_timers();
             if let Some(ref spec_config) = self.config.spec_config {
-                self.config
-                    .spec_state
-                    .process_surge_potion(&mut self.player, spec_config);
+                self.config.spec_state.process_surge_potion(
+                    &mut self.player,
+                    &self.vard,
+                    spec_config,
+                    vars.tick_counter,
+                    log,
+                );
             }
 
             if vars.tick_counter == state.vardorvis_attack_tick {
@@ -317,7 +305,7 @@ impl VardorvisFight {
                     &mut state,
                     &mut vars,
                     &mut self.rng,
-                    &mut self.config.logger,
+                    log,
                 )?;
             }
 
@@ -325,26 +313,28 @@ impl VardorvisFight {
             vars.tick_counter += 1;
 
             if self.player.stats.hitpoints.current == 0 {
-                return self.mechanics.process_player_death(
-                    &vars,
-                    &self.vard,
-                    &mut self.config.logger,
-                );
+                return self
+                    .mechanics
+                    .process_player_death(&self.player, &vars, &self.vard, log);
             }
         }
         let remove_final_attack_delay = true;
         self.mechanics.get_fight_result(
+            &self.player,
             &self.vard,
             &vars,
-            &mut self.config.logger,
+            log,
             remove_final_attack_delay,
         )
     }
 }
 
 impl Simulation for VardorvisFight {
-    fn simulate(&mut self) -> Result<FightResult, SimulationError> {
-        self.simulate_vardorvis_fight()
+    fn simulate(
+        &mut self,
+        log: &mut Option<&mut FightLog>,
+    ) -> Result<FightResult, SimulationError> {
+        self.simulate_vardorvis_fight(log)
     }
 
     fn is_immune(&self) -> bool {
@@ -373,9 +363,11 @@ impl Simulation for VardorvisFight {
                 .spec_state
                 .on_kill(&mut self.player, spec_config);
             self.player.reset_current_stats(restore_spec);
-            self.config
-                .spec_state
-                .advance_ticks(&mut self.player, VARDORVIS_RESPAWN_TICKS);
+            self.config.spec_state.advance_ticks(
+                &mut self.player,
+                &self.vard,
+                VARDORVIS_RESPAWN_TICKS,
+            );
             if restore_spec {
                 // Assume that the player is not losing stacks between successive kills in a trip
                 // but does lose all stacks when resetting spec energy

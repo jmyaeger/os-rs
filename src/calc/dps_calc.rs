@@ -57,7 +57,7 @@ fn get_normal_accuracy(
     }
 
     if player.is_wearing("Keris partisan of the sun", None)
-        && constants::TOA_MONSTERS.contains(&monster.id_with_default())
+        && constants::TOA_MONSTERS.contains(&monster.id())
         && monster.stats.hitpoints.current < monster.stats.hitpoints.base / 4
     {
         max_att_roll = max_att_roll * 5 / 4;
@@ -185,8 +185,8 @@ fn get_hit_chance(
         || (monster.name() == "Giant rat (Scurrius)"
             && player.combat_stance() != CombatStance::ManualCast)
         || (using_spec && player.is_wearing_any(constants::ALWAYS_HITS_SPEC))
-        || constants::P2_WARDEN_IDS.contains(&monster.id_with_default())
-        || constants::GUARANTEED_ACCURACY_MONSTERS.contains(&monster.id_with_default())
+        || constants::P2_WARDEN_IDS.contains(&monster.id())
+        || constants::GUARANTEED_ACCURACY_MONSTERS.contains(&monster.id())
         || (monster.name() == "Eclipse Moon"
             && monster.matches_version("Clone")
             && player.is_using_melee())
@@ -294,7 +294,7 @@ pub fn get_distribution(
     let combat_type = player.combat_type();
     let (mut min_hit, max_hit) = if using_spec {
         get_spec_min_max_hit(player, monster)?
-    } else if constants::P2_WARDEN_IDS.contains(&monster.id_with_default()) {
+    } else if constants::P2_WARDEN_IDS.contains(&monster.id()) {
         get_wardens_p2_min_max(player, monster)?
     } else {
         (0, player.max_hits.get(combat_type))
@@ -310,7 +310,7 @@ pub fn get_distribution(
     let mut accurate_zero_applicable = true;
 
     // Check if the monster always dies in one hit
-    if constants::ONE_HIT_MONSTERS.contains(&monster.id_with_default()) {
+    if constants::ONE_HIT_MONSTERS.contains(&monster.id()) {
         return Ok(AttackDistribution::new(vec![HitDistribution::single(
             1.0,
             vec![Hitsplat::new(monster.stats.hitpoints.base, true)],
@@ -326,12 +326,9 @@ pub fn get_distribution(
     }
 
     // Check if the monster always takes the maximum hit for the current combat type
-    if player.is_using_magic()
-        && constants::ALWAYS_MAX_HIT_MAGIC.contains(&monster.id_with_default())
-        || player.is_using_melee()
-            && constants::ALWAYS_MAX_HIT_MELEE.contains(&monster.id_with_default())
-        || player.is_using_ranged()
-            && constants::ALWAYS_MAX_HIT_RANGED.contains(&monster.id_with_default())
+    if player.is_using_magic() && constants::ALWAYS_MAX_HIT_MAGIC.contains(&monster.id())
+        || player.is_using_melee() && constants::ALWAYS_MAX_HIT_MELEE.contains(&monster.id())
+        || player.is_using_ranged() && constants::ALWAYS_MAX_HIT_RANGED.contains(&monster.id())
     {
         if monster.info.name == "Void Flare"
             && player.boosts.mark_of_darkness
@@ -459,7 +456,7 @@ pub fn get_distribution(
     // Saradomin sword spec
     if using_spec && player.is_wearing("Saradomin sword", None) {
         let magic_hit = HitDistribution::linear(1.0, 1, 16);
-        if !constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&monster.id_with_default()) {
+        if !constants::IMMUNE_TO_MAGIC_MONSTERS.contains(&monster.id()) {
             dist = dist.transform(
                 &|h| HitDistribution::new(vec![WeightedHit::new(1.0, vec![*h])]).zip(&magic_hit),
                 &TransformOpts {
@@ -998,7 +995,7 @@ fn apply_limiters(
         }
     }
 
-    if monster.info.id == Some(constants::HUEYCOATL_TAIL_ID) {
+    if monster.id() == constants::HUEYCOATL_TAIL_ID {
         let using_crush = player.combat_type() == CombatType::Crush
             && player.bonuses.attack.crush > player.bonuses.attack.stab
             && player.bonuses.attack.crush > player.bonuses.attack.slash;
@@ -1347,7 +1344,7 @@ fn dist_is_current_hp_dependent(player: &Player, monster: &Monster) -> bool {
     }
 
     if player.is_wearing("Keris partisan of the sun", None)
-        && constants::TOA_MONSTERS.contains(&monster.id_with_default())
+        && constants::TOA_MONSTERS.contains(&monster.id())
     {
         return true;
     }
@@ -1370,7 +1367,7 @@ fn dist_at_hp(
     if !dist_is_current_hp_dependent(player, monster)
         || hp == monster.stats.hitpoints.current as usize
         || (player.is_wearing("Keris partisan of the sun", None)
-            && constants::TOA_MONSTERS.contains(&monster.id_with_default())
+            && constants::TOA_MONSTERS.contains(&monster.id())
             && hp >= monster.stats.hitpoints.current as usize / 4)
         || (player.is_using_ranged()
             && player.is_using_crossbow()
