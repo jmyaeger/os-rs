@@ -5,7 +5,7 @@ use crate::types::equipment::CombatType;
 use crate::types::monster::Monster;
 use crate::types::player::Player;
 use crate::types::spells::{Spell, StandardSpell};
-use crate::utils::logging::{FightLog, FightLogs};
+use crate::utils::logging::{FightLog, FightLogs, FightRecorder};
 
 #[derive(Debug, PartialEq, Clone, Default)]
 pub struct FightResult {
@@ -93,8 +93,7 @@ impl FightVars {
 }
 
 pub trait Simulation {
-    fn simulate(&mut self, log: &mut Option<&mut FightLog>)
-    -> Result<FightResult, SimulationError>;
+    fn simulate(&mut self, log: &mut FightRecorder) -> Result<FightResult, SimulationError>;
     fn is_immune(&self) -> bool;
     fn player(&self) -> &Player;
     fn monster(&self) -> &Monster;
@@ -201,7 +200,7 @@ pub fn simulate_n_fights(
 
     for _ in 0..n {
         // Run a single fight simulation and update the result variables
-        let result = simulation.simulate(&mut None);
+        let result = simulation.simulate(&mut FightRecorder::Disabled);
         match result {
             Ok(result) => {
                 results.push(&result);
@@ -246,12 +245,12 @@ pub fn simulate_log_fights(
     let mut logger = FightLogs::default();
 
     for _ in 0..n {
-        let mut log = FightLog::empty();
-        let result = simulation.simulate(&mut Some(&mut log));
+        let mut fight_log = FightLog::empty();
+        let result = simulation.simulate(&mut FightRecorder::Enabled(&mut fight_log));
         match result {
-            Ok(_) => {
-                logger.logs.push(log);
-            }
+            // Keep the log on success or on a player death (the death fight is the
+            // most useful one to inspect); only a genuine error aborts the batch.
+            Ok(_) | Err(SimulationError::PlayerDeathError(_)) => logger.logs.push(fight_log),
             Err(e) => return Err(e),
         }
 

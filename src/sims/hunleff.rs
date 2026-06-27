@@ -5,7 +5,7 @@ use crate::constants;
 use crate::error::SimulationError;
 use crate::types::monster::{AttackType, Monster, MonsterMaxHit};
 use crate::types::player::{Player, SwitchType};
-use crate::utils::logging::{Event, EventType, FightLog};
+use crate::utils::logging::{EventType, FightRecorder, MonsterSnapshot, PlayerSnapshot};
 use rand::Rng;
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
@@ -152,37 +152,33 @@ impl HunllefMechanics {
         rng: &mut SmallRng,
         limiter: &Option<Box<dyn Limiter>>,
         fight_vars: &mut FightVars,
-        log: &mut Option<&mut FightLog>,
+        log: &mut FightRecorder,
     ) {
         let hit = (player.attack)(player, hunllef, rng, limiter);
-        if let Some(log) = log {
-            log.add_event(Event {
-                tick: fight_vars.tick_counter,
-                event_type: EventType::PlayerAttack {
-                    player_id: player.id(),
-                    success: hit.success,
-                    damage: hit.damage,
-                },
-                player_states: vec![player.clone()],
-                monster_states: vec![hunllef.clone()],
-            });
-        }
+        log.record(
+            fight_vars.tick_counter,
+            EventType::PlayerAttack {
+                player_id: player.fight_id(),
+                success: hit.success,
+                damage: hit.damage,
+            },
+            vec![PlayerSnapshot::new(&player)],
+            vec![MonsterSnapshot::new(&hunllef)],
+        );
 
         player.state.first_attack = false;
         player.state.last_attack_hit = hit.success;
         hunllef.take_damage(hit.damage);
 
-        if let Some(log) = log {
-            log.add_event(Event {
-                tick: fight_vars.tick_counter,
-                event_type: EventType::MonsterDamaged {
-                    monster_id: hunllef.id(),
-                    damage: hit.damage,
-                },
-                player_states: vec![player.clone()],
-                monster_states: vec![hunllef.clone()],
-            });
-        }
+        log.record(
+            fight_vars.tick_counter,
+            EventType::MonsterDamaged {
+                monster_id: hunllef.fight_id(),
+                damage: hit.damage,
+            },
+            vec![PlayerSnapshot::new(&player)],
+            vec![MonsterSnapshot::new(&hunllef)],
+        );
 
         fight_vars.hit_attempts += 1;
         fight_vars.hit_count += if hit.success { 1 } else { 0 };
@@ -195,22 +191,20 @@ impl HunllefMechanics {
         state: &mut HunllefState,
         player: &mut Player,
         hunllef: &Monster,
-        log: &mut Option<&mut FightLog>,
+        log: &mut FightRecorder,
         vars: &mut FightVars,
     ) {
         if let Some(damage) = state.queued_damage {
             player.take_damage(damage);
-            if let Some(log) = log {
-                log.add_event(Event {
-                    tick: vars.tick_counter,
-                    event_type: EventType::PlayerDamaged {
-                        player_id: player.id(),
-                        damage,
-                    },
-                    player_states: vec![player.clone()],
-                    monster_states: vec![hunllef.clone()],
-                });
-            }
+            log.record(
+                vars.tick_counter,
+                EventType::PlayerDamaged {
+                    player_id: player.fight_id(),
+                    damage,
+                },
+                vec![PlayerSnapshot::new(&player)],
+                vec![MonsterSnapshot::new(&hunllef)],
+            );
 
             vars.damage_taken += damage;
             state.queued_damage = None;
@@ -224,7 +218,7 @@ impl HunllefMechanics {
         state: &mut HunllefState,
         vars: &mut FightVars,
         rng: &mut SmallRng,
-        log: &mut Option<&mut FightLog>,
+        log: &mut FightRecorder,
     ) -> bool {
         state.tornado_cd = state.tornado_cd.saturating_sub(1);
         if state.tornado_cd == 0 {
@@ -232,16 +226,14 @@ impl HunllefMechanics {
                 && state.hunllef_attack_count % 4 != 3
             {
                 // Tornado procs act like an empty attack
-                if let Some(log) = log {
-                    log.add_event(Event {
-                        tick: vars.tick_counter,
-                        event_type: EventType::Custom {
-                            message: "Tornadoes spawned.".to_string(),
-                        },
-                        player_states: vec![player.clone()],
-                        monster_states: vec![hunllef.clone()],
-                    });
-                }
+                log.record(
+                    vars.tick_counter,
+                    EventType::Custom {
+                        message: "Tornadoes spawned.".to_string(),
+                    },
+                    vec![PlayerSnapshot::new(&player)],
+                    vec![MonsterSnapshot::new(&hunllef)],
+                );
 
                 state.hunllef_attack_tick += HUNLLEF_ATTACK_SPEED;
                 state.hunllef_attack_count += 1;
@@ -268,7 +260,7 @@ impl HunllefMechanics {
         config: &mut HunllefConfig,
         vars: &mut FightVars,
         rng: &mut SmallRng,
-        log: &mut Option<&mut FightLog>,
+        log: &mut FightRecorder,
     ) -> Result<(), SimulationError> {
         // Choose Hunllef's attack style, alternating every 4 attacks (starting with ranged)
         let hunllef_style = if (state.hunllef_attack_count / 4).is_multiple_of(2) {
@@ -286,19 +278,17 @@ impl HunllefMechanics {
         let hp_capped_damage = min(hit.damage, player.stats.hitpoints.current);
         hit.damage = hp_capped_damage;
 
-        if let Some(log) = log {
-            log.add_event(Event {
-                tick: vars.tick_counter,
-                event_type: EventType::MonsterAttack {
-                    monster_id: hunllef.id(),
-                    success: hit.success,
-                    damage: hit.damage,
-                    style: Some(hunllef_style),
-                },
-                player_states: vec![player.clone()],
-                monster_states: vec![hunllef.clone()],
-            });
-        }
+        log.record(
+            vars.tick_counter,
+            EventType::MonsterAttack {
+                monster_id: hunllef.fight_id(),
+                success: hit.success,
+                damage: hit.damage,
+                style: Some(hunllef_style),
+            },
+            vec![PlayerSnapshot::new(&player)],
+            vec![MonsterSnapshot::new(&hunllef)],
+        );
 
         // Queue the damage for the next tick to allow for tick eating
         state.queued_damage = Some(hit.damage);
@@ -316,7 +306,7 @@ impl HunllefMechanics {
         hunllef: &Monster,
         eat_strategy: &HunllefEatStrategy,
         hunllef_max: u32,
-        log: &mut Option<&mut FightLog>,
+        log: &mut FightRecorder,
     ) {
         // Handle eating based on set strategy
         match eat_strategy {
@@ -396,7 +386,7 @@ impl HunllefFight {
 
     fn simulate_hunllef_fight(
         &mut self,
-        log: &mut Option<&mut FightLog>,
+        log: &mut FightRecorder,
     ) -> Result<FightResult, SimulationError> {
         let mut vars = FightVars::new();
         let mut state = HunllefState {
@@ -415,9 +405,11 @@ impl HunllefFight {
             _ => T0_MAX_HIT,
         };
 
-        if let Some(log) = log {
-            log.initial_player_states.push(self.player.clone());
-            log.initial_monster_states.push(self.hunllef.clone());
+        if let FightRecorder::Enabled(log) = log {
+            log.initial_player_states
+                .push(PlayerSnapshot::new(&self.player));
+            log.initial_monster_states
+                .push(MonsterSnapshot::new(&self.hunllef));
         }
 
         match &attack_strategy {
@@ -432,17 +424,15 @@ impl HunllefFight {
                 // Ensure the player is switched to the correct starting style
                 self.player.switch(current_style)?;
 
-                if let Some(log) = log {
-                    log.add_event(Event {
-                        tick: vars.tick_counter,
-                        event_type: EventType::GearSwitch {
-                            player_id: self.player.id(),
-                            switch_type: current_style.clone(),
-                        },
-                        player_states: vec![self.player.clone()],
-                        monster_states: vec![self.hunllef.clone()],
-                    });
-                }
+                log.record(
+                    vars.tick_counter,
+                    EventType::GearSwitch {
+                        player_id: self.player.fight_id(),
+                        switch_type: current_style.clone(),
+                    },
+                    vec![PlayerSnapshot::new(&self.player)],
+                    vec![MonsterSnapshot::new(&self.hunllef)],
+                );
 
                 // Combat loop
                 while self.hunllef.stats.hitpoints.current > 0 {
@@ -545,17 +535,15 @@ impl HunllefFight {
                             std::mem::swap(&mut current_style, &mut other_style);
                             self.player.switch(current_style)?;
 
-                            if let Some(log) = log {
-                                log.add_event(Event {
-                                    tick: vars.tick_counter,
-                                    event_type: EventType::GearSwitch {
-                                        player_id: self.player.id(),
-                                        switch_type: current_style.clone(),
-                                    },
-                                    player_states: vec![self.player.clone()],
-                                    monster_states: vec![self.hunllef.clone()],
-                                });
-                            }
+                            log.record(
+                                vars.tick_counter,
+                                EventType::GearSwitch {
+                                    player_id: self.player.fight_id(),
+                                    switch_type: current_style.clone(),
+                                },
+                                vec![PlayerSnapshot::new(&self.player)],
+                                vec![MonsterSnapshot::new(&self.hunllef)],
+                            );
                         }
                     }
 
@@ -613,17 +601,15 @@ impl HunllefFight {
                 // Ensure the player is switched to the correct starting style
                 self.player.switch(current_style)?;
 
-                if let Some(log) = log {
-                    log.add_event(Event {
-                        tick: vars.tick_counter,
-                        event_type: EventType::GearSwitch {
-                            player_id: self.player.id(),
-                            switch_type: current_style.clone(),
-                        },
-                        player_states: vec![self.player.clone()],
-                        monster_states: vec![self.hunllef.clone()],
-                    });
-                }
+                log.record(
+                    vars.tick_counter,
+                    EventType::GearSwitch {
+                        player_id: self.player.fight_id(),
+                        switch_type: current_style.clone(),
+                    },
+                    vec![PlayerSnapshot::new(&self.player)],
+                    vec![MonsterSnapshot::new(&self.hunllef)],
+                );
 
                 // Combat loop
                 while self.hunllef.stats.hitpoints.current > 0 {
@@ -725,17 +711,15 @@ impl HunllefFight {
                             std::mem::swap(&mut current_style, &mut next_style);
                             self.player.switch(current_style)?;
 
-                            if let Some(log) = log {
-                                log.add_event(Event {
-                                    tick: vars.tick_counter,
-                                    event_type: EventType::GearSwitch {
-                                        player_id: self.player.id(),
-                                        switch_type: current_style.clone(),
-                                    },
-                                    player_states: vec![self.player.clone()],
-                                    monster_states: vec![self.hunllef.clone()],
-                                });
-                            }
+                            log.record(
+                                vars.tick_counter,
+                                EventType::GearSwitch {
+                                    player_id: self.player.fight_id(),
+                                    switch_type: current_style.clone(),
+                                },
+                                vec![PlayerSnapshot::new(&self.player)],
+                                vec![MonsterSnapshot::new(&self.hunllef)],
+                            );
                         }
                         if state.player_attack_count == 6 {
                             state.player_attack_count = 0;
@@ -743,17 +727,15 @@ impl HunllefFight {
                             std::mem::swap(&mut next_style, &mut other_style);
                             self.player.switch(current_style)?;
 
-                            if let Some(log) = log {
-                                log.add_event(Event {
-                                    tick: vars.tick_counter,
-                                    event_type: EventType::GearSwitch {
-                                        player_id: self.player.id(),
-                                        switch_type: current_style.clone(),
-                                    },
-                                    player_states: vec![self.player.clone()],
-                                    monster_states: vec![self.hunllef.clone()],
-                                });
-                            }
+                            log.record(
+                                vars.tick_counter,
+                                EventType::GearSwitch {
+                                    player_id: self.player.fight_id(),
+                                    switch_type: current_style.clone(),
+                                },
+                                vec![PlayerSnapshot::new(&self.player)],
+                                vec![MonsterSnapshot::new(&self.hunllef)],
+                            );
                         }
                     }
 
@@ -810,10 +792,7 @@ impl HunllefFight {
 }
 
 impl Simulation for HunllefFight {
-    fn simulate(
-        &mut self,
-        log: &mut Option<&mut FightLog>,
-    ) -> Result<FightResult, SimulationError> {
+    fn simulate(&mut self, log: &mut FightRecorder) -> Result<FightResult, SimulationError> {
         self.simulate_hunllef_fight(log)
     }
 
@@ -972,7 +951,7 @@ mod tests {
         let mut fight =
             HunllefFight::new(player, fight_config).expect("Error setting up Hunllef fight.");
 
-        let result = fight.simulate(&mut None);
+        let result = fight.simulate(&mut FightRecorder::Disabled);
 
         fight.reset();
 

@@ -2,7 +2,7 @@ use crate::constants;
 use crate::types::monster::Monster;
 use crate::types::player::{GearSwitch, Player, SwitchType};
 use crate::types::timers::Timer;
-use crate::utils::logging::{Event, EventType, FightLog};
+use crate::utils::logging::{EventType, FightRecorder, MonsterSnapshot, PlayerSnapshot};
 
 pub trait SpecCondition: Clone + PartialEq {
     type BossState;
@@ -385,7 +385,7 @@ impl SpecState {
 
     pub fn advance_ticks(&mut self, player: &mut Player, monster: &Monster, ticks: u32) {
         for _ in 0..ticks {
-            self.increment_spec(player, monster, 0, &mut None);
+            self.increment_spec(player, monster, 0, &mut FightRecorder::Disabled);
             self.increment_timers();
         }
     }
@@ -395,7 +395,7 @@ impl SpecState {
         player: &mut Player,
         monster: &Monster,
         tick_counter: i32,
-        log: &mut Option<&mut FightLog>,
+        log: &mut FightRecorder,
     ) {
         if self.spec_regen_timer.is_active() {
             self.spec_regen_timer.increment();
@@ -404,17 +404,15 @@ impl SpecState {
                 || self.spec_regen_timer.counter().is_multiple_of(50)
             {
                 player.stats.spec.regen();
-                if let Some(log) = log {
-                    log.add_event(Event {
-                        tick: tick_counter,
-                        event_type: EventType::PlayerRegenSpecEnergy {
-                            player_id: player.id(),
-                            amount: 10,
-                        },
-                        player_states: vec![player.clone()],
-                        monster_states: vec![monster.clone()],
-                    });
-                }
+                log.record(
+                    tick_counter,
+                    EventType::PlayerRegenSpecEnergy {
+                        player_id: player.fight_id(),
+                        amount: 10,
+                    },
+                    vec![PlayerSnapshot::new(&player)],
+                    vec![MonsterSnapshot::new(&monster)],
+                );
             }
             if player.stats.spec.is_full() {
                 self.spec_regen_timer.reset();
@@ -459,7 +457,7 @@ impl SpecState {
         monster: &Monster,
         config: &SpecConfig<C>,
         tick_counter: i32,
-        log: &mut Option<&mut FightLog>,
+        log: &mut FightRecorder,
     ) {
         if config.surge_potion
             && player.stats.spec.value() <= 75
@@ -468,17 +466,15 @@ impl SpecState {
             player.stats.spec.surge_potion();
             self.surge_potion_cd.activate();
 
-            if let Some(log) = log {
-                log.add_event(Event {
-                    tick: tick_counter,
-                    event_type: EventType::PlayerRegenSpecEnergy {
-                        player_id: player.id(),
-                        amount: constants::SURGE_POTION,
-                    },
-                    player_states: vec![player.clone()],
-                    monster_states: vec![monster.clone()],
-                });
-            }
+            log.record(
+                tick_counter,
+                EventType::PlayerRegenSpecEnergy {
+                    player_id: player.fight_id(),
+                    amount: constants::SURGE_POTION,
+                },
+                vec![PlayerSnapshot::new(&player)],
+                vec![MonsterSnapshot::new(&monster)],
+            );
         }
     }
 

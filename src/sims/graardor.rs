@@ -5,7 +5,7 @@ use crate::constants;
 use crate::error::SimulationError;
 use crate::types::monster::{AttackType, Monster};
 use crate::types::player::Player;
-use crate::utils::logging::FightLog;
+use crate::utils::logging::{FightRecorder, MonsterFightId, MonsterSnapshot, PlayerSnapshot};
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
 
@@ -101,7 +101,7 @@ impl GraardorFight {
 
     fn simulate_door_altar_fight(
         &mut self,
-        log: &mut Option<&mut FightLog>,
+        log: &mut FightRecorder,
     ) -> Result<FightResult, SimulationError> {
         if self.player.gear.weapon.speed != 4 {
             let error_msg = format!(
@@ -114,12 +114,20 @@ impl GraardorFight {
         let mut vars = FightVars::new();
         let mut state = GraardorState::default();
 
-        if let Some(log) = log {
-            log.initial_player_states.push(self.player.clone());
-            log.initial_monster_states.push(self.graardor.clone());
-            log.initial_monster_states.push(self.mage_minion.clone());
-            log.initial_monster_states.push(self.melee_minion.clone());
-            log.initial_monster_states.push(self.ranged_minion.clone());
+        if let FightRecorder::Enabled(log) = log {
+            log.initial_player_states
+                .push(PlayerSnapshot::new(&self.player));
+            log.initial_monster_states
+                .push(MonsterSnapshot::new(&self.graardor));
+            self.mage_minion.info.fight_id = MonsterFightId(1);
+            self.melee_minion.info.fight_id = MonsterFightId(2);
+            self.ranged_minion.info.fight_id = MonsterFightId(3);
+            log.initial_monster_states
+                .push(MonsterSnapshot::new(&self.mage_minion));
+            log.initial_monster_states
+                .push(MonsterSnapshot::new(&self.melee_minion));
+            log.initial_monster_states
+                .push(MonsterSnapshot::new(&self.ranged_minion));
         }
 
         while self.graardor.stats.hitpoints.current > 0 {
@@ -244,10 +252,7 @@ impl GraardorFight {
 }
 
 impl Simulation for GraardorFight {
-    fn simulate(
-        &mut self,
-        log: &mut Option<&mut FightLog>,
-    ) -> Result<FightResult, SimulationError> {
+    fn simulate(&mut self, log: &mut FightRecorder) -> Result<FightResult, SimulationError> {
         match self.config.method {
             GraardorMethod::DoorAltar => self.simulate_door_altar_fight(log),
         }
@@ -322,7 +327,7 @@ mod tests {
         let mut fight =
             GraardorFight::new(player, fight_config).expect("Error setting up Graardor fight.");
 
-        let result = fight.simulate(&mut None);
+        let result = fight.simulate(&mut FightRecorder::Disabled);
 
         if let Ok(result) = result {
             assert!(result.ttk_ticks > 0);

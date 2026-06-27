@@ -13,6 +13,7 @@ use crate::types::potions::{Potion, PotionBoost, PotionBoosts, PotionStat};
 use crate::types::prayers::{Prayer, PrayerBoosts};
 use crate::types::spells;
 use crate::types::stats::{PlayerStats, SpecEnergy, Stat};
+use crate::utils::logging::PlayerFightId;
 use reqwest;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::cmp::max;
@@ -228,7 +229,7 @@ pub struct PlayerAttrs {
     pub name: Option<String>,
     pub active_style: CombatStyle,
     pub spell: Option<spells::Spell>,
-    pub id: i32,
+    pub fight_id: PlayerFightId,
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -1362,8 +1363,8 @@ impl Player {
             && !self.gear.weapon.is_two_handed
     }
 
-    pub fn id(&self) -> i32 {
-        self.attrs.id
+    pub fn fight_id(&self) -> PlayerFightId {
+        self.attrs.fight_id
     }
 }
 
@@ -1395,7 +1396,7 @@ pub struct PlayerBuilder {
     boosts: Option<StatusBoosts>,
     spell: Option<spells::Spell>,
     active_style: Option<CombatStyle>,
-    id: Option<i32>,
+    fight_id: Option<PlayerFightId>,
 }
 
 impl PlayerBuilder {
@@ -1526,8 +1527,8 @@ impl PlayerBuilder {
     }
 
     /// Set the player id for cases with multiple players in a simulation
-    pub fn id(mut self, id: i32) -> Self {
-        self.id = Some(id);
+    pub fn fight_id(mut self, id: i32) -> Self {
+        self.fight_id = Some(PlayerFightId(id));
         self
     }
 
@@ -1546,7 +1547,7 @@ impl PlayerBuilder {
                 name: None,
                 active_style: self.active_style.unwrap_or(CombatStyle::Punch),
                 spell: self.spell,
-                id: self.id.unwrap_or(0),
+                fight_id: self.fight_id.unwrap_or_default(),
             },
             att_rolls: PlayerAttRolls::default(),
             max_hits: PlayerMaxHits::default(),

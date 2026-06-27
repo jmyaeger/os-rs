@@ -8,6 +8,7 @@ use crate::error::MonsterError;
 use crate::types::equipment::{CombatStyle, CombatType};
 use crate::types::player::Player;
 use crate::types::stats::MonsterStats;
+use crate::utils::logging::MonsterFightId;
 use rand::Rng;
 use serde::{Deserialize, de::Error};
 use std::cmp::{max, min};
@@ -158,6 +159,8 @@ impl MonsterMaxHit {
 #[derive(Debug, PartialEq, Default, Clone, Deserialize)]
 pub struct MonsterInfo {
     pub id: i32,
+    #[serde(default)]
+    pub fight_id: MonsterFightId,
     pub name: String,
     pub version: Option<String>,
     pub combat_level: u32,
@@ -514,6 +517,10 @@ impl Monster {
 
     pub fn id(&self) -> i32 {
         self.info.id
+    }
+
+    pub fn fight_id(&self) -> MonsterFightId {
+        self.info.fight_id
     }
 
     pub fn attack(

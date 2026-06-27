@@ -10,7 +10,7 @@ use crate::error::SimulationError;
 use crate::types::monster::{AttackType, Monster, MonsterMaxHit};
 use crate::types::player::Player;
 use crate::types::prayers::Prayer;
-use crate::utils::logging::{Event, EventType, FightLog};
+use crate::utils::logging::{EventType, FightRecorder, MonsterSnapshot, PlayerSnapshot};
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
 
@@ -72,25 +72,23 @@ impl VardorvisMechanics {
         state: &mut VardorvisState,
         vars: &mut FightVars,
         rng: &mut SmallRng,
-        log: &mut Option<&mut FightLog>,
+        log: &mut FightRecorder,
     ) -> Result<(), SimulationError> {
         let mut hit = vard.attack(player, Some(VARDORVIS_ATTACK_STYLE), rng, false)?;
         hit.damage /= 4; // Assumes Protect from Melee is active
         hit.damage = hit.damage.min(player.stats.hitpoints.current);
 
-        if let Some(log) = log {
-            log.add_event(Event {
-                tick: vars.tick_counter,
-                event_type: EventType::MonsterAttack {
-                    monster_id: vard.id(),
-                    success: hit.success,
-                    damage: hit.damage,
-                    style: Some(VARDORVIS_ATTACK_STYLE),
-                },
-                player_states: vec![player.clone()],
-                monster_states: vec![vard.clone()],
-            });
-        }
+        log.record(
+            vars.tick_counter,
+            EventType::MonsterAttack {
+                monster_id: vard.fight_id(),
+                success: hit.success,
+                damage: hit.damage,
+                style: Some(VARDORVIS_ATTACK_STYLE),
+            },
+            vec![PlayerSnapshot::new(&player)],
+            vec![MonsterSnapshot::new(&vard)],
+        );
 
         if hit.success {
             player.take_damage(hit.damage);
@@ -100,17 +98,15 @@ impl VardorvisMechanics {
             handle_recoil(player, vard, &hit, vars, log);
             scale_monster_hp_only(vard, true);
 
-            if let Some(log) = log {
-                log.add_event(Event {
-                    tick: vars.tick_counter,
-                    event_type: EventType::MonsterHeal {
-                        monster_id: vard.id(),
-                        amount: heal_amount,
-                    },
-                    player_states: vec![player.clone()],
-                    monster_states: vec![vard.clone()],
-                });
-            }
+            log.record(
+                vars.tick_counter,
+                EventType::MonsterHeal {
+                    monster_id: vard.fight_id(),
+                    amount: heal_amount,
+                },
+                vec![PlayerSnapshot::new(&player)],
+                vec![MonsterSnapshot::new(&vard)],
+            );
         }
 
         state.vardorvis_attack_tick += VARDORVIS_ATTACK_SPEED;
@@ -124,7 +120,7 @@ impl VardorvisMechanics {
         vars: &mut FightVars,
         player: &mut Player,
         vard: &Monster,
-        log: &mut Option<&mut FightLog>,
+        log: &mut FightRecorder,
     ) {
         // Handle eating based on set strategy
         match config.eat_strategy {
@@ -185,7 +181,7 @@ impl VardorvisFight {
 
     fn simulate_vardorvis_fight(
         &mut self,
-        log: &mut Option<&mut FightLog>,
+        log: &mut FightRecorder,
     ) -> Result<FightResult, SimulationError> {
         let mut vars = FightVars::new();
         let mut state = VardorvisState::default();
@@ -194,6 +190,14 @@ impl VardorvisFight {
         } else {
             constants::PLAYER_REGEN_TICKS
         };
+
+        if let FightRecorder::Enabled(log) = log {
+            log.initial_player_states
+                .push(PlayerSnapshot::new(&self.player));
+            log.initial_monster_states
+                .push(MonsterSnapshot::new(&self.vard));
+        }
+
         loop {
             if vars.tick_counter % VARDORVIS_REGEN_TICKS == 0 {
                 // Appears to regen stats but not HP every 100 ticks
@@ -330,10 +334,7 @@ impl VardorvisFight {
 }
 
 impl Simulation for VardorvisFight {
-    fn simulate(
-        &mut self,
-        log: &mut Option<&mut FightLog>,
-    ) -> Result<FightResult, SimulationError> {
+    fn simulate(&mut self, log: &mut FightRecorder) -> Result<FightResult, SimulationError> {
         self.simulate_vardorvis_fight(log)
     }
 

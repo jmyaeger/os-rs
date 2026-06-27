@@ -14,9 +14,10 @@ use crate::constants::P2_WARDEN_IDS;
 use crate::error::SimulationError;
 use crate::types::player::SwitchType;
 use crate::types::{monster::Monster, player::GearSwitch, player::Player};
-use crate::utils::logging::Event;
 use crate::utils::logging::EventType;
-use crate::utils::logging::FightLog;
+use crate::utils::logging::FightRecorder;
+use crate::utils::logging::MonsterSnapshot;
+use crate::utils::logging::PlayerSnapshot;
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
 
@@ -72,10 +73,7 @@ impl SingleWayFight {
 }
 
 impl Simulation for SingleWayFight {
-    fn simulate(
-        &mut self,
-        log: &mut Option<&mut FightLog>,
-    ) -> Result<FightResult, SimulationError> {
+    fn simulate(&mut self, log: &mut FightRecorder) -> Result<FightResult, SimulationError> {
         simulate_fight(self, log)
     }
 
@@ -145,7 +143,7 @@ impl SingleWayMechanics {
     pub fn player_special_attack(
         fight: &mut SingleWayFight,
         fight_vars: &mut FightVars,
-        log: &mut Option<&mut FightLog>,
+        log: &mut FightRecorder,
     ) -> Result<bool, SimulationError> {
         if let Some(ref mut spec_config) = fight.spec_config {
             for strategy in &mut spec_config.strategies {
@@ -170,17 +168,15 @@ impl SingleWayMechanics {
                 // Switch to the spec gear and perform the attack
                 fight.player.switch(&strategy.switch_type)?;
 
-                if let Some(log) = log {
-                    log.add_event(Event {
-                        tick: fight_vars.tick_counter,
-                        event_type: EventType::GearSwitch {
-                            player_id: fight.player.id(),
-                            switch_type: strategy.switch_type.clone(),
-                        },
-                        player_states: vec![fight.player.clone()],
-                        monster_states: vec![fight.monster.clone()],
-                    });
-                }
+                log.record(
+                    fight_vars.tick_counter,
+                    EventType::GearSwitch {
+                        player_id: fight.player.fight_id(),
+                        switch_type: strategy.switch_type.clone(),
+                    },
+                    vec![PlayerSnapshot::new(&fight.player)],
+                    vec![MonsterSnapshot::new(&fight.monster)],
+                );
 
                 let hit = (fight.player.spec)(
                     &mut fight.player,
@@ -192,28 +188,26 @@ impl SingleWayMechanics {
                 fight.player.state.first_attack = false;
                 fight.monster.take_damage(hit.damage);
 
-                if let Some(log) = log {
-                    log.add_event(Event {
-                        tick: fight_vars.tick_counter,
-                        event_type: EventType::PlayerSpec {
-                            player_id: fight.player.id(),
-                            success: hit.success,
-                            damage: hit.damage,
-                            switch_type: strategy.switch_type.clone(),
-                        },
-                        player_states: vec![fight.player.clone()],
-                        monster_states: vec![fight.monster.clone()],
-                    });
-                    log.add_event(Event {
-                        tick: fight_vars.tick_counter,
-                        event_type: EventType::MonsterDamaged {
-                            monster_id: fight.monster.id(),
-                            damage: hit.damage,
-                        },
-                        player_states: vec![fight.player.clone()],
-                        monster_states: vec![fight.monster.clone()],
-                    });
-                }
+                log.record(
+                    fight_vars.tick_counter,
+                    EventType::PlayerSpec {
+                        player_id: fight.player.fight_id(),
+                        success: hit.success,
+                        damage: hit.damage,
+                        switch_type: strategy.switch_type.clone(),
+                    },
+                    vec![PlayerSnapshot::new(&fight.player)],
+                    vec![MonsterSnapshot::new(&fight.monster)],
+                );
+                log.record(
+                    fight_vars.tick_counter,
+                    EventType::MonsterDamaged {
+                        monster_id: fight.monster.fight_id(),
+                        damage: hit.damage,
+                    },
+                    vec![PlayerSnapshot::new(&fight.player)],
+                    vec![MonsterSnapshot::new(&fight.monster)],
+                );
 
                 strategy.state.attempt_count += 1;
                 if hit.success {
@@ -242,17 +236,15 @@ impl SingleWayMechanics {
                 // Switch back to the previous set of gear
                 fight.player.switch(&previous_switch)?;
 
-                if let Some(log) = log {
-                    log.add_event(Event {
-                        tick: fight_vars.tick_counter,
-                        event_type: EventType::GearSwitch {
-                            player_id: fight.player.id(),
-                            switch_type: previous_switch,
-                        },
-                        player_states: vec![fight.player.clone()],
-                        monster_states: vec![fight.monster.clone()],
-                    });
-                }
+                log.record(
+                    fight_vars.tick_counter,
+                    EventType::GearSwitch {
+                        player_id: fight.player.fight_id(),
+                        switch_type: previous_switch,
+                    },
+                    vec![PlayerSnapshot::new(&fight.player)],
+                    vec![MonsterSnapshot::new(&fight.monster)],
+                );
 
                 return Ok(true);
             }
@@ -265,7 +257,7 @@ impl Mechanics for SingleWayMechanics {}
 
 fn simulate_fight(
     fight: &mut SingleWayFight,
-    log: &mut Option<&mut FightLog>,
+    log: &mut FightRecorder,
 ) -> Result<FightResult, SimulationError> {
     if let Some(ref spec_config) = fight.spec_config
         && let Err(e) = spec_config.validate()
@@ -277,9 +269,11 @@ fn simulate_fight(
 
     scale_monster_hp_only(&mut fight.monster, true);
 
-    if let Some(log) = log {
-        log.initial_player_states.push(fight.player.clone());
-        log.initial_monster_states.push(fight.monster.clone());
+    if let FightRecorder::Enabled(log) = log {
+        log.initial_player_states
+            .push(PlayerSnapshot::new(&fight.player));
+        log.initial_monster_states
+            .push(MonsterSnapshot::new(&fight.monster));
     }
 
     while fight.monster.stats.hitpoints.current > 0 {
@@ -397,7 +391,8 @@ mod tests {
         let config = SingleWayConfig::default();
         let mut fight = SingleWayFight::new(player, monster, config, None)
             .expect("Error setting up single way fight.");
-        let result = simulate_fight(&mut fight, &mut None).expect("Simulation failed.");
+        let result =
+            simulate_fight(&mut fight, &mut FightRecorder::Disabled).expect("Simulation failed.");
 
         assert!(result.ttk_ticks > 0);
         assert!(result.hit_attempts > 0);
