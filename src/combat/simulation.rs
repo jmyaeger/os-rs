@@ -248,8 +248,6 @@ pub fn simulate_log_fights(
         let mut fight_log = FightLog::empty();
         let result = simulation.simulate(&mut FightRecorder::Enabled(&mut fight_log));
         match result {
-            // Keep the log on success or on a player death (the death fight is the
-            // most useful one to inspect); only a genuine error aborts the batch.
             Ok(_) | Err(SimulationError::PlayerDeathError(_)) => logger.logs.push(fight_log),
             Err(e) => return Err(e),
         }

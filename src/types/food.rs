@@ -229,6 +229,7 @@ macro_rules! delayed_heal_foods {
     };
 }
 
+#[allow(unused)]
 static FOOD_DB: LazyLock<HashMap<Foods, Food>> = LazyLock::new(|| {
     let mut map = HashMap::new();
 
