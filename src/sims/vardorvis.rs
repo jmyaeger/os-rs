@@ -86,8 +86,8 @@ impl VardorvisMechanics {
                 damage: hit.damage,
                 style: Some(VARDORVIS_ATTACK_STYLE),
             },
-            vec![PlayerSnapshot::new(&player)],
-            vec![MonsterSnapshot::new(&vard)],
+            vec![PlayerSnapshot::new(player)],
+            vec![MonsterSnapshot::new(vard)],
         );
 
         if hit.success {
@@ -104,8 +104,8 @@ impl VardorvisMechanics {
                     monster_id: vard.fight_id(),
                     amount: heal_amount,
                 },
-                vec![PlayerSnapshot::new(&player)],
-                vec![MonsterSnapshot::new(&vard)],
+                vec![PlayerSnapshot::new(player)],
+                vec![MonsterSnapshot::new(vard)],
             );
         }
 

@@ -162,8 +162,8 @@ impl HunllefMechanics {
                 success: hit.success,
                 damage: hit.damage,
             },
-            vec![PlayerSnapshot::new(&player)],
-            vec![MonsterSnapshot::new(&hunllef)],
+            vec![PlayerSnapshot::new(player)],
+            vec![MonsterSnapshot::new(hunllef)],
         );
 
         player.state.first_attack = false;
@@ -176,8 +176,8 @@ impl HunllefMechanics {
                 monster_id: hunllef.fight_id(),
                 damage: hit.damage,
             },
-            vec![PlayerSnapshot::new(&player)],
-            vec![MonsterSnapshot::new(&hunllef)],
+            vec![PlayerSnapshot::new(player)],
+            vec![MonsterSnapshot::new(hunllef)],
         );
 
         fight_vars.hit_attempts += 1;
@@ -202,8 +202,8 @@ impl HunllefMechanics {
                     player_id: player.fight_id(),
                     damage,
                 },
-                vec![PlayerSnapshot::new(&player)],
-                vec![MonsterSnapshot::new(&hunllef)],
+                vec![PlayerSnapshot::new(player)],
+                vec![MonsterSnapshot::new(hunllef)],
             );
 
             vars.damage_taken += damage;
@@ -231,8 +231,8 @@ impl HunllefMechanics {
                     EventType::Custom {
                         message: "Tornadoes spawned.".to_string(),
                     },
-                    vec![PlayerSnapshot::new(&player)],
-                    vec![MonsterSnapshot::new(&hunllef)],
+                    vec![PlayerSnapshot::new(player)],
+                    vec![MonsterSnapshot::new(hunllef)],
                 );
 
                 state.hunllef_attack_tick += HUNLLEF_ATTACK_SPEED;
@@ -286,8 +286,8 @@ impl HunllefMechanics {
                 damage: hit.damage,
                 style: Some(hunllef_style),
             },
-            vec![PlayerSnapshot::new(&player)],
-            vec![MonsterSnapshot::new(&hunllef)],
+            vec![PlayerSnapshot::new(player)],
+            vec![MonsterSnapshot::new(hunllef)],
         );
 
         // Queue the damage for the next tick to allow for tick eating

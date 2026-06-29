@@ -410,8 +410,8 @@ impl SpecState {
                         player_id: player.fight_id(),
                         amount: 10,
                     },
-                    vec![PlayerSnapshot::new(&player)],
-                    vec![MonsterSnapshot::new(&monster)],
+                    vec![PlayerSnapshot::new(player)],
+                    vec![MonsterSnapshot::new(monster)],
                 );
             }
             if player.stats.spec.is_full() {
@@ -472,8 +472,8 @@ impl SpecState {
                     player_id: player.fight_id(),
                     amount: constants::SURGE_POTION,
                 },
-                vec![PlayerSnapshot::new(&player)],
-                vec![MonsterSnapshot::new(&monster)],
+                vec![PlayerSnapshot::new(player)],
+                vec![MonsterSnapshot::new(monster)],
             );
         }
     }
