@@ -174,8 +174,8 @@ impl SingleWayMechanics {
                         player_id: fight.player.fight_id(),
                         switch_type: strategy.switch_type.clone(),
                     },
-                    vec![PlayerSnapshot::new(&fight.player)],
-                    vec![MonsterSnapshot::new(&fight.monster)],
+                    &[&fight.player],
+                    &[&fight.monster],
                 );
 
                 let hit = (fight.player.spec)(
@@ -196,8 +196,8 @@ impl SingleWayMechanics {
                         damage: hit.damage,
                         switch_type: strategy.switch_type.clone(),
                     },
-                    vec![PlayerSnapshot::new(&fight.player)],
-                    vec![MonsterSnapshot::new(&fight.monster)],
+                    &[&fight.player],
+                    &[&fight.monster],
                 );
                 log.record(
                     fight_vars.tick_counter,
@@ -205,8 +205,8 @@ impl SingleWayMechanics {
                         monster_id: fight.monster.fight_id(),
                         damage: hit.damage,
                     },
-                    vec![PlayerSnapshot::new(&fight.player)],
-                    vec![MonsterSnapshot::new(&fight.monster)],
+                    &[&fight.player],
+                    &[&fight.monster],
                 );
 
                 strategy.state.attempt_count += 1;
@@ -242,8 +242,8 @@ impl SingleWayMechanics {
                         player_id: fight.player.fight_id(),
                         switch_type: previous_switch,
                     },
-                    vec![PlayerSnapshot::new(&fight.player)],
-                    vec![MonsterSnapshot::new(&fight.monster)],
+                    &[&fight.player],
+                    &[&fight.monster],
                 );
 
                 return Ok(true);

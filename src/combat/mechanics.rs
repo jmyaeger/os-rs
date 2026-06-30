@@ -15,8 +15,6 @@ use crate::types::player::Player;
 use crate::types::player::SwitchType;
 use crate::utils::logging::EventType;
 use crate::utils::logging::FightRecorder;
-use crate::utils::logging::MonsterSnapshot;
-use crate::utils::logging::PlayerSnapshot;
 use rand::Rng;
 use rand::rngs::SmallRng;
 
@@ -43,8 +41,8 @@ pub trait Mechanics {
                 success: hit.success,
                 damage: hit.damage,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
 
         if hit.damage > 0 {
@@ -59,8 +57,8 @@ pub trait Mechanics {
                 monster_id: monster.fight_id(),
                 damage: hit.damage,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
 
         fight_vars.hit_attempts += 1;
@@ -106,8 +104,8 @@ pub trait Mechanics {
                     player_id: player.fight_id(),
                     switch_type: strategy.switch_type.clone(),
                 },
-                vec![PlayerSnapshot::new(player)],
-                vec![MonsterSnapshot::new(monster)],
+                &[player],
+                &[monster],
             );
 
             let hit = if player.is_wearing("Voidwaker", None)
@@ -128,8 +126,8 @@ pub trait Mechanics {
                     damage: hit.damage,
                     switch_type: strategy.switch_type.clone(),
                 },
-                vec![PlayerSnapshot::new(player)],
-                vec![MonsterSnapshot::new(monster)],
+                &[player],
+                &[monster],
             );
 
             player.state.first_attack = false;
@@ -141,8 +139,8 @@ pub trait Mechanics {
                     monster_id: monster.fight_id(),
                     damage: hit.damage,
                 },
-                vec![PlayerSnapshot::new(player)],
-                vec![MonsterSnapshot::new(monster)],
+                &[player],
+                &[monster],
             );
 
             strategy.state.attempt_count += 1;
@@ -171,8 +169,8 @@ pub trait Mechanics {
                     player_id: player.fight_id(),
                     switch_type: previous_switch,
                 },
-                vec![PlayerSnapshot::new(player)],
-                vec![MonsterSnapshot::new(monster)],
+                &[player],
+                &[monster],
             );
 
             return Ok(true);
@@ -203,8 +201,8 @@ pub trait Mechanics {
                 damage: hit.damage,
                 style: attack_type,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
         log.record(
             fight_vars.tick_counter,
@@ -212,8 +210,8 @@ pub trait Mechanics {
                 player_id: player.fight_id(),
                 damage: hit.damage,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
 
         if hit.success {
@@ -239,8 +237,8 @@ pub trait Mechanics {
                     player_id: player.fight_id(),
                     damage: 0,
                 },
-                vec![PlayerSnapshot::new(player)],
-                vec![MonsterSnapshot::new(monster)],
+                &[player],
+                &[monster],
             );
 
             return;
@@ -257,8 +255,8 @@ pub trait Mechanics {
                 player_id: player.fight_id(),
                 damage: thrall_hit,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
 
         if thrall_hit > 0 {
@@ -272,8 +270,8 @@ pub trait Mechanics {
                 monster_id: monster.fight_id(),
                 damage: thrall_hit,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
 
         fight_vars.thrall_attack_tick += THRALL_ATTACK_SPEED;
@@ -319,8 +317,8 @@ pub trait Mechanics {
                     monster_id: monster.fight_id(),
                     damage: effect_damage,
                 },
-                vec![PlayerSnapshot::new(player)],
-                vec![MonsterSnapshot::new(monster)],
+                &[player],
+                &[monster],
             );
 
             scale_monster_hp_only(monster, true);
@@ -345,8 +343,8 @@ pub trait Mechanics {
                     EventType::MonsterFreezeEnded {
                         monster_id: monster.fight_id(),
                     },
-                    vec![PlayerSnapshot::new(player)],
-                    vec![MonsterSnapshot::new(monster)],
+                    &[player],
+                    &[monster],
                 );
 
                 // 5 tick freeze immunity when it runs out
@@ -378,8 +376,8 @@ pub trait Mechanics {
             EventType::MonsterDeath {
                 monster_id: monster.fight_id(),
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
 
         let ttk_ticks = if remove_final_attack_delay {
@@ -413,8 +411,8 @@ pub trait Mechanics {
             EventType::PlayerDeath {
                 player_id: player.fight_id(),
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
 
         let leftover_burn = calc_leftover_burn(monster);
@@ -446,8 +444,8 @@ pub trait Mechanics {
                 monster_id: monster.fight_id(),
                 amount: 1,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
     }
 
@@ -466,8 +464,8 @@ pub trait Mechanics {
                 monster_id: monster.fight_id(),
                 amount: 1,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
     }
 
@@ -486,8 +484,8 @@ pub trait Mechanics {
                 player_id: player.fight_id(),
                 amount: 1,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
         log.record(
             fight_vars.tick_counter,
@@ -495,8 +493,8 @@ pub trait Mechanics {
                 player_id: player.fight_id(),
                 amount: 1,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
     }
 
@@ -524,8 +522,8 @@ pub trait Mechanics {
                 player_id: player.fight_id(),
                 heal_amount,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
 
         fight_vars.food_eaten += 1;
@@ -550,8 +548,8 @@ pub trait Mechanics {
                 player_id: player.fight_id(),
                 heal_amount,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
     }
 }
@@ -592,8 +590,8 @@ pub fn handle_recoil(
                     monster_id: monster.fight_id(),
                     damage: recoil_damage,
                 },
-                vec![PlayerSnapshot::new(player)],
-                vec![MonsterSnapshot::new(monster)],
+                &[player],
+                &[monster],
             );
         }
 
@@ -606,8 +604,8 @@ pub fn handle_recoil(
                     monster_id: monster.fight_id(),
                     damage: 1,
                 },
-                vec![PlayerSnapshot::new(player)],
-                vec![MonsterSnapshot::new(monster)],
+                &[player],
+                &[monster],
             );
         }
     }
@@ -631,8 +629,8 @@ pub fn handle_blood_fury(
                 player_id: player.fight_id(),
                 heal_amount,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(monster)],
+            &[player],
+            &[monster],
         );
     }
 }

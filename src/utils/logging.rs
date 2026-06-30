@@ -202,8 +202,8 @@ impl FightRecorder<'_> {
         &mut self,
         tick: i32,
         event_type: EventType,
-        player_states: Vec<PlayerSnapshot>,
-        monster_states: Vec<MonsterSnapshot>,
+        player_states: &[&Player],
+        monster_states: &[&Monster],
     ) {
         let Self::Enabled(log) = self else {
             return;
@@ -212,8 +212,14 @@ impl FightRecorder<'_> {
         log.add_event(Event {
             tick,
             event_type,
-            player_states,
-            monster_states,
+            player_states: player_states
+                .iter()
+                .map(|&p| PlayerSnapshot::new(p))
+                .collect(),
+            monster_states: monster_states
+                .iter()
+                .map(|&m| MonsterSnapshot::new(m))
+                .collect(),
         });
     }
 }

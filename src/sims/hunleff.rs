@@ -162,8 +162,8 @@ impl HunllefMechanics {
                 success: hit.success,
                 damage: hit.damage,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(hunllef)],
+            &[player],
+            &[hunllef],
         );
 
         player.state.first_attack = false;
@@ -176,8 +176,8 @@ impl HunllefMechanics {
                 monster_id: hunllef.fight_id(),
                 damage: hit.damage,
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(hunllef)],
+            &[player],
+            &[hunllef],
         );
 
         fight_vars.hit_attempts += 1;
@@ -202,8 +202,8 @@ impl HunllefMechanics {
                     player_id: player.fight_id(),
                     damage,
                 },
-                vec![PlayerSnapshot::new(player)],
-                vec![MonsterSnapshot::new(hunllef)],
+                &[player],
+                &[hunllef],
             );
 
             vars.damage_taken += damage;
@@ -231,8 +231,8 @@ impl HunllefMechanics {
                     EventType::Custom {
                         message: "Tornadoes spawned.".to_string(),
                     },
-                    vec![PlayerSnapshot::new(player)],
-                    vec![MonsterSnapshot::new(hunllef)],
+                    &[player],
+                    &[hunllef],
                 );
 
                 state.hunllef_attack_tick += HUNLLEF_ATTACK_SPEED;
@@ -286,8 +286,8 @@ impl HunllefMechanics {
                 damage: hit.damage,
                 style: Some(hunllef_style),
             },
-            vec![PlayerSnapshot::new(player)],
-            vec![MonsterSnapshot::new(hunllef)],
+            &[player],
+            &[hunllef],
         );
 
         // Queue the damage for the next tick to allow for tick eating
@@ -430,8 +430,8 @@ impl HunllefFight {
                         player_id: self.player.fight_id(),
                         switch_type: current_style.clone(),
                     },
-                    vec![PlayerSnapshot::new(&self.player)],
-                    vec![MonsterSnapshot::new(&self.hunllef)],
+                    &[&self.player],
+                    &[&self.hunllef],
                 );
 
                 // Combat loop
@@ -541,8 +541,8 @@ impl HunllefFight {
                                     player_id: self.player.fight_id(),
                                     switch_type: current_style.clone(),
                                 },
-                                vec![PlayerSnapshot::new(&self.player)],
-                                vec![MonsterSnapshot::new(&self.hunllef)],
+                                &[&self.player],
+                                &[&self.hunllef],
                             );
                         }
                     }
@@ -607,8 +607,8 @@ impl HunllefFight {
                         player_id: self.player.fight_id(),
                         switch_type: current_style.clone(),
                     },
-                    vec![PlayerSnapshot::new(&self.player)],
-                    vec![MonsterSnapshot::new(&self.hunllef)],
+                    &[&self.player],
+                    &[&self.hunllef],
                 );
 
                 // Combat loop
@@ -717,8 +717,8 @@ impl HunllefFight {
                                     player_id: self.player.fight_id(),
                                     switch_type: current_style.clone(),
                                 },
-                                vec![PlayerSnapshot::new(&self.player)],
-                                vec![MonsterSnapshot::new(&self.hunllef)],
+                                &[&self.player],
+                                &[&self.hunllef],
                             );
                         }
                         if state.player_attack_count == 6 {
@@ -733,8 +733,8 @@ impl HunllefFight {
                                     player_id: self.player.fight_id(),
                                     switch_type: current_style.clone(),
                                 },
-                                vec![PlayerSnapshot::new(&self.player)],
-                                vec![MonsterSnapshot::new(&self.hunllef)],
+                                &[&self.player],
+                                &[&self.hunllef],
                             );
                         }
                     }

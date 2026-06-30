@@ -2,7 +2,7 @@ use crate::constants;
 use crate::types::monster::Monster;
 use crate::types::player::{GearSwitch, Player, SwitchType};
 use crate::types::timers::Timer;
-use crate::utils::logging::{EventType, FightRecorder, MonsterSnapshot, PlayerSnapshot};
+use crate::utils::logging::{EventType, FightRecorder};
 
 pub trait SpecCondition: Clone + PartialEq {
     type BossState;
@@ -410,8 +410,8 @@ impl SpecState {
                         player_id: player.fight_id(),
                         amount: 10,
                     },
-                    vec![PlayerSnapshot::new(player)],
-                    vec![MonsterSnapshot::new(monster)],
+                    &[player],
+                    &[monster],
                 );
             }
             if player.stats.spec.is_full() {
@@ -472,8 +472,8 @@ impl SpecState {
                     player_id: player.fight_id(),
                     amount: constants::SURGE_POTION,
                 },
-                vec![PlayerSnapshot::new(player)],
-                vec![MonsterSnapshot::new(monster)],
+                &[player],
+                &[monster],
             );
         }
     }

@@ -22,11 +22,11 @@ fn main() {
     let start_time = std::time::Instant::now();
     // simulate_door_altar_graardor();
 
-    simulate_single_way();
+    // simulate_single_way();
 
     // simulate_hunllef();
 
-    // simulate_vardorvis();
+    simulate_vardorvis();
 
     let end_time = std::time::Instant::now();
 
@@ -402,7 +402,7 @@ fn simulate_vardorvis() {
 
     let mut fight =
         VardorvisFight::new(player, fight_config).expect("Error creating the Vardorvis fight.");
-    let results = simulate_n_fights(Box::new(fight), 1_000_000, true).expect("Simulation failed.");
+    let results = simulate_n_fights(Box::new(fight), 100_000, true).expect("Simulation failed.");
     let stats = SimulationStats::new(&results);
 
     let mut odds_of_gm = 0.0;
