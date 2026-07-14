@@ -26,7 +26,9 @@ fn main() {
 
     // simulate_hunllef();
 
-    simulate_vardorvis();
+    simulate_normal_gauntlet();
+
+    // simulate_vardorvis();
 
     let end_time = std::time::Instant::now();
 
@@ -257,6 +259,7 @@ fn simulate_hunllef() {
         lost_ticks: 0,
         armor_tier: 0,
         only_success_stats: true,
+        crystalline: false,
     };
 
     let fight = HunllefFight::new(player, fight_config).expect("Error setting up Hunllef fight.");
@@ -273,6 +276,115 @@ fn simulate_hunllef() {
     println!(
         "Average damage taken per kill: {:.2}",
         stats.avg_damage_taken
+    );
+}
+
+#[allow(unused)]
+fn simulate_normal_gauntlet() {
+    let mut player = Player::new();
+    // player.stats.ranged = Stat::new(81, None);
+    // player.stats.magic = Stat::new(78, None);
+    // player.stats.defence = Stat::new(75, None);
+    // player.stats.hitpoints = Stat::new(85, None);
+    // player.stats.attack = Stat::new(76, None);
+    // player.stats.strength = Stat::new(85, None);
+    // player.reset_current_stats(false);
+    player.equip("Crystal staff (perfected)", None).unwrap();
+    player.equip("Crystal helm (basic)", None).unwrap();
+    player.equip("Crystal body (basic)", None).unwrap();
+    player.equip("Crystal legs (basic)", None).unwrap();
+    player.update_bonuses();
+    player.set_active_style(CombatStyle::Accurate);
+    player.add_prayer(Prayer::Augury);
+    // player.add_prayer(Prayer::SteelSkin);
+
+    let hunllef = Monster::new("Crystalline Hunllef", None).expect("Error creating monster.");
+    calc_active_player_rolls(&mut player, &hunllef);
+
+    let mage_switch = GearSwitch::new(SwitchType::Magic, &player, &hunllef);
+
+    // player.equip("Corrupted bow (perfected)", None).unwrap();
+    player.equip("Crystal bow (attuned)", None).unwrap();
+    player.update_bonuses();
+    player.set_active_style(CombatStyle::Rapid);
+    player.add_prayer(Prayer::Rigour);
+
+    calc_active_player_rolls(&mut player, &hunllef);
+
+    let ranged_switch = GearSwitch::new(SwitchType::Ranged, &player, &hunllef);
+
+    player.unequip_slot(&GearSlot::Weapon);
+    player.set_active_style(CombatStyle::Kick);
+    // player.equip("Crystal sceptre", None).unwrap();
+    // player.set_active_style(CombatStyle::Pummel);
+    // player.equip("Corrupted halberd (perfected)", None).unwrap();
+    // player.set_active_style(CombatStyle::Swipe);
+    player.update_bonuses();
+    player.add_prayer(Prayer::Piety);
+
+    calc_active_player_rolls(&mut player, &hunllef);
+
+    let melee_switch = GearSwitch::new(SwitchType::Melee, &player, &hunllef);
+    player.switches.push(mage_switch);
+    player.switches.push(ranged_switch);
+    player.switches.push(melee_switch);
+
+    player.switch(&SwitchType::Magic);
+
+    // let fight_config = HunllefConfig {
+    //     food_count: 20,
+    //     eat_strategy: HunllefEatStrategy::EatAtHp(50),
+    //     redemption_strategy: None,
+    //     attack_strategy: AttackStrategy::TwoT3Weapons {
+    //         style1: SwitchType::Ranged,
+    //         style2: SwitchType::Magic,
+    //     },
+    //     lost_ticks: 0,
+    //     logger: FightLogger::new(false, "hunllef").expect("Error initializing logger."),
+    //     armor_tier: 0,
+    // };
+    let fight_config = HunllefConfig {
+        food_count: 4,
+        eat_strategy: HunllefEatStrategy::TickEatOnly,
+        redemption_strategy: None,
+        attack_strategy: AttackStrategy::FiveToOne {
+            main_style: SwitchType::Magic,
+            other_style1: SwitchType::Ranged,
+            other_style2: SwitchType::Melee,
+        },
+        lost_ticks: 0,
+        armor_tier: 0,
+        only_success_stats: true,
+        crystalline: true,
+    };
+
+    let fight = HunllefFight::new(player, fight_config).expect("Error setting up Hunllef fight.");
+    let results = simulate_n_fights(Box::new(fight), 1_000_000, true).expect("Simulation failed.");
+    let stats = SimulationStats::new(&results);
+
+    println!("Average ttk: {:.2} seconds", stats.ttk);
+    println!("Average accuracy: {:.2}%", stats.accuracy);
+    println!("Success rate: {:.2}%", stats.success_rate * 100.0);
+    println!(
+        "Average number of food eaten per kill: {:.2}",
+        stats.avg_food_eaten
+    );
+    println!(
+        "Average damage taken per kill: {:.2}",
+        stats.avg_damage_taken
+    );
+    let rec_time = 239; // 2:23.40 in ticks
+    let prep_time = 100;
+    let rec_prob = results
+        .ttks_ticks
+        .iter()
+        .filter(|&&t| t <= rec_time - prep_time)
+        .count() as f64
+        / results.ttks_ticks.len() as f64;
+    println!(
+        "Probability of beating rec with {:.1}s prep: {:.4} %",
+        (prep_time as f64 * 0.6) as i32,
+        rec_prob * 100.0
     );
 }
 

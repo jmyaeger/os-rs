@@ -14,16 +14,21 @@ use std::cmp::min;
 const TORNADO_MAX_TIMER: u32 = 23;
 const TORNADO_COOLDOWN: u32 = 9;
 const TORNADO_BASE_CHANCE: u32 = 6;
+const CRYS_HUNLLEF_MAX_HIT: u32 = 50;
 const HUNLLEF_MAX_HIT: u32 = 68;
-const T0_MAX_HIT: u32 = 16;
-const T1_MAX_HIT: u32 = 13;
-const T2_MAX_HIT: u32 = 10;
-const T3_MAX_HIT: u32 = 8;
+const T0_CRYS_MAX_HIT: u32 = CRYS_HUNLLEF_MAX_HIT * 10 / 41;
+const T1_CRYS_MAX_HIT: u32 = (CRYS_HUNLLEF_MAX_HIT * 5 / 6) * 10 / 41;
+const T2_CRYS_MAX_HIT: u32 = (CRYS_HUNLLEF_MAX_HIT * 4 / 6) * 10 / 41;
+const T3_CRYS_MAX_HIT: u32 = (CRYS_HUNLLEF_MAX_HIT * 3 / 6) * 10 / 41;
+const T0_MAX_HIT: u32 = HUNLLEF_MAX_HIT * 10 / 41;
+const T1_MAX_HIT: u32 = (HUNLLEF_MAX_HIT * 5 / 6) * 10 / 41;
+const T2_MAX_HIT: u32 = (HUNLLEF_MAX_HIT * 4 / 6) * 10 / 41;
+const T3_MAX_HIT: u32 = (HUNLLEF_MAX_HIT * 3 / 6) * 10 / 41;
 const PADDLEFISH_HEAL: u32 = 20;
 const PADDLEFISH_DELAY: i32 = 3;
 const HUNLLEF_REGEN_TICKS: i32 = 100;
 const HUNLLEF_ATTACK_SPEED: i32 = 5;
-const ALLOWED_GEAR: [&str; 32] = [
+const ALLOWED_GEAR: [&str; 45] = [
     "Crystal helm (basic)",
     "Crystal helm (attuned)",
     "Crystal helm (perfected)",
@@ -42,10 +47,23 @@ const ALLOWED_GEAR: [&str; 32] = [
     "Corrupted legs (basic)",
     "Corrupted legs (attuned)",
     "Corrupted legs (perfected)",
+    "Crystal sceptre",
     "Corrupted sceptre",
+    "Crystal axe",
     "Corrupted axe",
+    "Crystal pickaxe",
     "Corrupted pickaxe",
+    "Crystal harpoon",
     "Corrupted harpoon",
+    "Crystal staff (basic)",
+    "Crystal staff (attuned)",
+    "Crystal staff (perfected)",
+    "Crystal halberd (basic)",
+    "Crystal halberd (attuned)",
+    "Crystal halberd (perfected)",
+    "Crystal bow (basic)",
+    "Crystal bow (attuned)",
+    "Crystal bow (perfected)",
     "Corrupted staff (basic)",
     "Corrupted staff (attuned)",
     "Corrupted staff (perfected)",
@@ -67,6 +85,7 @@ pub struct HunllefConfig {
     pub lost_ticks: i32,
     pub armor_tier: u32,
     pub only_success_stats: bool,
+    pub crystalline: bool,
 }
 
 impl Default for HunllefConfig {
@@ -82,6 +101,7 @@ impl Default for HunllefConfig {
             lost_ticks: 0,
             armor_tier: 0,
             only_success_stats: true,
+            crystalline: false,
         }
     }
 }
@@ -364,11 +384,16 @@ impl HunllefFight {
         if !has_valid_gear(&player) {
             return Err(SimulationError::InvalidGauntletGear);
         }
-        let mut hunllef = Monster::new("Corrupted Hunllef", None)
-            .map_err(|_| SimulationError::MonsterCreationError("Corrupted Hunllef".to_string()))?;
+        let (monster_name, max_hit) = if config.crystalline {
+            ("Crystalline Hunllef", CRYS_HUNLLEF_MAX_HIT)
+        } else {
+            ("Corrupted Hunllef", HUNLLEF_MAX_HIT)
+        };
+        let mut hunllef = Monster::new(monster_name, None)
+            .map_err(|_| SimulationError::MonsterCreationError(monster_name.to_string()))?;
         hunllef.max_hits = Some(vec![
-            MonsterMaxHit::new(HUNLLEF_MAX_HIT, AttackType::Ranged),
-            MonsterMaxHit::new(HUNLLEF_MAX_HIT, AttackType::Magic),
+            MonsterMaxHit::new(max_hit, AttackType::Ranged),
+            MonsterMaxHit::new(max_hit, AttackType::Magic),
         ]);
 
         let limiter = crate::combat::simulation::assign_limiter(&player, &hunllef);
@@ -398,11 +423,16 @@ impl HunllefFight {
 
         let attack_strategy = self.config.attack_strategy.clone();
 
-        let hunllef_max = match self.config.armor_tier {
-            1 => T1_MAX_HIT,
-            2 => T2_MAX_HIT,
-            3 => T3_MAX_HIT,
-            _ => T0_MAX_HIT,
+        let hunllef_max = match (self.config.armor_tier, self.config.crystalline) {
+            (0, true) => T0_CRYS_MAX_HIT,
+            (0, false) => T0_MAX_HIT,
+            (1, true) => T1_CRYS_MAX_HIT,
+            (1, false) => T1_MAX_HIT,
+            (2, true) => T2_CRYS_MAX_HIT,
+            (2, false) => T2_MAX_HIT,
+            (3, true) => T3_CRYS_MAX_HIT,
+            (3, false) => T3_MAX_HIT,
+            _ => unreachable!(),
         };
 
         if let FightRecorder::Enabled(log) = log {
@@ -946,6 +976,7 @@ mod tests {
             lost_ticks: 0,
             armor_tier: 0,
             only_success_stats: true,
+            crystalline: false,
         };
 
         let mut fight =
