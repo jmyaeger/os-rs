@@ -2607,39 +2607,6 @@
     "attack_range": 1
   },
   {
-    "name": "Accursed sceptre (a) (beta)",
-    "id": 27679,
-    "version": "Charged",
-    "slot": "weapon",
-    "image": "Accursed sceptre (a) (beta).png",
-    "speed": 4,
-    "category": "Powered Staff",
-    "bonuses": {
-      "strength": {
-        "melee": 0,
-        "ranged": 0,
-        "magic": 0
-      },
-      "attack": {
-        "stab": 0,
-        "slash": 0,
-        "crush": 0,
-        "magic": 22,
-        "ranged": 0
-      },
-      "defence": {
-        "stab": 0,
-        "slash": 0,
-        "crush": 0,
-        "magic": 20,
-        "ranged": 0
-      },
-      "prayer": 0
-    },
-    "is_two_handed": false,
-    "attack_range": 1
-  },
-  {
     "name": "Achievement diary cape",
     "id": 13069,
     "version": "Trimmed",
@@ -10670,7 +10637,7 @@
       "strength": {
         "melee": 60,
         "ranged": 0,
-        "magic": 5
+        "magic": 10
       },
       "attack": {
         "stab": 20,
@@ -12076,6 +12043,237 @@
     },
     "is_two_handed": null,
     "attack_range": null
+  },
+  {
+    "name": "Archibald",
+    "id": 33151,
+    "version": "Archibald",
+    "slot": "weapon",
+    "image": "Archibald.png",
+    "speed": 4,
+    "category": "Blunt",
+    "bonuses": {
+      "strength": {
+        "melee": -10,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": -100,
+        "slash": -100,
+        "crush": -50,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 1
+  },
+  {
+    "name": "Archibald",
+    "id": 33155,
+    "version": "Bunny",
+    "slot": "weapon",
+    "image": "Archibald (Bunny).png",
+    "speed": 4,
+    "category": "Blunt",
+    "bonuses": {
+      "strength": {
+        "melee": -10,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": -100,
+        "slash": -100,
+        "crush": -50,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 1
+  },
+  {
+    "name": "Archibald",
+    "id": 33159,
+    "version": "Chick",
+    "slot": "weapon",
+    "image": "Archibald (Chick).png",
+    "speed": 4,
+    "category": "Blunt",
+    "bonuses": {
+      "strength": {
+        "melee": -10,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": -100,
+        "slash": -100,
+        "crush": -50,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 1
+  },
+  {
+    "name": "Archibald",
+    "id": 33157,
+    "version": "Diamonds",
+    "slot": "weapon",
+    "image": "Archibald (Diamonds).png",
+    "speed": 4,
+    "category": "Blunt",
+    "bonuses": {
+      "strength": {
+        "melee": -10,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": -100,
+        "slash": -100,
+        "crush": -50,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 1
+  },
+  {
+    "name": "Archibald",
+    "id": 33163,
+    "version": "Dragon",
+    "slot": "weapon",
+    "image": "Archibald (Dragon).png",
+    "speed": 4,
+    "category": "Blunt",
+    "bonuses": {
+      "strength": {
+        "melee": -10,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": -100,
+        "slash": -100,
+        "crush": -50,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 1
+  },
+  {
+    "name": "Archibald",
+    "id": 33153,
+    "version": "Grid",
+    "slot": "weapon",
+    "image": "Archibald (Grid).png",
+    "speed": 4,
+    "category": "Blunt",
+    "bonuses": {
+      "strength": {
+        "melee": -10,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": -100,
+        "slash": -100,
+        "crush": -50,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 1
+  },
+  {
+    "name": "Archibald",
+    "id": 33161,
+    "version": "Melted",
+    "slot": "weapon",
+    "image": "Archibald (Melted).png",
+    "speed": 4,
+    "category": "Blunt",
+    "bonuses": {
+      "strength": {
+        "melee": -10,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": -100,
+        "slash": -100,
+        "crush": -50,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 1
   },
   {
     "name": "Arclight",
@@ -16440,7 +16638,7 @@
     "slot": "body",
     "image": "Beer belly sweater.png",
     "speed": null,
-    "category": "Unarmed",
+    "category": null,
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -18617,7 +18815,7 @@
     "version": null,
     "slot": "weapon",
     "image": "Black felling axe.png",
-    "speed": 5,
+    "speed": 7,
     "category": "Axe",
     "bonuses": {
       "strength": {
@@ -21921,13 +22119,13 @@
     "category": "Slash Sword",
     "bonuses": {
       "strength": {
-        "melee": 89,
+        "melee": 93,
         "ranged": 0,
         "magic": 0
       },
       "attack": {
         "stab": 55,
-        "slash": 94,
+        "slash": 100,
         "crush": 0,
         "magic": 0,
         "ranged": 0
@@ -21954,13 +22152,13 @@
     "category": "Slash Sword",
     "bonuses": {
       "strength": {
-        "melee": 89,
+        "melee": 93,
         "ranged": 0,
         "magic": 0
       },
       "attack": {
         "stab": 55,
-        "slash": 94,
+        "slash": 100,
         "crush": 0,
         "magic": 0,
         "ranged": 0
@@ -21987,13 +22185,13 @@
     "category": "Slash Sword",
     "bonuses": {
       "strength": {
-        "melee": 89,
+        "melee": 93,
         "ranged": 0,
         "magic": 0
       },
       "attack": {
         "stab": 55,
-        "slash": 94,
+        "slash": 100,
         "crush": 0,
         "magic": 0,
         "ranged": 0
@@ -22020,13 +22218,13 @@
     "category": "Slash Sword",
     "bonuses": {
       "strength": {
-        "melee": 89,
+        "melee": 93,
         "ranged": 0,
         "magic": 0
       },
       "attack": {
         "stab": 55,
-        "slash": 94,
+        "slash": 100,
         "crush": 0,
         "magic": 0,
         "ranged": 0
@@ -22053,13 +22251,13 @@
     "category": "Slash Sword",
     "bonuses": {
       "strength": {
-        "melee": 89,
+        "melee": 93,
         "ranged": 0,
         "magic": 0
       },
       "attack": {
         "stab": 55,
-        "slash": 94,
+        "slash": 100,
         "crush": 0,
         "magic": 0,
         "ranged": 0
@@ -22086,13 +22284,13 @@
     "category": "Slash Sword",
     "bonuses": {
       "strength": {
-        "melee": 89,
+        "melee": 93,
         "ranged": 0,
         "magic": 0
       },
       "attack": {
         "stab": 55,
-        "slash": 94,
+        "slash": 100,
         "crush": 0,
         "magic": 0,
         "ranged": 0
@@ -22119,13 +22317,13 @@
     "category": "Slash Sword",
     "bonuses": {
       "strength": {
-        "melee": 89,
+        "melee": 93,
         "ranged": 0,
         "magic": 0
       },
       "attack": {
         "stab": 55,
-        "slash": 94,
+        "slash": 100,
         "crush": 0,
         "magic": 0,
         "ranged": 0
@@ -22152,13 +22350,13 @@
     "category": "Slash Sword",
     "bonuses": {
       "strength": {
-        "melee": 89,
+        "melee": 93,
         "ranged": 0,
         "magic": 0
       },
       "attack": {
         "stab": 55,
-        "slash": 94,
+        "slash": 100,
         "crush": 0,
         "magic": 0,
         "ranged": 0
@@ -22185,13 +22383,13 @@
     "category": "Slash Sword",
     "bonuses": {
       "strength": {
-        "melee": 89,
+        "melee": 93,
         "ranged": 0,
         "magic": 0
       },
       "attack": {
         "stab": 55,
-        "slash": 94,
+        "slash": 100,
         "crush": 0,
         "magic": 0,
         "ranged": 0
@@ -22440,6 +22638,72 @@
     "attack_range": 1
   },
   {
+    "name": "Blisterwood sickle (e)",
+    "id": 33713,
+    "version": null,
+    "slot": "weapon",
+    "image": "Blisterwood sickle (e).png",
+    "speed": 5,
+    "category": "Slash Sword",
+    "bonuses": {
+      "strength": {
+        "melee": 56,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 44,
+        "slash": 56,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 1,
+        "slash": 2,
+        "crush": 2,
+        "magic": 2,
+        "ranged": 2
+      },
+      "prayer": 5
+    },
+    "is_two_handed": false,
+    "attack_range": 1
+  },
+  {
+    "name": "Blisterwood stake",
+    "id": 33716,
+    "version": null,
+    "slot": "weapon",
+    "image": "Blisterwood stake.png",
+    "speed": 3,
+    "category": "Thrown",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 14,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 16
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 6
+  },
+  {
     "name": "Blood ancient sceptre",
     "id": 28260,
     "version": null,
@@ -22451,7 +22715,7 @@
       "strength": {
         "melee": 60,
         "ranged": 0,
-        "magic": 5
+        "magic": 10
       },
       "attack": {
         "stab": 20,
@@ -38573,7 +38837,7 @@
       },
       "prayer": 2
     },
-    "is_two_handed": true,
+    "is_two_handed": false,
     "attack_range": 10
   },
   {
@@ -38606,7 +38870,7 @@
       },
       "prayer": 1
     },
-    "is_two_handed": true,
+    "is_two_handed": false,
     "attack_range": 10
   },
   {
@@ -38639,7 +38903,7 @@
       },
       "prayer": 3
     },
-    "is_two_handed": true,
+    "is_two_handed": false,
     "attack_range": 10
   },
   {
@@ -40992,7 +41256,7 @@
     "slot": "weapon",
     "image": "Crate of books (Civitas illa Fortis).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -41025,7 +41289,7 @@
     "slot": "weapon",
     "image": "Crate of books (Port Piscarilius).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -41058,7 +41322,7 @@
     "slot": "weapon",
     "image": "Crate of books (Port Sarim).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -41091,7 +41355,7 @@
     "slot": "weapon",
     "image": "Crate of books (Prifddinas).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -42807,7 +43071,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Ardougne).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -42840,7 +43104,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Brimhaven).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -42873,7 +43137,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Civitas illa Fortis).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -42906,7 +43170,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Corsair Cove).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -42939,7 +43203,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Etceteria).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -42972,7 +43236,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Hosidius).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43005,7 +43269,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Jatizso).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43038,7 +43302,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Land's End).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43071,7 +43335,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Lunar Isle).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43104,7 +43368,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Musa Point).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43137,7 +43401,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Piscatoris).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43170,7 +43434,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Port Roberts).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43203,7 +43467,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Port Sarim).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43236,7 +43500,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Port Tyras).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43269,7 +43533,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Prifddinas).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43302,7 +43566,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Red Rock).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43335,7 +43599,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Rellekka).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43368,7 +43632,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Ruins of Unkah).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43401,7 +43665,7 @@
     "slot": "weapon",
     "image": "Crate of fish (Sunset Coast).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43467,7 +43731,7 @@
     "slot": "weapon",
     "image": "Crate of flax (Jatizso).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43500,7 +43764,7 @@
     "slot": "weapon",
     "image": "Crate of flax (Piscatoris).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43533,7 +43797,7 @@
     "slot": "weapon",
     "image": "Crate of flax (Port Roberts).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -43566,7 +43830,7 @@
     "slot": "weapon",
     "image": "Crate of flax (Port Sarim).png",
     "speed": null,
-    "category": "Blunt",
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -44386,7 +44650,7 @@
   },
   {
     "name": "Crate of glassmaking supplies",
-    "id": 32640,
+    "id": 32488,
     "version": null,
     "slot": "weapon",
     "image": "Crate of glassmaking supplies.png",
@@ -46667,8 +46931,8 @@
     "version": "Land's End",
     "slot": "weapon",
     "image": "Crate of meat (Land's End).png",
-    "speed": null,
-    "category": "Blunt",
+    "speed": 4,
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -46700,8 +46964,8 @@
     "version": "Musa Point",
     "slot": "weapon",
     "image": "Crate of meat (Musa Point).png",
-    "speed": null,
-    "category": "Blunt",
+    "speed": 4,
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -46733,8 +46997,8 @@
     "version": "Port Roberts",
     "slot": "weapon",
     "image": "Crate of meat (Port Roberts).png",
-    "speed": null,
-    "category": "Blunt",
+    "speed": 4,
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -46766,8 +47030,8 @@
     "version": "The Pandemonium",
     "slot": "weapon",
     "image": "Crate of meat (The Pandemonium).png",
-    "speed": null,
-    "category": "Blunt",
+    "speed": 4,
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -46799,8 +47063,8 @@
     "version": "The Summer Shore",
     "slot": "weapon",
     "image": "Crate of meat (The Summer Shore).png",
-    "speed": null,
-    "category": "Blunt",
+    "speed": 4,
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -52338,6 +52602,39 @@
     "attack_range": null
   },
   {
+    "name": "Crimson kisten",
+    "id": 33631,
+    "version": null,
+    "slot": "weapon",
+    "image": "Crimson kisten.png",
+    "speed": 4,
+    "category": "Spiked",
+    "bonuses": {
+      "strength": {
+        "melee": 56,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 80,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 1
+  },
+  {
     "name": "Crone-made amulet",
     "id": 10500,
     "version": null,
@@ -56492,7 +56789,7 @@
       },
       "prayer": 2
     },
-    "is_two_handed": true,
+    "is_two_handed": false,
     "attack_range": 10
   },
   {
@@ -56525,7 +56822,7 @@
       },
       "prayer": 1
     },
-    "is_two_handed": true,
+    "is_two_handed": false,
     "attack_range": 10
   },
   {
@@ -56558,7 +56855,7 @@
       },
       "prayer": 3
     },
-    "is_two_handed": true,
+    "is_two_handed": false,
     "attack_range": 10
   },
   {
@@ -59697,6 +59994,699 @@
     "attack_range": null
   },
   {
+    "name": "Demonic boots (t1)",
+    "id": 33269,
+    "version": null,
+    "slot": "feet",
+    "image": "Demonic boots (t1).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic boots (t2)",
+    "id": 33281,
+    "version": null,
+    "slot": "feet",
+    "image": "Demonic boots (t2).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic boots (t3)",
+    "id": 33293,
+    "version": null,
+    "slot": "feet",
+    "image": "Demonic boots (t3).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic hood (t1)",
+    "id": 33260,
+    "version": null,
+    "slot": "head",
+    "image": "Demonic hood (t1).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic hood (t2)",
+    "id": 33272,
+    "version": null,
+    "slot": "head",
+    "image": "Demonic hood (t2).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic hood (t3)",
+    "id": 33284,
+    "version": null,
+    "slot": "head",
+    "image": "Demonic hood (t3).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic pacts adamant trophy",
+    "id": 33349,
+    "version": null,
+    "slot": "weapon",
+    "image": "Demonic pacts adamant trophy.png",
+    "speed": 4,
+    "category": "Blunt",
+    "bonuses": {
+      "strength": {
+        "melee": -10,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": -100,
+        "slash": -100,
+        "crush": -50,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 1
+  },
+  {
+    "name": "Demonic pacts banner",
+    "id": 33299,
+    "version": null,
+    "slot": "weapon",
+    "image": "Demonic pacts banner.png",
+    "speed": 4,
+    "category": "Banner",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 1
+  },
+  {
+    "name": "Demonic pacts bronze trophy",
+    "id": 33357,
+    "version": null,
+    "slot": "shield",
+    "image": "Demonic pacts bronze trophy.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic pacts dragon trophy",
+    "id": 33345,
+    "version": null,
+    "slot": "weapon",
+    "image": "Demonic pacts dragon trophy.png",
+    "speed": 4,
+    "category": "Blunt",
+    "bonuses": {
+      "strength": {
+        "melee": -10,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": -100,
+        "slash": -100,
+        "crush": -50,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 1
+  },
+  {
+    "name": "Demonic pacts iron trophy",
+    "id": 33355,
+    "version": null,
+    "slot": "shield",
+    "image": "Demonic pacts iron trophy.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic pacts mithril trophy",
+    "id": 33351,
+    "version": null,
+    "slot": "shield",
+    "image": "Demonic pacts mithril trophy.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic pacts rune trophy",
+    "id": 33347,
+    "version": null,
+    "slot": "weapon",
+    "image": "Demonic pacts rune trophy.png",
+    "speed": 4,
+    "category": "Blunt",
+    "bonuses": {
+      "strength": {
+        "melee": -10,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": -100,
+        "slash": -100,
+        "crush": -50,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 1
+  },
+  {
+    "name": "Demonic pacts steel trophy",
+    "id": 33353,
+    "version": null,
+    "slot": "shield",
+    "image": "Demonic pacts steel trophy.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic robe bottom (t1)",
+    "id": 33266,
+    "version": null,
+    "slot": "legs",
+    "image": "Demonic robe bottom (t1).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic robe bottom (t2)",
+    "id": 33278,
+    "version": null,
+    "slot": "legs",
+    "image": "Demonic robe bottom (t2).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic robe bottom (t3)",
+    "id": 33290,
+    "version": null,
+    "slot": "legs",
+    "image": "Demonic robe bottom (t3).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic robe top (t1)",
+    "id": 33263,
+    "version": null,
+    "slot": "body",
+    "image": "Demonic robe top (t1).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic robe top (t2)",
+    "id": 33275,
+    "version": null,
+    "slot": "body",
+    "image": "Demonic robe top (t2).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic robe top (t3)",
+    "id": 33287,
+    "version": null,
+    "slot": "body",
+    "image": "Demonic robe top (t3).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Demonic sceptre",
+    "id": 33296,
+    "version": null,
+    "slot": "shield",
+    "image": "Demonic sceptre.png",
+    "speed": 4,
+    "category": "Spiked",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": 1
+  },
+  {
     "name": "Desert amulet 1",
     "id": 13133,
     "version": null,
@@ -60522,6 +61512,39 @@
     "attack_range": null
   },
   {
+    "name": "Diamond sickle (b)",
+    "id": 33709,
+    "version": null,
+    "slot": "weapon",
+    "image": "Diamond sickle (b).png",
+    "speed": 5,
+    "category": "Slash Sword",
+    "bonuses": {
+      "strength": {
+        "melee": 8,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 1,
+        "crush": 1,
+        "magic": 1,
+        "ranged": 1
+      },
+      "prayer": 5
+    },
+    "is_two_handed": false,
+    "attack_range": 1
+  },
+  {
     "name": "Diamond speedrun trophy",
     "id": 27783,
     "version": null,
@@ -60985,76 +62008,10 @@
   },
   {
     "name": "Dizana's quiver",
-    "id": 28953,
-    "version": "Charged + Locked",
-    "slot": "cape",
-    "image": "Dizana's quiver (l).png",
-    "speed": null,
-    "category": null,
-    "bonuses": {
-      "strength": {
-        "melee": 0,
-        "ranged": 3,
-        "magic": 0
-      },
-      "attack": {
-        "stab": 0,
-        "slash": 0,
-        "crush": 0,
-        "magic": 0,
-        "ranged": 18
-      },
-      "defence": {
-        "stab": 0,
-        "slash": 0,
-        "crush": 0,
-        "magic": 0,
-        "ranged": 0
-      },
-      "prayer": 0
-    },
-    "is_two_handed": null,
-    "attack_range": null
-  },
-  {
-    "name": "Dizana's quiver",
     "id": 28947,
     "version": "Uncharged",
     "slot": "cape",
     "image": "Dizana's quiver (uncharged).png",
-    "speed": null,
-    "category": null,
-    "bonuses": {
-      "strength": {
-        "melee": 0,
-        "ranged": 3,
-        "magic": 0
-      },
-      "attack": {
-        "stab": 0,
-        "slash": 0,
-        "crush": 0,
-        "magic": 0,
-        "ranged": 18
-      },
-      "defence": {
-        "stab": 0,
-        "slash": 0,
-        "crush": 0,
-        "magic": 0,
-        "ranged": 0
-      },
-      "prayer": 0
-    },
-    "is_two_handed": null,
-    "attack_range": null
-  },
-  {
-    "name": "Dizana's quiver",
-    "id": 28949,
-    "version": "Uncharged + Locked",
-    "slot": "cape",
-    "image": "Dizana's quiver (uncharged) (l).png",
     "speed": null,
     "category": null,
     "bonuses": {
@@ -65901,6 +66858,39 @@
     "attack_range": 1
   },
   {
+    "name": "Dummy stymphike feather",
+    "id": 33644,
+    "version": null,
+    "slot": "weapon",
+    "image": "Dummy stymphike feather.png",
+    "speed": 3,
+    "category": "Blunt",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": null
+  },
+  {
     "name": "Dust battlestaff",
     "id": 20736,
     "version": null,
@@ -68904,6 +69894,39 @@
     "attack_range": null
   },
   {
+    "name": "Enchanted diamond sickle (b)",
+    "id": 33711,
+    "version": null,
+    "slot": "weapon",
+    "image": "Enchanted diamond sickle (b).png",
+    "speed": 5,
+    "category": "Slash Sword",
+    "bonuses": {
+      "strength": {
+        "melee": 12,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 1,
+        "crush": 1,
+        "magic": 1,
+        "ranged": 1
+      },
+      "prayer": 5
+    },
+    "is_two_handed": false,
+    "attack_range": 1
+  },
+  {
     "name": "Enchanted emerald sickle (b)",
     "id": 22435,
     "version": null,
@@ -69472,6 +70495,39 @@
     "image": "Evil chicken wings.png",
     "speed": null,
     "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Evil eye (item)",
+    "id": 33227,
+    "version": null,
+    "slot": "neck",
+    "image": "Evil eye.png",
+    "speed": null,
+    "category": "Unarmed",
     "bonuses": {
       "strength": {
         "melee": 0,
@@ -70222,6 +71278,39 @@
     },
     "is_two_handed": null,
     "attack_range": null
+  },
+  {
+    "name": "Fang of the hound",
+    "id": 33249,
+    "version": null,
+    "slot": "weapon",
+    "image": "Fang of the hound.png",
+    "speed": 3,
+    "category": "Stab Sword",
+    "bonuses": {
+      "strength": {
+        "melee": 20,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 60,
+        "slash": 60,
+        "crush": 10,
+        "magic": 3,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 1
   },
   {
     "name": "Farmer's boots",
@@ -71516,6 +72605,39 @@
     "version": null,
     "slot": "head",
     "image": "Fishing hood.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Fishy prison uniform top",
+    "id": 31357,
+    "version": null,
+    "slot": "body",
+    "image": "Fishy prison uniform top.png",
     "speed": null,
     "category": null,
     "bonuses": {
@@ -74853,12 +75975,12 @@
     "category": "Stab Sword",
     "bonuses": {
       "strength": {
-        "melee": 89,
+        "melee": 93,
         "ranged": 0,
         "magic": 0
       },
       "attack": {
-        "stab": 94,
+        "stab": 100,
         "slash": 55,
         "crush": 0,
         "magic": 0,
@@ -83891,7 +85013,7 @@
     "version": null,
     "slot": "weapon",
     "image": "Guthix staff.png",
-    "speed": 5,
+    "speed": 4,
     "category": "Staff",
     "bonuses": {
       "strength": {
@@ -83983,6 +85105,39 @@
     },
     "is_two_handed": null,
     "attack_range": null
+  },
+  {
+    "name": "Hallowed flail",
+    "id": 33718,
+    "version": null,
+    "slot": "weapon",
+    "image": "Hallowed flail.png",
+    "speed": 4,
+    "category": "Flail",
+    "bonuses": {
+      "strength": {
+        "melee": 46,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 32,
+        "slash": 68,
+        "crush": 0,
+        "magic": 10,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 2,
+        "crush": 0,
+        "magic": 10,
+        "ranged": 0
+      },
+      "prayer": 6
+    },
+    "is_two_handed": false,
+    "attack_range": 1
   },
   {
     "name": "Hallowed focus",
@@ -86172,12 +87327,12 @@
     "category": "Stab Sword",
     "bonuses": {
       "strength": {
-        "melee": 89,
+        "melee": 93,
         "ranged": 0,
         "magic": 0
       },
       "attack": {
-        "stab": 94,
+        "stab": 100,
         "slash": 55,
         "crush": 0,
         "magic": 0,
@@ -87516,11 +88671,77 @@
     "attack_range": 1
   },
   {
+    "name": "Iban's staff (o)",
+    "id": 33330,
+    "version": "Regular",
+    "slot": "weapon",
+    "image": "Iban's staff (o).png",
+    "speed": 5,
+    "category": "Staff",
+    "bonuses": {
+      "strength": {
+        "melee": 50,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 10,
+        "slash": -1,
+        "crush": 40,
+        "magic": 10,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 2,
+        "slash": 3,
+        "crush": 1,
+        "magic": 10,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 1
+  },
+  {
     "name": "Iban's staff (u)",
     "id": 12658,
     "version": null,
     "slot": "weapon",
     "image": "Iban's staff (u).png",
+    "speed": 5,
+    "category": "Staff",
+    "bonuses": {
+      "strength": {
+        "melee": 50,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 10,
+        "slash": -1,
+        "crush": 40,
+        "magic": 10,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 2,
+        "slash": 3,
+        "crush": 1,
+        "magic": 10,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 1
+  },
+  {
+    "name": "Iban's staff (u) (o)",
+    "id": 33332,
+    "version": null,
+    "slot": "weapon",
+    "image": "Iban's staff (u) (o).png",
     "speed": 5,
     "category": "Staff",
     "bonuses": {
@@ -87560,7 +88781,7 @@
       "strength": {
         "melee": 60,
         "ranged": 0,
-        "magic": 5
+        "magic": 10
       },
       "attack": {
         "stab": 20,
@@ -89232,6 +90453,39 @@
     "attack_range": 1
   },
   {
+    "name": "Infernal tecpatl",
+    "id": 33243,
+    "version": null,
+    "slot": "weapon",
+    "image": "Infernal tecpatl.png",
+    "speed": 4,
+    "category": "Multi-Melee",
+    "bonuses": {
+      "strength": {
+        "melee": 70,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 72,
+        "slash": 72,
+        "crush": 72,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": -1
+    },
+    "is_two_handed": true,
+    "attack_range": 1
+  },
+  {
     "name": "Infinite money bag",
     "id": 27440,
     "version": null,
@@ -89571,14 +90825,14 @@
     "category": null,
     "bonuses": {
       "strength": {
-        "melee": 4,
+        "melee": 6,
         "ranged": 0,
         "magic": 0
       },
       "attack": {
-        "stab": -2,
-        "slash": -2,
-        "crush": 8,
+        "stab": 0,
+        "slash": 0,
+        "crush": 10,
         "magic": -5,
         "ranged": -5
       },
@@ -89609,9 +90863,9 @@
         "magic": 0
       },
       "attack": {
-        "stab": -3,
-        "slash": -3,
-        "crush": 12,
+        "stab": 0,
+        "slash": 0,
+        "crush": 16,
         "magic": -11,
         "ranged": -10
       },
@@ -89637,14 +90891,14 @@
     "category": "Spiked",
     "bonuses": {
       "strength": {
-        "melee": 89,
+        "melee": 96,
         "ranged": 0,
         "magic": 0
       },
       "attack": {
         "stab": 52,
         "slash": -4,
-        "crush": 95,
+        "crush": 102,
         "magic": 0,
         "ranged": 0
       },
@@ -89675,8 +90929,8 @@
         "magic": 0
       },
       "attack": {
-        "stab": -3,
-        "slash": -3,
+        "stab": 0,
+        "slash": 0,
         "crush": 12,
         "magic": -9,
         "ranged": -5
@@ -94446,6 +95700,39 @@
     "attack_range": 1
   },
   {
+    "name": "King's barrage",
+    "id": 33251,
+    "version": null,
+    "slot": "weapon",
+    "image": "King's barrage.png",
+    "speed": 6,
+    "category": "Crossbow",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 14,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 130
+      },
+      "defence": {
+        "stab": 20,
+        "slash": 20,
+        "crush": 20,
+        "magic": 25,
+        "ranged": 60
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 9
+  },
+  {
     "name": "Kitchen knife",
     "id": 7447,
     "version": null,
@@ -95962,6 +97249,72 @@
     },
     "is_two_handed": null,
     "attack_range": null
+  },
+  {
+    "name": "Lithic sceptre",
+    "id": 33255,
+    "version": "Charged",
+    "slot": "weapon",
+    "image": "Lithic sceptre.png",
+    "speed": 4,
+    "category": "Powered Staff",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 25,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 10,
+        "slash": 10,
+        "crush": 10,
+        "magic": 20,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 7
+  },
+  {
+    "name": "Lithic sceptre",
+    "id": 33257,
+    "version": "Uncharged",
+    "slot": "weapon",
+    "image": "Lithic sceptre (uncharged).png",
+    "speed": 4,
+    "category": "Powered Staff",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 25,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 10,
+        "slash": 10,
+        "crush": 10,
+        "magic": 20,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 7
   },
   {
     "name": "Log basket",
@@ -98483,7 +99836,7 @@
       "strength": {
         "melee": 0,
         "ranged": 0,
-        "magic": 0
+        "magic": 10
       },
       "attack": {
         "stab": 0,
@@ -105369,6 +106722,39 @@
     "attack_range": null
   },
   {
+    "name": "Nature's recurve",
+    "id": 33245,
+    "version": null,
+    "slot": "weapon",
+    "image": "Nature's recurve.png",
+    "speed": 4,
+    "category": "Bow",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 4,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 95
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 7
+  },
+  {
     "name": "Navy cavalier",
     "id": 12325,
     "version": null,
@@ -105661,6 +107047,39 @@
         "ranged": 0
       },
       "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Necklace of rupture",
+    "id": 33639,
+    "version": null,
+    "slot": "neck",
+    "image": "Necklace of rupture.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 8,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 20
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 3
     },
     "is_two_handed": null,
     "attack_range": null
@@ -106682,6 +108101,138 @@
         "crush": 73,
         "magic": -3,
         "ranged": 81
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Oathplate slayer helmet",
+    "id": 33338,
+    "version": null,
+    "slot": "head",
+    "image": "Oathplate slayer helmet.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": -6,
+        "ranged": -2
+      },
+      "defence": {
+        "stab": 30,
+        "slash": 32,
+        "crush": 27,
+        "magic": -1,
+        "ranged": 30
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Oathplate slayer helmet (i)",
+    "id": 33443,
+    "version": "Emir's Arena",
+    "slot": "head",
+    "image": "Oathplate slayer helmet (i).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 3,
+        "ranged": 3
+      },
+      "defence": {
+        "stab": 30,
+        "slash": 32,
+        "crush": 27,
+        "magic": 10,
+        "ranged": 30
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Oathplate slayer helmet (i)",
+    "id": 33439,
+    "version": null,
+    "slot": "head",
+    "image": "Oathplate slayer helmet (i).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 3,
+        "ranged": 3
+      },
+      "defence": {
+        "stab": 30,
+        "slash": 32,
+        "crush": 27,
+        "magic": 10,
+        "ranged": 30
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Oathplate slayer helmet (i)",
+    "id": 33441,
+    "version": "Soul Wars",
+    "slot": "head",
+    "image": "Oathplate slayer helmet (i).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 3,
+        "ranged": 3
+      },
+      "defence": {
+        "stab": 30,
+        "slash": 32,
+        "crush": 27,
+        "magic": 10,
+        "ranged": 30
       },
       "prayer": 0
     },
@@ -108976,7 +110527,7 @@
     "bonuses": {
       "strength": {
         "melee": 0,
-        "ranged": 0,
+        "ranged": 1,
         "magic": 0
       },
       "attack": {
@@ -111771,6 +113322,72 @@
     "attack_range": null
   },
   {
+    "name": "Prison uniform top",
+    "id": 31353,
+    "version": null,
+    "slot": "body",
+    "image": "Prison uniform top.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Prison uniform trousers",
+    "id": 31355,
+    "version": null,
+    "slot": "legs",
+    "image": "Prison uniform trousers.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
     "name": "Progress hat",
     "id": 6885,
     "version": "Dull",
@@ -113513,6 +115130,138 @@
         "crush": 73,
         "magic": -3,
         "ranged": 81
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Radiant slayer helmet",
+    "id": 33340,
+    "version": null,
+    "slot": "head",
+    "image": "Radiant slayer helmet.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": -6,
+        "ranged": -2
+      },
+      "defence": {
+        "stab": 30,
+        "slash": 32,
+        "crush": 27,
+        "magic": -1,
+        "ranged": 30
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Radiant slayer helmet (i)",
+    "id": 33449,
+    "version": "Emir's Arena",
+    "slot": "head",
+    "image": "Radiant slayer helmet (i).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 3,
+        "ranged": 3
+      },
+      "defence": {
+        "stab": 30,
+        "slash": 32,
+        "crush": 27,
+        "magic": 10,
+        "ranged": 30
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Radiant slayer helmet (i)",
+    "id": 33445,
+    "version": null,
+    "slot": "head",
+    "image": "Radiant slayer helmet (i).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 3,
+        "ranged": 3
+      },
+      "defence": {
+        "stab": 30,
+        "slash": 32,
+        "crush": 27,
+        "magic": 10,
+        "ranged": 30
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Radiant slayer helmet (i)",
+    "id": 33447,
+    "version": "Soul Wars",
+    "slot": "head",
+    "image": "Radiant slayer helmet (i).png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 3,
+        "ranged": 3
+      },
+      "defence": {
+        "stab": 30,
+        "slash": 32,
+        "crush": 27,
+        "magic": 10,
+        "ranged": 30
       },
       "prayer": 0
     },
@@ -126288,40 +128037,7 @@
       "prayer": 0
     },
     "is_two_handed": false,
-    "attack_range": 5
-  },
-  {
-    "name": "Sage's greaves",
-    "id": 28771,
-    "version": null,
-    "slot": "feet",
-    "image": "Sage's greaves.png",
-    "speed": null,
-    "category": null,
-    "bonuses": {
-      "strength": {
-        "melee": 0,
-        "ranged": 0,
-        "magic": 0
-      },
-      "attack": {
-        "stab": 0,
-        "slash": 0,
-        "crush": 0,
-        "magic": 0,
-        "ranged": 0
-      },
-      "defence": {
-        "stab": 0,
-        "slash": 0,
-        "crush": 0,
-        "magic": 0,
-        "ranged": 0
-      },
-      "prayer": 0
-    },
-    "is_two_handed": null,
-    "attack_range": null
+    "attack_range": 6
   },
   {
     "name": "Saika's hood",
@@ -128672,7 +130388,7 @@
     "version": null,
     "slot": "weapon",
     "image": "Saradomin staff.png",
-    "speed": 5,
+    "speed": 4,
     "category": "Staff",
     "bonuses": {
       "strength": {
@@ -129096,6 +130812,39 @@
     "attack_range": null
   },
   {
+    "name": "Searing boots",
+    "id": 28771,
+    "version": null,
+    "slot": "feet",
+    "image": "Searing boots.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
     "name": "Secret santa present",
     "id": 26322,
     "version": "Black",
@@ -129247,6 +130996,303 @@
         "crush": 0,
         "magic": 0,
         "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Seeking adamant arrow",
+    "id": 33577,
+    "version": null,
+    "slot": "ammo",
+    "image": "Seeking adamant arrow 5.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 31,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 20
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Seeking amethyst arrow",
+    "id": 33589,
+    "version": null,
+    "slot": "ammo",
+    "image": "Seeking amethyst arrow 5.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 55,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 20
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Seeking broad arrows",
+    "id": 33601,
+    "version": null,
+    "slot": "ammo",
+    "image": "Seeking broad arrows 5.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 28,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 20
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Seeking bronze arrow",
+    "id": 33553,
+    "version": null,
+    "slot": "ammo",
+    "image": "Seeking bronze arrow 5.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 7,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 20
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Seeking dragon arrow",
+    "id": 33595,
+    "version": null,
+    "slot": "ammo",
+    "image": "Seeking dragon arrow 5.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 60,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 20
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Seeking iron arrow",
+    "id": 33559,
+    "version": null,
+    "slot": "ammo",
+    "image": "Seeking iron arrow 5.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 10,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 20
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Seeking mithril arrow",
+    "id": 33571,
+    "version": null,
+    "slot": "ammo",
+    "image": "Seeking mithril arrow 5.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 22,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 20
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Seeking rune arrow",
+    "id": 33583,
+    "version": null,
+    "slot": "ammo",
+    "image": "Seeking rune arrow 5.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 49,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 20
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
+    "name": "Seeking steel arrow",
+    "id": 33565,
+    "version": null,
+    "slot": "ammo",
+    "image": "Seeking steel arrow 5.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 16,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 20
       },
       "defence": {
         "stab": 0,
@@ -129635,7 +131681,7 @@
       "strength": {
         "melee": 60,
         "ranged": 0,
-        "magic": 5
+        "magic": 10
       },
       "attack": {
         "stab": 20,
@@ -129690,6 +131736,39 @@
     "attack_range": 1
   },
   {
+    "name": "Shadowflame quadrant",
+    "id": 33253,
+    "version": null,
+    "slot": "weapon",
+    "image": "Shadowflame quadrant.png",
+    "speed": 5,
+    "category": "Staff",
+    "bonuses": {
+      "strength": {
+        "melee": 50,
+        "ranged": 0,
+        "magic": 15
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 60,
+        "magic": 25,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 5,
+        "crush": 5,
+        "magic": 17,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 8
+  },
+  {
     "name": "Shaman mask",
     "id": 21838,
     "version": null,
@@ -129707,7 +131786,7 @@
         "stab": 0,
         "slash": 0,
         "crush": 0,
-        "magic": -6,
+        "magic": 2,
         "ranged": -2
       },
       "defence": {
@@ -132264,6 +134343,72 @@
     "attack_range": 1
   },
   {
+    "name": "Silvthrill ballista",
+    "id": 33800,
+    "version": null,
+    "slot": "weapon",
+    "image": "Silvthrill ballista.png",
+    "speed": 6,
+    "category": "Crossbow",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 15,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 125
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 10
+  },
+  {
+    "name": "Silvthrill javelin",
+    "id": 33801,
+    "version": null,
+    "slot": "ammo",
+    "image": "Silvthrill javelin.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 124,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
     "name": "Sinhaza shroud tier 1",
     "id": 22494,
     "version": null,
@@ -134420,7 +136565,7 @@
       "strength": {
         "melee": 60,
         "ranged": 0,
-        "magic": 5
+        "magic": 10
       },
       "attack": {
         "stab": 20,
@@ -135342,7 +137487,40 @@
     "category": "Axe",
     "bonuses": {
       "strength": {
-        "melee": 121,
+        "melee": 125,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 28,
+        "slash": 134,
+        "crush": 66,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": true,
+    "attack_range": 1
+  },
+  {
+    "name": "Soulreaper axe (o)",
+    "id": 33335,
+    "version": null,
+    "slot": "weapon",
+    "image": "Soulreaper axe (o).png",
+    "speed": 5,
+    "category": "Axe",
+    "bonuses": {
+      "strength": {
+        "melee": 125,
         "ranged": 0,
         "magic": 0
       },
@@ -135694,6 +137872,39 @@
     },
     "is_two_handed": null,
     "attack_range": null
+  },
+  {
+    "name": "Spine",
+    "id": 33790,
+    "version": null,
+    "slot": "weapon",
+    "image": "Spine.png",
+    "speed": 3,
+    "category": "Thrown",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 26,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 16
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 4
   },
   {
     "name": "Spined body",
@@ -136493,7 +138704,7 @@
     "version": null,
     "slot": "weapon",
     "image": "Spooky pumpkin lantern.png",
-    "speed": null,
+    "speed": 4,
     "category": "Blunt",
     "bonuses": {
       "strength": {
@@ -141966,6 +144177,39 @@
     "attack_range": null
   },
   {
+    "name": "Sunspear",
+    "id": 33722,
+    "version": null,
+    "slot": "weapon",
+    "image": "Sunspear.png",
+    "speed": 5,
+    "category": "Spear",
+    "bonuses": {
+      "strength": {
+        "melee": 70,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 100,
+        "slash": 21,
+        "crush": 60,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 42,
+        "crush": 28,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 7
+    },
+    "is_two_handed": true,
+    "attack_range": 1
+  },
+  {
     "name": "Superior calamity breeches",
     "id": 26757,
     "version": null,
@@ -145461,7 +147705,7 @@
       "prayer": 2
     },
     "is_two_handed": false,
-    "attack_range": 6
+    "attack_range": 7
   },
   {
     "name": "Tonalztics of ralos",
@@ -148104,6 +150348,39 @@
     "attack_range": 1
   },
   {
+    "name": "Transmutation ledger",
+    "id": 33229,
+    "version": null,
+    "slot": "shield",
+    "image": "Transmutation ledger.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 0,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
+  },
+  {
     "name": "Treasonous ring",
     "id": 12605,
     "version": null,
@@ -148896,6 +151173,138 @@
     "attack_range": 7
   },
   {
+    "name": "Trident of the seas (e) (o)",
+    "id": 33326,
+    "version": "Charged",
+    "slot": "weapon",
+    "image": "Trident of the seas (e) (o).png",
+    "speed": 4,
+    "category": "Powered Staff",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 25,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 2,
+        "slash": 3,
+        "crush": 1,
+        "magic": 15,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 7
+  },
+  {
+    "name": "Trident of the seas (e) (o)",
+    "id": 33328,
+    "version": "Uncharged",
+    "slot": "weapon",
+    "image": "Uncharged trident (e) (o).png",
+    "speed": 4,
+    "category": "Powered Staff",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 25,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 2,
+        "slash": 3,
+        "crush": 1,
+        "magic": 15,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 7
+  },
+  {
+    "name": "Trident of the seas (o)",
+    "id": 33323,
+    "version": "Fully charged",
+    "slot": "weapon",
+    "image": "Trident of the seas (full) (o).png",
+    "speed": 4,
+    "category": "Powered Staff",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 25,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 2,
+        "slash": 3,
+        "crush": 1,
+        "magic": 15,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 7
+  },
+  {
+    "name": "Trident of the seas (o)",
+    "id": 33322,
+    "version": "Partially charged",
+    "slot": "weapon",
+    "image": "Trident of the seas (o).png",
+    "speed": 4,
+    "category": "Powered Staff",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 25,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 2,
+        "slash": 3,
+        "crush": 1,
+        "magic": 15,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 7
+  },
+  {
     "name": "Trident of the swamp",
     "id": 12899,
     "version": "Charged",
@@ -148967,6 +151376,138 @@
     "version": "Uncharged",
     "slot": "weapon",
     "image": "Uncharged toxic trident (e).png",
+    "speed": 4,
+    "category": "Powered Staff",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 25,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 2,
+        "slash": 3,
+        "crush": 1,
+        "magic": 15,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 7
+  },
+  {
+    "name": "Trident of the swamp (e) (o)",
+    "id": 33318,
+    "version": "Charged",
+    "slot": "weapon",
+    "image": "Trident of the swamp (e) (o).png",
+    "speed": 4,
+    "category": "Powered Staff",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 25,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 2,
+        "slash": 3,
+        "crush": 1,
+        "magic": 15,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 7
+  },
+  {
+    "name": "Trident of the swamp (e) (o)",
+    "id": 33320,
+    "version": "Uncharged",
+    "slot": "weapon",
+    "image": "Uncharged toxic trident (e) (o).png",
+    "speed": 4,
+    "category": "Powered Staff",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 25,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 2,
+        "slash": 3,
+        "crush": 1,
+        "magic": 15,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 7
+  },
+  {
+    "name": "Trident of the swamp (o)",
+    "id": 33314,
+    "version": "Charged",
+    "slot": "weapon",
+    "image": "Trident of the swamp (o).png",
+    "speed": 4,
+    "category": "Powered Staff",
+    "bonuses": {
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 25,
+        "ranged": 0
+      },
+      "defence": {
+        "stab": 2,
+        "slash": 3,
+        "crush": 1,
+        "magic": 15,
+        "ranged": 0
+      },
+      "prayer": 0
+    },
+    "is_two_handed": false,
+    "attack_range": 7
+  },
+  {
+    "name": "Trident of the swamp (o)",
+    "id": 33316,
+    "version": "Uncharged",
+    "slot": "weapon",
+    "image": "Uncharged toxic trident (o).png",
     "speed": 4,
     "category": "Powered Staff",
     "bonuses": {
@@ -151534,6 +154075,39 @@
     },
     "is_two_handed": false,
     "attack_range": 1
+  },
+  {
+    "name": "V's helm",
+    "id": 33247,
+    "version": null,
+    "slot": "head",
+    "image": "V's helm.png",
+    "speed": null,
+    "category": null,
+    "bonuses": {
+      "strength": {
+        "melee": 8,
+        "ranged": 2,
+        "magic": 3
+      },
+      "attack": {
+        "stab": 0,
+        "slash": 0,
+        "crush": 0,
+        "magic": 8,
+        "ranged": 12
+      },
+      "defence": {
+        "stab": 40,
+        "slash": 40,
+        "crush": 40,
+        "magic": 10,
+        "ranged": 40
+      },
+      "prayer": 0
+    },
+    "is_two_handed": null,
+    "attack_range": null
   },
   {
     "name": "V's shield",
@@ -160814,7 +163388,7 @@
     "version": null,
     "slot": "weapon",
     "image": "Zamorak staff.png",
-    "speed": 5,
+    "speed": 4,
     "category": "Staff",
     "bonuses": {
       "strength": {
