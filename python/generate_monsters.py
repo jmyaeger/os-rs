@@ -246,6 +246,9 @@ def main():
                 "burn": burn_immunity,
             },
             "max_hit": v.get("max_hit"),
+            "image": ""
+            if not v.get("image")
+            else v.get("image")[-1].replace("File:", ""),
         }
 
         weakness = v.get("elemental_weakness")
