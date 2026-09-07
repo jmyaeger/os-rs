@@ -43,16 +43,16 @@ fn main() {
 #[allow(unused)]
 fn simulate_single_way() {
     let gear = GearBuilder::new()
-        .head("Slayer helmet (i)", None)
-        .neck("Necklace of rupture", None)
-        .body("Masori body (f)", None)
-        .legs("Masori chaps (f)", None)
-        .feet("Avernic treads (max)", None)
-        .ring("Venator ring", None)
-        .cape("Blessed dizana's quiver", None)
-        .weapon("Toxic blowpipe", Some("Amethyst"))
-        // .shield("Dragon defender", None)
-        .hands("Expeditious bracelet", None)
+        .head("Torva full helm", None)
+        .neck("Amulet of torture", None)
+        .body("Torva platebody", None)
+        .legs("Torva platelegs", None)
+        .feet("Primordial boots", None)
+        .ring("Ultor ring", None)
+        .cape("Infernal cape", None)
+        .weapon("Osmumten's fang", None)
+        .shield("Avernic defender", None)
+        .hands("Ferocious gloves", None)
         .build()
         .expect("Error building gear.");
     let mut player = PlayerBuilder::new()
@@ -61,14 +61,14 @@ fn simulate_single_way() {
         .defence(99)
         .ranged(99)
         .magic(99)
-        .prayer(Prayer::Rigour)
-        .potion(Potion::Ranging)
+        .prayer(Prayer::Piety)
+        .potion(Potion::SuperCombat)
         .gear(gear)
-        .active_style(CombatStyle::Rapid)
+        .active_style(CombatStyle::Lunge)
         .build()
         .expect("Error building player.");
 
-    let mut monster = Monster::new("Colossal Hydra", None).expect("Error creating monster.");
+    let mut monster = Monster::new("Vorkath", Some("Post-quest")).expect("Error creating monster.");
 
     // let single_shield_hp = monster.stats.hitpoints.base;
     // monster.stats.hitpoints = Stat::new(single_shield_hp * 2, None);
@@ -84,10 +84,10 @@ fn simulate_single_way() {
         reset_soulreaper_stacks: None,
     };
 
-    let mut main_hand = GearSwitch::new(SwitchType::Ranged, &player, &monster);
+    let mut main_hand = GearSwitch::new(SwitchType::Melee, &player, &monster);
     player.switches.push(main_hand.clone());
 
-    let bp_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&main_hand).build();
+    // let bp_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&main_hand).build();
 
     // player.equip("Crimson bludgeon", None).unwrap();
     // player.equip("Avernic defender", None).unwrap();
@@ -103,13 +103,13 @@ fn simulate_single_way() {
     //         .build();
     // player.switches.push(bludgeon_switch);
 
-    // player.equip("Voidwaker", None).unwrap();
-    // player.set_active_style(CombatStyle::Slash);
-    // let vw_switch = GearSwitch::new(SwitchType::Spec("Voidwaker spec".into()), &player, &monster);
-    // let vw_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&vw_switch)
-    //     // .with_max_attempts(1)
-    //     .build();
-    // player.switches.push(vw_switch);
+    player.equip("Voidwaker", None).unwrap();
+    player.set_active_style(CombatStyle::Slash);
+    let vw_switch = GearSwitch::new(SwitchType::Spec("Voidwaker spec".into()), &player, &monster);
+    let vw_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&vw_switch)
+        // .with_max_attempts(1)
+        .build();
+    player.switches.push(vw_switch);
 
     // player.equip("Dragon warhammer", None).unwrap();
     // player.equip("Avernic defender", None).unwrap();
@@ -142,7 +142,7 @@ fn simulate_single_way() {
     // );
     // let bclaws_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&bclaws_switch)
     //     // .with_max_attempts(2)
-    //     .with_monster_hp_above(50)
+    //     // .with_monster_hp_above(50)
     //     // .with_monster_hp_below(50)
     //     .build();
     // player.switches.push(bclaws_switch);
@@ -171,9 +171,9 @@ fn simulate_single_way() {
 
     // player.switch(&SwitchType::Melee);
     let spec_config = SpecConfig::new(
-        vec![bp_spec_strategy],
+        vec![vw_spec_strategy],
         SpecRestorePolicy::NeverRestore,
-        Some(osrs::combat::spec::DeathCharge::Double),
+        None,
         false,
     );
 

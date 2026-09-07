@@ -9,10 +9,11 @@ Written for Python 3.9.
 
 # import os.path
 
-import requests
 import json
-import urllib.parse
 import re
+import urllib.parse
+
+import requests
 
 FILE_NAME = "../src/databases/monsters.json"
 WIKI_BASE = "https://oldschool.runescape.wiki"
@@ -30,11 +31,10 @@ BUCKET_API_FIELDS = [
     "crush_defence_bonus",
     "defence_level",
     "flat_armour",
-    "freeze_resistance",
     "hitpoints",
     "image",
-    "poison_immune",
-    "venom_immune",
+    "poison_resistance",
+    "venom_resistance",
     "magic_damage_bonus",
     "magic_attack_bonus",
     "magic_defence_bonus",
@@ -83,9 +83,7 @@ def get_monster_data():
 
         r = requests.get(
             API_BASE + "?" + urllib.parse.urlencode(query),
-            headers={
-                "User-Agent": "osrs-dps-calc (https://github.com/weirdgloop/osrs-dps-calc)"
-            },
+            headers={"User-Agent": "Orion (@jmyaeger on Discord)"},
         )
         data = r.json()
 
@@ -173,8 +171,14 @@ def main():
             else:
                 burn_immunity = None
 
-        poison_immunity = v.get("poison_immune") == "Immune"
-        venom_immunity = v.get("venom_immune") == "Immune"
+        try:
+            poison_resistance = int(v.get("poison_resistance"))
+        except (ValueError, TypeError):
+            poison_resistance = 0
+        try:
+            venom_resistance = int(v.get("venom_resistance"))
+        except (ValueError, TypeError):
+            venom_resistance = 0
         freeze_resistance = v.get("freeze_resistance")
         if freeze_resistance is not None:
             freeze_resistance = int(freeze_resistance.split("%")[0])
@@ -236,8 +240,8 @@ def main():
                 "flat_armour": v.get("flat_armour", 0),
             },
             "immunities": {
-                "poison": poison_immunity,
-                "venom": venom_immunity,
+                "poison": poison_resistance,
+                "venom": venom_resistance,
                 "freeze": freeze_resistance,
                 "burn": burn_immunity,
             },

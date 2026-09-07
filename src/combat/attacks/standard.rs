@@ -522,7 +522,7 @@ pub fn emerald_bolt_attack(
 
     let hit = standard_attack(player, monster, rng, limiter);
 
-    if hit.success && !monster.immunities.poison && rng.random::<f64>() <= proc_chance {
+    if hit.success && monster.immunities.poison < 100 && rng.random::<f64>() <= proc_chance {
         // TODO: Change this to use a CombatEffect
         monster.info.poison_severity = poison_severity;
     }
@@ -657,7 +657,7 @@ pub fn smoke_spell_attack(
     limiter: &Option<Box<dyn Limiter>>,
 ) -> Hit {
     let hit = standard_attack(player, monster, rng, limiter);
-    if hit.success && !monster.immunities.poison {
+    if hit.success && monster.immunities.poison < 100 {
         monster.info.poison_severity =
             match (player.is_wearing_ancient_spectre(), player.attrs.spell) {
                 (

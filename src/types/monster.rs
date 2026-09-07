@@ -97,8 +97,8 @@ pub struct MonsterBonuses {
 #[derive(Debug, Eq, PartialEq, Hash, Default, Clone, Deserialize)]
 pub struct Immunities {
     // Only poison and venom are in the database right now
-    pub poison: bool,
-    pub venom: bool,
+    pub poison: u32,
+    pub venom: u32,
     #[serde(default)]
     pub cannon: bool,
     #[serde(default)]
