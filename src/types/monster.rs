@@ -438,6 +438,7 @@ pub struct Monster {
     pub stats: MonsterStats,
     pub bonuses: MonsterBonuses,
     pub immunities: Immunities,
+    pub image: String,
     #[serde(skip)]
     pub def_rolls: MonsterDefRolls,
     #[serde(skip)]
