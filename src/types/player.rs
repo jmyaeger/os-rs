@@ -1035,67 +1035,67 @@ impl Player {
 
     pub fn is_using_standard_spell(&self) -> bool {
         // Check if the player is casting a spell on the standard spellbook
-        self.is_using_spell() && spells::is_standard_spell(self.attrs.spell.as_ref().unwrap())
+        self.is_using_spell() && self.attrs.spell.as_ref().unwrap().is_standard_spell()
     }
 
     pub fn is_using_water_spell(&self) -> bool {
         // Water strike/bolt/blast/wave/surge
-        self.is_using_spell() && spells::is_water_spell(self.attrs.spell.as_ref().unwrap())
+        self.is_using_spell() && self.attrs.spell.as_ref().unwrap().is_water_spell()
     }
 
     pub fn is_using_ancient_spell(&self) -> bool {
         // Check if the player is casting a spell on the ancient spellbook
-        self.is_using_spell() && spells::is_ancient_spell(self.attrs.spell.as_ref().unwrap())
+        self.is_using_spell() && self.attrs.spell.as_ref().unwrap().is_ancient_spell()
     }
 
     pub fn is_using_smoke_spell(&self) -> bool {
         // Smoke rush/burst/blitz/barrage
-        self.is_using_spell() && spells::is_smoke_spell(self.attrs.spell.as_ref().unwrap())
+        self.is_using_spell() && self.attrs.spell.as_ref().unwrap().is_smoke_spell()
     }
 
     pub fn is_using_shadow_spell(&self) -> bool {
         // Shadow rush/burst/blitz/barrage
-        self.is_using_spell() && spells::is_shadow_spell(self.attrs.spell.as_ref().unwrap())
+        self.is_using_spell() && self.attrs.spell.as_ref().unwrap().is_shadow_spell()
     }
 
     pub fn is_using_blood_spell(&self) -> bool {
         // Blood rush/burst/blitz/barrage
-        self.is_using_spell() && spells::is_blood_spell(self.attrs.spell.as_ref().unwrap())
+        self.is_using_spell() && self.attrs.spell.as_ref().unwrap().is_blood_spell()
     }
 
     pub fn is_using_ice_spell(&self) -> bool {
         // Ice rush/burst/blitz/barrage
-        self.is_using_spell() && spells::is_ice_spell(self.attrs.spell.as_ref().unwrap())
+        self.is_using_spell() && self.attrs.spell.as_ref().unwrap().is_ice_spell()
     }
 
     pub fn is_using_fire_spell(&self) -> bool {
         // Fire strike/bolt/blast/wave/surge
-        self.is_using_spell() && spells::is_fire_spell(self.attrs.spell.as_ref().unwrap())
+        self.is_using_spell() && self.attrs.spell.as_ref().unwrap().is_fire_spell()
     }
 
     pub fn is_using_air_spell(&self) -> bool {
         // Air strike/bolt/blast/wave/surge
-        self.is_using_spell() && spells::is_air_spell(self.attrs.spell.as_ref().unwrap())
+        self.is_using_spell() && self.attrs.spell.as_ref().unwrap().is_air_spell()
     }
 
     pub fn is_using_earth_spell(&self) -> bool {
         // Earth strike/bolt/blast/wave/surge
-        self.is_using_spell() && spells::is_earth_spell(self.attrs.spell.as_ref().unwrap())
+        self.is_using_spell() && self.attrs.spell.as_ref().unwrap().is_earth_spell()
     }
 
     pub fn is_using_demonbane_spell(&self) -> bool {
         // Inferior/Superior/Dark demonbane
-        self.is_using_spell() && spells::is_demonbane_spell(self.attrs.spell.as_ref().unwrap())
+        self.is_using_spell() && self.attrs.spell.as_ref().unwrap().is_demonbane_spell()
     }
 
     pub fn is_using_bind_spell(&self) -> bool {
         // All bind spells, including grasp spells
-        self.is_using_spell() && spells::is_bind_spell(self.attrs.spell.as_ref().unwrap())
+        self.is_using_spell() && self.attrs.spell.as_ref().unwrap().is_bind_spell()
     }
 
     pub fn is_using_grasp_spell(&self) -> bool {
         // Grasp spells on the Arceuus spellbook
-        self.is_using_spell() && spells::is_grasp_spell(self.attrs.spell.as_ref().unwrap())
+        self.is_using_spell() && self.attrs.spell.as_ref().unwrap().is_grasp_spell()
     }
 
     pub fn is_using_crossbow(&self) -> bool {
@@ -1372,9 +1372,7 @@ impl Player {
     pub fn gets_second_twinflame_hit(&self) -> bool {
         self.is_wearing("Twinflame staff", None) && {
             if let Some(spell) = self.attrs.spell {
-                spells::is_blast_spell(&spell)
-                    || spells::is_bolt_spell(&spell)
-                    || spells::is_wave_spell(&spell)
+                spell.is_blast_spell() || spell.is_bolt_spell() || spell.is_wave_spell()
             } else {
                 false
             }

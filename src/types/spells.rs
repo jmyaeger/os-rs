@@ -2,11 +2,6 @@ use crate::types::player::Player;
 use std::cmp::min;
 use strum_macros::Display;
 
-// pub trait Spell: std::fmt::Debug {
-//     fn max_hit(&self, player: &Player) -> u32;
-//     fn as_any(&self) -> &dyn std::any::Any;
-// }
-
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum Spell {
     Standard(StandardSpell),
@@ -345,9 +340,9 @@ macro_rules! spell_check {
     ) => {
         paste::paste! {
             $(
-                pub fn $fn_name(spell: &Spell) -> bool {
+                pub fn $fn_name(&self) -> bool {
                     matches!(
-                        spell,
+                        self,
                         $(Spell::$spellbook([<$spellbook Spell>]::$variant))|*
                     )
                 }
@@ -356,41 +351,46 @@ macro_rules! spell_check {
     };
 }
 
-pub fn is_standard_spell(spell: &Spell) -> bool {
-    matches!(spell, Spell::Standard(_))
-}
+impl Spell {
+    pub fn is_standard_spell(&self) -> bool {
+        matches!(self, Spell::Standard(_))
+    }
 
-pub fn is_ancient_spell(spell: &Spell) -> bool {
-    matches!(spell, Spell::Ancient(_))
-}
+    pub fn is_ancient_spell(&self) -> bool {
+        matches!(self, Spell::Ancient(_))
+    }
 
-pub fn is_arceuus_spell(spell: &Spell) -> bool {
-    matches!(spell, Spell::Arceuus(_))
-}
+    pub fn is_arceuus_spell(&self) -> bool {
+        matches!(self, Spell::Arceuus(_))
+    }
 
-spell_check!(
-    is_water_spell => Standard: [WaterStrike, WaterBolt, WaterBlast, WaterWave, WaterSurge],
-    is_fire_spell => Standard: [FireStrike, FireBolt, FireBlast, FireWave, FireSurge],
-    is_earth_spell => Standard: [EarthStrike, EarthBolt, EarthBlast, EarthWave, EarthSurge],
-    is_air_spell => Standard: [WindStrike, WindBolt, WindBlast, WindWave, WindSurge],
-    is_smoke_spell => Ancient: [SmokeRush, SmokeBurst, SmokeBlitz, SmokeBarrage],
-    is_shadow_spell => Ancient: [ShadowRush, ShadowBurst, ShadowBlitz, ShadowBarrage],
-    is_blood_spell => Ancient: [BloodRush, BloodBurst, BloodBlitz, BloodBarrage],
-    is_ice_spell => Ancient: [IceRush, IceBurst, IceBlitz, IceBarrage],
-    is_demonbane_spell => Arceuus: [InferiorDemonbane, SuperiorDemonbane, DarkDemonbane],
-    is_grasp_spell => Arceuus: [GhostlyGrasp, SkeletalGrasp, UndeadGrasp],
-    is_bolt_spell => Standard: [WindBolt, EarthBolt, WaterBolt, FireBolt],
-    is_blast_spell => Standard: [WindBlast, EarthBlast, WaterBlast, FireBlast],
-    is_wave_spell => Standard: [WindWave, EarthWave, WaterWave, FireWave],
-);
+    spell_check!(
+        is_water_spell => Standard: [WaterStrike, WaterBolt, WaterBlast, WaterWave, WaterSurge],
+        is_fire_spell => Standard: [FireStrike, FireBolt, FireBlast, FireWave, FireSurge],
+        is_earth_spell => Standard: [EarthStrike, EarthBolt, EarthBlast, EarthWave, EarthSurge],
+        is_air_spell => Standard: [WindStrike, WindBolt, WindBlast, WindWave, WindSurge],
+        is_smoke_spell => Ancient: [SmokeRush, SmokeBurst, SmokeBlitz, SmokeBarrage],
+        is_shadow_spell => Ancient: [ShadowRush, ShadowBurst, ShadowBlitz, ShadowBarrage],
+        is_blood_spell => Ancient: [BloodRush, BloodBurst, BloodBlitz, BloodBarrage],
+        is_ice_spell => Ancient: [IceRush, IceBurst, IceBlitz, IceBarrage],
+        is_demonbane_spell => Arceuus: [InferiorDemonbane, SuperiorDemonbane, DarkDemonbane],
+        is_grasp_spell => Arceuus: [GhostlyGrasp, SkeletalGrasp, UndeadGrasp],
+        is_bolt_spell => Standard: [WindBolt, EarthBolt, WaterBolt, FireBolt],
+        is_blast_spell => Standard: [WindBlast, EarthBlast, WaterBlast, FireBlast],
+        is_wave_spell => Standard: [WindWave, EarthWave, WaterWave, FireWave],
+        is_god_spell => Standard: [SaradominStrike, ClawsOfGuthix, FlamesOfZamorak],
+    );
 
-pub fn is_bind_spell(spell: &Spell) -> bool {
-    is_ice_spell(spell)
-        || is_grasp_spell(spell)
-        || matches!(
-            spell,
-            Spell::Standard(StandardSpell::Bind | StandardSpell::Snare | StandardSpell::Entangle)
-        )
+    pub fn is_bind_spell(&self) -> bool {
+        self.is_ice_spell()
+            || self.is_grasp_spell()
+            || matches!(
+                self,
+                Spell::Standard(
+                    StandardSpell::Bind | StandardSpell::Snare | StandardSpell::Entangle
+                )
+            )
+    }
 }
 
 #[cfg(test)]
