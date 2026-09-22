@@ -6,7 +6,7 @@ use crate::{
     types::equipment::{armor::Armor, bonuses::EquipmentBonuses, gear::GearSlot, weapon::Weapon},
 };
 
-const EQUIPMENT_JSON_STR: &str = include_str!("../../databases/equipment.json");
+const EQUIPMENT_JSON_STR: &str = include_str!(concat!(env!("OUT_DIR"), "/equipment.json"));
 
 static EQUIPMENT: LazyLock<Vec<EquipmentJson>> = LazyLock::new(|| {
     serde_json::from_str(EQUIPMENT_JSON_STR).expect("Bundled equipment JSON is invalid.")

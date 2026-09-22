@@ -15,7 +15,7 @@ use std::cmp::{max, min};
 use std::sync::LazyLock;
 use strum_macros::Display;
 
-const MONSTER_JSON_STR: &str = include_str!("../databases/monsters.json");
+const MONSTER_JSON_STR: &str = include_str!(concat!(env!("OUT_DIR"), "/monsters.json"));
 static MONSTERS: LazyLock<Vec<Monster>> = LazyLock::new(|| {
     let mut monsters: Vec<Monster> =
         serde_json::from_str(MONSTER_JSON_STR).expect("Bundled monster JSON is invalid");
