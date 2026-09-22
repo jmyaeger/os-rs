@@ -87,7 +87,7 @@ pub trait Mechanics {
             // Make sure the current set of gear is added to the player's gear switches to allow switching back
             if player.current_switch.is_none() {
                 let current_gear =
-                    GearSwitch::new(SwitchType::from(player.combat_type()), &*player, &*monster);
+                    GearSwitch::new(SwitchType::from(player.combat_type()), &*player, &*monster)?;
                 player.current_switch = Some(current_gear.switch_type.clone());
                 player.switches.push(current_gear);
             }

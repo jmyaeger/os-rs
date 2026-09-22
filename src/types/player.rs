@@ -3,7 +3,7 @@ use crate::combat::attacks::effects::CombatEffect;
 use crate::combat::attacks::specs::{SpecialAttackFn, get_spec_attack_function};
 use crate::combat::attacks::standard::{AttackFn, get_attack_functions, standard_attack};
 use crate::constants;
-use crate::error::{GearError, PlayerError};
+use crate::error::{GearError, PlayerError, RollError};
 use crate::types::equipment::{
     Armor, CombatStance, CombatStyle, CombatType, Equipment, EquipmentBonuses, Gear, GearSlot,
     Weapon,
@@ -183,11 +183,15 @@ pub struct GearSwitch {
 }
 
 impl GearSwitch {
-    pub fn new(switch_type: SwitchType, player: &Player, monster: &Monster) -> Self {
+    pub fn new(
+        switch_type: SwitchType,
+        player: &Player,
+        monster: &Monster,
+    ) -> Result<Self, RollError> {
         let mut player_copy = player.clone();
         player_copy.update_bonuses();
         player_copy.update_set_effects();
-        calc_active_player_rolls(&mut player_copy, monster);
+        calc_active_player_rolls(&mut player_copy, monster)?;
 
         let attack = get_attack_functions(&player_copy);
         let spec = get_spec_attack_function(&player_copy);
@@ -196,17 +200,18 @@ impl GearSwitch {
             let starting_stacks = player_copy.boosts.soulreaper_stacks;
             let max_hits = std::array::from_fn(|stacks| {
                 player_copy.boosts.soulreaper_stacks = stacks as u32;
-                calc_active_player_rolls(&mut player_copy, monster);
+                calc_active_player_rolls(&mut player_copy, monster)
+                    .expect("player rolls already verified");
                 player_copy.max_hits
             });
             player_copy.boosts.soulreaper_stacks = starting_stacks;
-            calc_active_player_rolls(&mut player_copy, monster);
+            calc_active_player_rolls(&mut player_copy, monster)?;
             Some(max_hits)
         } else {
             None
         };
 
-        Self {
+        Ok(Self {
             switch_type,
             gear: player_copy.gear,
             prayers: player_copy.prayers,
@@ -219,7 +224,7 @@ impl GearSwitch {
             max_hits: player_copy.max_hits,
             def_rolls: player_copy.def_rolls,
             soulreaper_max_hits,
-        }
+        })
     }
 }
 
@@ -1763,18 +1768,20 @@ mod test {
         player.equip("Soulreaper axe", None).unwrap();
         player.set_active_style(CombatStyle::Hack);
         player.update_bonuses();
-        calc_active_player_rolls(&mut player, &monster);
+        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-        let soulreaper_switch = GearSwitch::new(SwitchType::Melee, &player, &monster);
+        let soulreaper_switch =
+            GearSwitch::new(SwitchType::Melee, &player, &monster).expect("valid gear switch");
         let unstacked_soulreaper_max_hit = soulreaper_switch.max_hits.get(CombatType::Slash);
 
         player.equip("Voidwaker", None).unwrap();
         player.set_active_style(CombatStyle::Slash);
         player.update_bonuses();
-        calc_active_player_rolls(&mut player, &monster);
+        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
         let voidwaker_switch_type = SwitchType::Spec("Voidwaker spec".into());
-        let voidwaker_switch = GearSwitch::new(voidwaker_switch_type.clone(), &player, &monster);
+        let voidwaker_switch = GearSwitch::new(voidwaker_switch_type.clone(), &player, &monster)
+            .expect("valid gear switch");
         let voidwaker_max_hit = voidwaker_switch.max_hits.get(CombatType::Slash);
 
         player.switches.push(soulreaper_switch);

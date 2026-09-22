@@ -7,6 +7,15 @@ use crate::{
     types::{equipment::CombatStyle, player::SwitchType, spells::Spell},
 };
 
+#[derive(Debug, thiserror::Error)]
+pub enum RollError {
+    #[error("No spell is selected and {weapon_name} has no built-in magic max hit")]
+    MissingMagicMaxHit { weapon_name: String },
+
+    #[error("Players do not have generic ranged attack rolls")]
+    NoGenericRangedStyle,
+}
+
 #[derive(Error, Debug)]
 pub enum DpsCalcError {
     #[error("No pickaxe bonus for {0}")]
@@ -15,8 +24,10 @@ pub enum DpsCalcError {
     SpecNotImplemented(String),
     #[error("Missing hit distribution for {monster_name} at {hp} HP")]
     MissingHpHitDist { monster_name: String, hp: usize },
-    #[error("Player attack roll error: {0}")]
-    PlayerAttackRollError(#[from] PlayerError),
+    #[error(transparent)]
+    Player(#[from] PlayerError),
+    #[error(transparent)]
+    Roll(#[from] RollError),
 }
 
 #[derive(Error, Debug)]
@@ -31,10 +42,12 @@ pub enum SimulationError {
     InvalidGauntletGear,
     #[error("Monster attack error: {0}")]
     MonsterAttack(#[from] MonsterError),
-    #[error("Error switching player styles: {0}")]
-    SwitchingError(#[from] PlayerError),
     #[error("Error creating monster: {0}")]
     MonsterCreationError(String),
+    #[error(transparent)]
+    Player(#[from] PlayerError),
+    #[error(transparent)]
+    Roll(#[from] RollError),
 }
 
 #[derive(Error, Debug)]
@@ -79,6 +92,8 @@ pub enum PlayerError {
         weapon_name: String,
         style: CombatStyle,
     },
+    #[error("Non-charged staff {0} is equipped but no spell is selected.")]
+    NoSpellSelected(String),
 }
 
 #[derive(Error, Debug)]

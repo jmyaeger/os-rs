@@ -100,7 +100,7 @@ impl Simulation for SingleWayFight {
         }
     }
 
-    fn reset(&mut self) {
+    fn reset(&mut self) -> Result<(), SimulationError> {
         if let Some(stacks) = self.config.reset_soulreaper_stacks {
             self.player.boosts.soulreaper_stacks = stacks;
         }
@@ -113,9 +113,11 @@ impl Simulation for SingleWayFight {
         } else {
             self.player.reset_current_stats(false);
         }
-        calc_active_player_rolls(&mut self.player, &self.monster);
+        calc_active_player_rolls(&mut self.player, &self.monster)?;
 
         self.monster.reset();
+
+        Ok(())
     }
 }
 
@@ -157,7 +159,7 @@ impl SingleWayMechanics {
                         SwitchType::from(fight.player.combat_type()),
                         &fight.player,
                         &fight.monster,
-                    );
+                    )?;
                     fight.player.current_switch = Some(current_gear.switch_type.clone());
                     fight.player.switches.push(current_gear);
                 }
@@ -386,7 +388,7 @@ mod tests {
         player.update_bonuses();
         player.set_active_style(CombatStyle::Lunge);
         let monster = Monster::new("Ammonite Crab", None).expect("Error creating monster.");
-        calc_active_player_rolls(&mut player, &monster);
+        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
         let config = SingleWayConfig::default();
         let mut fight = SingleWayFight::new(player, monster, config, None)

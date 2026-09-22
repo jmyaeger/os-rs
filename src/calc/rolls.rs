@@ -1,4 +1,5 @@
 use crate::constants;
+use crate::error::RollError;
 use crate::types::equipment::{CombatStance, CombatStyle, CombatType};
 use crate::types::monster::{Monster, MonsterAttRolls, MonsterDefRolls};
 use crate::types::player::Player;
@@ -127,7 +128,7 @@ pub fn calc_max_hit(eff_lvl: u32, bonus: i32) -> u32 {
     max(0, (eff_lvl as i32 * (bonus + 64) + 320) / 640) as u32
 }
 
-pub fn calc_active_player_rolls(player: &mut Player, monster: &Monster) {
+pub fn calc_active_player_rolls(player: &mut Player, monster: &Monster) -> Result<(), RollError> {
     match player.combat_type() {
         CombatType::Stab | CombatType::Slash | CombatType::Crush => {
             calc_player_melee_rolls(player, monster);
@@ -136,7 +137,7 @@ pub fn calc_active_player_rolls(player: &mut Player, monster: &Monster) {
             calc_player_ranged_rolls(player, monster);
         }
         CombatType::Magic => {
-            calc_player_magic_rolls(player, monster);
+            calc_player_magic_rolls(player, monster)?;
 
             // Calc melee rolls if it's needed for the blue moon effect
             if player.set_effects.full_blue_moon {
@@ -149,6 +150,8 @@ pub fn calc_active_player_rolls(player: &mut Player, monster: &Monster) {
         _ => {}
     }
     calc_player_def_rolls(player);
+
+    Ok(())
 }
 
 fn calc_player_melee_rolls(player: &mut Player, monster: &Monster) {
@@ -280,9 +283,9 @@ fn calc_player_ranged_rolls(player: &mut Player, monster: &Monster) {
     }
 }
 
-fn calc_player_magic_rolls(player: &mut Player, monster: &Monster) {
+fn calc_player_magic_rolls(player: &mut Player, monster: &Monster) -> Result<(), RollError> {
     // Base max hit of a spell or charged staff/salamander (based on magic level)
-    let base_max_hit = get_base_magic_hit(player);
+    let base_max_hit = get_base_magic_hit(player)?;
 
     // Apply chaos gauntlets for bolt spells and Charge for god spells
     let mut max_hit = apply_chaos_gauntlet_boost(base_max_hit, player);
@@ -388,6 +391,8 @@ fn calc_player_magic_rolls(player: &mut Player, monster: &Monster) {
         .set(CombatType::Magic, att_roll)
         .unwrap_or_else(|_| panic!("Failed to set magic attack roll."));
     player.max_hits.set(CombatType::Magic, max_hit);
+
+    Ok(())
 }
 
 fn calc_eff_melee_lvls(player: &Player) -> (u32, u32) {
@@ -777,11 +782,11 @@ fn mult_boost_applies(player: &Player, monster: &Monster) -> bool {
         || (player.is_wearing("Amulet of avarice", None) && monster.is_revenant())
 }
 
-fn get_base_magic_hit(player: &Player) -> u32 {
+fn get_base_magic_hit(player: &Player) -> Result<u32, RollError> {
     if let Some(spell) = &player.attrs.spell {
-        spell.max_hit(player)
+        Ok(spell.max_hit(player))
     } else if player.is_wearing_salamander() {
-        salamander_max_hit(player)
+        Ok(salamander_max_hit(player))
     } else {
         charged_staff_max_hit(player)
     }
@@ -800,9 +805,9 @@ fn salamander_max_hit(player: &Player) -> u32 {
     (1 + 2 * player.stats.magic.current * factor) / 1280
 }
 
-fn charged_staff_max_hit(player: &Player) -> u32 {
+fn charged_staff_max_hit(player: &Player) -> Result<u32, RollError> {
     let visible_magic = player.stats.magic.current;
-    match player.gear.weapon.name.as_str() {
+    let max = match player.gear.weapon.name.as_str() {
         "Starter staff" => 8,
         "Warped sceptre" => (8 * visible_magic + 96) / 37,
         "Trident of the Seas" | "Trident of the Seas (e)" => {
@@ -820,11 +825,13 @@ fn charged_staff_max_hit(player: &Player) -> u32 {
         "Crystal staff (basic)" | "Corrupted staff (basic)" => 23,
         "Crystal staff (attuned)" | "Corrupted staff (attuned)" => 31,
         "Crystal staff (perfected)" | "Corrupted staff (perfected)" => 39,
-        _ => panic!(
-            "Magic max hit could not be determined for {}",
-            player.gear.weapon.name
-        ),
-    }
+        _ => {
+            return Err(RollError::MissingMagicMaxHit {
+                weapon_name: player.gear.weapon.name.clone(),
+            });
+        }
+    };
+    Ok(max)
 }
 
 fn apply_shadow_boost(magic_attack: i32, magic_damage: u32, monster: &Monster) -> (i32, u32) {

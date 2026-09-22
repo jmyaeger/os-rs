@@ -203,7 +203,7 @@ pub fn eldritch_staff_spec(
     player
         .set_spell(Spell::Special(SpecialSpell::Invocate))
         .unwrap_or_else(|_| panic!("Error setting spell to Invocate."));
-    calc_active_player_rolls(player, monster);
+    calc_active_player_rolls(player, monster).expect("player rolls already validated");
 
     let hit = standard_attack(player, monster, rng, limiter);
 
@@ -219,7 +219,7 @@ pub fn eldritch_staff_spec(
         player.attrs.spell = None;
     }
 
-    calc_active_player_rolls(player, monster);
+    calc_active_player_rolls(player, monster).expect("player rolls already validated");
 
     hit
 }
@@ -997,7 +997,7 @@ pub fn volatile_staff_spec(
     player
         .set_spell(Spell::Special(SpecialSpell::Immolate))
         .unwrap_or_else(|_| panic!("Error setting spell to Immolate."));
-    calc_active_player_rolls(player, monster);
+    calc_active_player_rolls(player, monster).expect("player rolls already validated");
 
     let mut info = AttackInfo::new(player, monster);
 
@@ -1019,7 +1019,7 @@ pub fn volatile_staff_spec(
         player.attrs.spell = None;
     }
 
-    calc_active_player_rolls(player, monster);
+    calc_active_player_rolls(player, monster).expect("player rolls already validated");
 
     hit
 }
@@ -1490,7 +1490,7 @@ pub fn soulreaper_axe_spec(
 
     // Reset the number of stacks and recalculate rolls
     player.boosts.soulreaper_stacks = 0;
-    calc_active_player_rolls(player, monster);
+    calc_active_player_rolls(player, monster).expect("player rolls already validated");
 
     let mut info = AttackInfo::new(player, monster);
 
@@ -1937,7 +1937,7 @@ mod tests {
         player.set_active_style(CombatStyle::Lunge);
         let mut monster =
             Monster::new("Vorkath", Some("Post-quest")).expect("Error creating monster.");
-        calc_active_player_rolls(&mut player, &monster);
+        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
         let limiter = assign_limiter(&player, &monster);
         let mut rng = SmallRng::from_os_rng();
         let mut total_damage = 0;
@@ -1961,7 +1961,7 @@ mod tests {
         player.set_active_style(CombatStyle::Slash);
         let mut monster =
             Monster::new("Vorkath", Some("Post-quest")).expect("Error creating monster.");
-        calc_active_player_rolls(&mut player, &monster);
+        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
         let limiter = assign_limiter(&player, &monster);
         let mut rng = SmallRng::from_os_rng();
         let mut total_damage = 0;
@@ -1985,7 +1985,7 @@ mod tests {
         player.set_active_style(CombatStyle::Swipe);
         let mut monster =
             Monster::new("Vorkath", Some("Post-quest")).expect("Error creating monster.");
-        calc_active_player_rolls(&mut player, &monster);
+        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
         let limiter = assign_limiter(&player, &monster);
         let mut rng = SmallRng::from_os_rng();
         let mut total_damage = 0;

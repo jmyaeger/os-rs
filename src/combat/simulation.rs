@@ -98,7 +98,7 @@ pub trait Simulation {
     fn player(&self) -> &Player;
     fn monster(&self) -> &Monster;
     fn set_attack_function(&mut self);
-    fn reset(&mut self);
+    fn reset(&mut self) -> Result<(), SimulationError>;
 }
 
 pub fn assign_limiter(player: &Player, monster: &Monster) -> Option<Box<dyn limiters::Limiter>> {
@@ -221,7 +221,7 @@ pub fn simulate_n_fights(
                 _ => return Err(e),
             },
         }
-        simulation.reset();
+        simulation.reset()?;
     }
 
     Ok(results)
@@ -252,7 +252,7 @@ pub fn simulate_log_fights(
             Err(e) => return Err(e),
         }
 
-        simulation.reset();
+        simulation.reset()?;
     }
 
     Ok(logger)
@@ -293,7 +293,7 @@ mod tests {
         player.update_bonuses();
         player.set_active_style(CombatStyle::Lunge);
         let monster = Monster::new("Ammonite Crab", None).expect("Error creating monster.");
-        calc_active_player_rolls(&mut player, &monster);
+        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
         let simulation = SingleWayFight::new(player, monster, SingleWayConfig::default(), None)
             .expect("Error setting up single way fight.");
         let results =

@@ -1,3 +1,4 @@
+use crate::calc::rolls::calc_active_player_rolls;
 use crate::combat::limiters::Limiter;
 use crate::combat::mechanics::Mechanics;
 use crate::combat::simulation::{FightResult, FightVars, Simulation};
@@ -274,12 +275,18 @@ impl Simulation for GraardorFight {
         self.player.attack = crate::combat::attacks::standard::get_attack_functions(&self.player);
     }
 
-    fn reset(&mut self) {
-        self.player.reset_current_stats(true);
+    fn reset(&mut self) -> Result<(), SimulationError> {
+        self.player.state.first_attack = true;
+        self.player.state.last_attack_hit = true;
+        self.player.reset_current_stats(false);
+
+        calc_active_player_rolls(&mut self.player, &self.graardor)?;
         self.graardor.reset();
         self.melee_minion.reset();
         self.ranged_minion.reset();
         self.mage_minion.reset();
+
+        Ok(())
     }
 }
 
@@ -316,7 +323,8 @@ mod tests {
         calc_active_player_rolls(
             &mut player,
             &Monster::new("General Graardor", None).expect("Error creating monster"),
-        );
+        )
+        .expect("valid setup");
 
         let fight_config = GraardorConfig {
             method: GraardorMethod::DoorAltar,

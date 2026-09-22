@@ -18,7 +18,7 @@ use fixtures::*;
 #[case(max_mage_sang_staff_player())]
 fn test_max_setups_ammonite_crab_ttk(#[case] mut player: Player, ammonite_crab: Monster) {
     let monster = ammonite_crab;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -45,7 +45,7 @@ fn test_max_mage_brimstone_ring_kril_ttk(
 ) {
     let monster = kril;
     let mut player = max_mage_sang_staff_brimstone_ring_player;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -71,7 +71,7 @@ fn test_max_mage_brimstone_ring_kril_ttk(
 fn test_vardorvis_ttk(#[case] mut player: Player, vardorvis: Monster) {
     let mut monster = vardorvis;
     scale_monster_hp_only(&mut monster, true);
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -96,7 +96,7 @@ fn test_vardorvis_ttk(#[case] mut player: Player, vardorvis: Monster) {
 #[case(vorkath())]
 fn test_fang_ttk(max_melee_fang_player: Player, #[case] monster: Monster) {
     let mut player = max_melee_fang_player;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -127,7 +127,7 @@ fn test_fang_ttk(max_melee_fang_player: Player, #[case] monster: Monster) {
 #[case(max_melee_torags_hammers_player())]
 fn test_barrows_gear_ttks(#[case] mut player: Player, scurrius: Monster) {
     let monster = scurrius;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -154,7 +154,7 @@ fn test_blue_keris_kq_ttk(
 ) {
     let mut player = max_melee_blue_keris_partisan_player;
     let monster = kalphite_queen_p1;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -187,7 +187,7 @@ fn test_enchanted_bolt_acb_ttks(#[case] bolt_name: &str) {
     player.equip("Armadyl crossbow", None).unwrap();
     player.equip(bolt_name, None).unwrap();
     player.update_bonuses();
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -219,7 +219,7 @@ fn test_enchanted_bolt_zcb_ttks(#[case] bolt_name: &str) {
     let monster = scurrius();
     player.equip(bolt_name, None).unwrap();
     player.update_bonuses();
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -249,7 +249,7 @@ fn test_scythe_against_different_sizes_ttk(
     #[case] monster: Monster,
 ) {
     let mut player = max_melee_scythe_player;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -274,7 +274,7 @@ fn test_scythe_against_different_sizes_ttk(
 #[case(ammonite_crab())]
 fn test_gadderhammer_ttk(max_melee_player: Player, #[case] monster: Monster) {
     let mut player = max_melee_player;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -299,7 +299,7 @@ fn test_gadderhammer_ttk(max_melee_player: Player, #[case] monster: Monster) {
 #[case(max_ranged_tonalztics_charged_player())]
 fn test_tonalztics_ttk(#[case] mut player: Player, scurrius: Monster) {
     let monster = scurrius;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -323,7 +323,7 @@ fn test_tonalztics_ttk(#[case] mut player: Player, scurrius: Monster) {
 fn test_macuahuitl_no_set_effect_ttk(max_melee_macuahuitl_player: Player, scurrius: Monster) {
     let mut player = max_melee_macuahuitl_player;
     let monster = scurrius;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -348,7 +348,7 @@ fn test_macuahuitl_no_set_effect_baba_ttk(max_melee_macuahuitl_player: Player, b
     let mut player = max_melee_macuahuitl_player;
     player.set_active_style(CombatStyle::Spike);
     let monster = baba_300;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -373,7 +373,7 @@ fn test_macuahuitl_no_set_effect_baba_ttk(max_melee_macuahuitl_player: Player, b
 #[case(max_ranged_zcb_ruby_player())]
 fn test_max_range_zulrah(#[case] mut player: Player, zulrah_tanzanite: Monster) {
     let monster = zulrah_tanzanite;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -397,7 +397,7 @@ fn test_max_range_zulrah(#[case] mut player: Player, zulrah_tanzanite: Monster) 
 fn test_max_mage_shadow_zulrah(max_mage_shadow_player: Player, zulrah_magma: Monster) {
     let mut player = max_mage_shadow_player;
     let monster = zulrah_magma;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -421,7 +421,7 @@ fn test_max_mage_shadow_zulrah(max_mage_shadow_player: Player, zulrah_magma: Mon
 fn test_max_mage_seren(max_mage_shadow_player: Player, seren: Monster) {
     let mut player = max_mage_shadow_player;
     let monster = seren;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -446,7 +446,7 @@ fn test_max_mage_seren(max_mage_shadow_player: Player, seren: Monster) {
 fn test_max_ranged_kraken(max_ranged_tbow_player: Player, kraken: Monster) {
     let mut player = max_ranged_tbow_player;
     let monster = kraken;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -471,7 +471,7 @@ fn test_max_ranged_kraken(max_ranged_tbow_player: Player, kraken: Monster) {
 #[case(max_mage_dawnbringer_player())]
 fn test_verzik_p1(#[case] mut player: Player, verzik_p1: Monster) {
     let monster = verzik_p1;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -494,7 +494,7 @@ fn test_verzik_p1(#[case] mut player: Player, verzik_p1: Monster) {
 fn test_max_mage_tekton(max_mage_shadow_player: Player, tekton: Monster) {
     let mut player = max_mage_shadow_player;
     let monster = tekton;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -518,7 +518,7 @@ fn test_max_mage_tekton(max_mage_shadow_player: Player, tekton: Monster) {
 fn max_mage_vasa_crystal(max_mage_shadow_player: Player, vasa_crystal: Monster) {
     let mut player = max_mage_shadow_player;
     let monster = vasa_crystal;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -543,7 +543,7 @@ fn max_mage_vasa_crystal(max_mage_shadow_player: Player, vasa_crystal: Monster) 
 #[case(olm_head())]
 fn test_olm_mage_offstyle(max_mage_shadow_player: Player, #[case] monster: Monster) {
     let mut player = max_mage_shadow_player;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -568,7 +568,7 @@ fn test_olm_mage_offstyle(max_mage_shadow_player: Player, #[case] monster: Monst
 #[case(olm_melee_hand())]
 fn test_olm_ranged_offstyle(max_ranged_tbow_overload_player: Player, #[case] monster: Monster) {
     let mut player = max_ranged_tbow_overload_player;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -592,7 +592,7 @@ fn test_olm_ranged_offstyle(max_ranged_tbow_overload_player: Player, #[case] mon
 fn test_max_ranged_tbow_ice_demon(max_ranged_tbow_overload_player: Player, ice_demon: Monster) {
     let mut player = max_ranged_tbow_overload_player;
     let monster = ice_demon;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -616,7 +616,7 @@ fn test_max_ranged_tbow_ice_demon(max_ranged_tbow_overload_player: Player, ice_d
 fn test_max_melee_slagilith(max_melee_player: Player, slagilith: Monster) {
     let mut player = max_melee_player;
     let monster = slagilith;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -642,7 +642,7 @@ fn test_max_melee_slagilith(max_melee_player: Player, slagilith: Monster) {
 #[case(max_melee_player())]
 fn test_zogre_ttk(#[case] mut player: Player, zogre: Monster) {
     let monster = zogre;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -670,7 +670,7 @@ fn test_ruby_bolts_zcb_zebak_500(max_ranged_zcb_ruby_player: Player, zebak: Mons
     let mut monster = zebak;
     monster.info.toa_level = 500;
     monster.scale_toa(true, true);
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -696,7 +696,7 @@ fn test_ruby_bolts_zcb_zebak_500(max_ranged_zcb_ruby_player: Player, zebak: Mons
 #[case(max_melee_player())]
 fn test_corp_limiters(#[case] mut player: Player, corp: Monster) {
     let monster = corp;
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
     let simulation = SingleWayFight::new(
         player.clone(),
@@ -726,8 +726,8 @@ fn test_blood_moon_set(full_blood_moon_player: Player, baba_300: Monster) {
     let mut player2 = player1.clone();
     player2.set_effects.full_blood_moon = false;
 
-    calc_active_player_rolls(&mut player1, &monster);
-    calc_active_player_rolls(&mut player2, &monster);
+    calc_active_player_rolls(&mut player1, &monster).expect("valid setup");
+    calc_active_player_rolls(&mut player2, &monster).expect("valid setup");
 
     let simulation1 = SingleWayFight::new(
         player1.clone(),

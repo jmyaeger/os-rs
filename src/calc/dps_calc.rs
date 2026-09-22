@@ -402,7 +402,7 @@ pub fn get_distribution(
             .att_rolls
             .set(player.combat_type(), second_hit_att_roll)
             .unwrap_or_else(|_| panic!("Failed to set second attack roll for halberd spec"));
-        calc_active_player_rolls(&mut player_copy, monster);
+        calc_active_player_rolls(&mut player_copy, monster)?;
 
         let second_hit_acc = get_hit_chance(&player_copy, monster, using_spec)?;
         dist = AttackDistribution::new(vec![
@@ -872,7 +872,7 @@ pub fn get_spec_min_max_hit(
             let current_stacks = player.boosts.soulreaper_stacks;
             let mut player_copy = player.clone();
             player_copy.boosts.soulreaper_stacks = 0;
-            calc_active_player_rolls(&mut player_copy, monster);
+            calc_active_player_rolls(&mut player_copy, monster)?;
             let max_hit = player_copy.max_hits.get(combat_type);
             (
                 max_hit * (6 * current_stacks) / 100,
@@ -1523,7 +1523,7 @@ mod tests {
         player.update_bonuses();
         player.set_active_style(CombatStyle::Lunge);
         let monster = Monster::new("Ammonite Crab", None).expect("Error creating monster.");
-        calc_active_player_rolls(&mut player, &monster);
+        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
         let dist = get_distribution(&player, &monster, false)
             .expect("Error calculating attack distribution.");
@@ -1554,7 +1554,7 @@ mod tests {
         player.set_active_style(CombatStyle::Pummel);
 
         let monster = Monster::new("Vet'ion", Some("Normal")).expect("Error creating monster.");
-        calc_active_player_rolls(&mut player, &monster);
+        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
         let dist = get_distribution(&player, &monster, false)
             .expect("Error creating attack distribution.");
         let ttk = get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
@@ -1586,7 +1586,7 @@ mod tests {
         let mut monster =
             Monster::new("Vardorvis", Some("Post-quest")).expect("Error creating monster.");
         scale_monster_hp_only(&mut monster, true);
-        calc_active_player_rolls(&mut player, &monster);
+        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
         let dist = get_distribution(&player, &monster, false)
             .expect("Error creating attack distribution.");
         let ttk = get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
@@ -1619,7 +1619,7 @@ mod tests {
         let mut monster = Monster::new("Zebak", Some("Normal")).expect("Error creating monster.");
         monster.info.toa_level = 500;
         monster.scale_toa(true, true);
-        calc_active_player_rolls(&mut player, &monster);
+        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
         let dist = get_distribution(&player, &monster, false)
             .expect("Error creating attack distribution.");

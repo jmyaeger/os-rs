@@ -315,7 +315,7 @@ fn test_melee_player_rolls(
     #[case] att_roll: i32,
     #[case] max_hit: u32,
 ) {
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
     assert_eq!(player.att_rolls.get(combat_type).unwrap(), att_roll);
     assert_eq!(player.max_hits.get(combat_type), max_hit);
 }
@@ -429,7 +429,7 @@ fn test_ranged_player_rolls(
     #[case] att_roll: i32,
     #[case] max_hit: u32,
 ) {
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
     let combat_type = player.combat_type();
     assert_eq!(player.att_rolls.get(combat_type).unwrap(), att_roll);
     assert_eq!(player.max_hits.get(combat_type), max_hit);
@@ -538,7 +538,7 @@ fn test_magic_player_rolls(
     #[case] att_roll: i32,
     #[case] max_hit: u32,
 ) {
-    calc_active_player_rolls(&mut player, &monster);
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
     assert_eq!(player.att_rolls.get(CombatType::Magic).unwrap(), att_roll);
     assert_eq!(player.max_hits.get(CombatType::Magic), max_hit);
 }

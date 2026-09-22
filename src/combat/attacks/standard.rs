@@ -871,7 +871,7 @@ pub fn soulreaper_axe_attack(
         player.boosts.soulreaper_stacks += 1;
 
         // Recalculate melee rolls with stack boost added
-        calc_active_player_rolls(player, monster);
+        calc_active_player_rolls(player, monster).expect("player rolls already validated");
     }
 
     hit
@@ -1173,7 +1173,7 @@ mod tests {
         monster.bonuses.defence.standard = -64;
         player.bonuses.attack.ranged = 10000;
 
-        calc_active_player_rolls(&mut player, &monster);
+        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
         monster.def_rolls = monster_def_rolls(&monster);
         let limiter = assign_limiter(&player, &monster);
 
@@ -1296,7 +1296,7 @@ mod tests {
         player.set_active_style(CombatStyle::Hack);
         player.attack = get_attack_functions(&player);
         player.update_bonuses();
-        calc_active_player_rolls(&mut player, &monster);
+        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
         let mut rng = SmallRng::from_os_rng();
         let mut limiter = assign_limiter(&player, &monster);

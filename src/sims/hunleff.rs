@@ -842,9 +842,13 @@ impl Simulation for HunllefFight {
         self.player.attack = crate::combat::attacks::standard::get_attack_functions(&self.player);
     }
 
-    fn reset(&mut self) {
+    fn reset(&mut self) -> Result<(), SimulationError> {
+        self.player.state.first_attack = true;
+        self.player.state.last_attack_hit = true;
         self.player.reset_current_stats(true);
         self.hunllef.reset();
+
+        Ok(())
     }
 }
 
@@ -926,9 +930,10 @@ mod tests {
         player.add_prayer(Prayer::SteelSkin);
 
         let hunllef = Monster::new("Corrupted Hunllef", None).expect("Error creating monster.");
-        calc_active_player_rolls(&mut player, &hunllef);
+        calc_active_player_rolls(&mut player, &hunllef).expect("valid gear switch");
 
-        let mage_switch = GearSwitch::new(SwitchType::Magic, &player, &hunllef);
+        let mage_switch =
+            GearSwitch::new(SwitchType::Magic, &player, &hunllef).expect("valid gear switch");
 
         player.equip("Corrupted bow (perfected)", None).unwrap();
         player.update_bonuses();
@@ -936,18 +941,20 @@ mod tests {
         player.add_prayer(Prayer::EagleEye);
         player.remove_prayer(Prayer::MysticMight);
 
-        calc_active_player_rolls(&mut player, &hunllef);
+        calc_active_player_rolls(&mut player, &hunllef).expect("valid gear switch");
 
-        let ranged_switch = GearSwitch::new(SwitchType::Ranged, &player, &hunllef);
+        let ranged_switch =
+            GearSwitch::new(SwitchType::Ranged, &player, &hunllef).expect("valid gear switch");
 
         Rc::make_mut(&mut player.gear).weapon = Weapon::default();
         player.update_bonuses();
         player.set_active_style(CombatStyle::Kick);
         player.add_prayer(Prayer::Piety);
 
-        calc_active_player_rolls(&mut player, &hunllef);
+        calc_active_player_rolls(&mut player, &hunllef).expect("valid gear switch");
 
-        let melee_switch = GearSwitch::new(SwitchType::Melee, &player, &hunllef);
+        let melee_switch =
+            GearSwitch::new(SwitchType::Melee, &player, &hunllef).expect("valid gear switch");
         player.switches.push(mage_switch);
         player.switches.push(ranged_switch);
         player.switches.push(melee_switch);
@@ -984,7 +991,7 @@ mod tests {
 
         let result = fight.simulate(&mut FightRecorder::Disabled);
 
-        fight.reset();
+        fight.reset().expect("valid fight config");
 
         if let Ok(result) = result {
             assert!(result.ttk_ticks > 0);

@@ -84,7 +84,8 @@ fn simulate_single_way() {
         reset_soulreaper_stacks: None,
     };
 
-    let mut main_hand = GearSwitch::new(SwitchType::Melee, &player, &monster);
+    let mut main_hand =
+        GearSwitch::new(SwitchType::Melee, &player, &monster).expect("valid gear switch");
     player.switches.push(main_hand.clone());
 
     // let bp_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&main_hand).build();
@@ -105,7 +106,8 @@ fn simulate_single_way() {
 
     player.equip("Voidwaker", None).unwrap();
     player.set_active_style(CombatStyle::Slash);
-    let vw_switch = GearSwitch::new(SwitchType::Spec("Voidwaker spec".into()), &player, &monster);
+    let vw_switch = GearSwitch::new(SwitchType::Spec("Voidwaker spec".into()), &player, &monster)
+        .expect("valid gear switch");
     let vw_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&vw_switch)
         // .with_max_attempts(1)
         .build();
@@ -210,7 +212,8 @@ fn simulate_hunllef() {
     let hunllef = Monster::new("Corrupted Hunllef", None).expect("Error creating monster.");
     calc_active_player_rolls(&mut player, &hunllef);
 
-    let mage_switch = GearSwitch::new(SwitchType::Magic, &player, &hunllef);
+    let mage_switch =
+        GearSwitch::new(SwitchType::Magic, &player, &hunllef).expect("valid gear switch");
 
     // player.equip("Corrupted bow (perfected)", None).unwrap();
     player.equip("Corrupted bow (attuned)", None).unwrap();
@@ -220,7 +223,8 @@ fn simulate_hunllef() {
 
     calc_active_player_rolls(&mut player, &hunllef);
 
-    let ranged_switch = GearSwitch::new(SwitchType::Ranged, &player, &hunllef);
+    let ranged_switch =
+        GearSwitch::new(SwitchType::Ranged, &player, &hunllef).expect("valid gear switch");
 
     // player.unequip_slot(&GearSlot::Weapon);
     // player.set_active_style(CombatStyle::Kick);
@@ -233,7 +237,8 @@ fn simulate_hunllef() {
 
     calc_active_player_rolls(&mut player, &hunllef);
 
-    let melee_switch = GearSwitch::new(SwitchType::Melee, &player, &hunllef);
+    let melee_switch =
+        GearSwitch::new(SwitchType::Melee, &player, &hunllef).expect("valid gear switch");
     player.switches.push(mage_switch);
     player.switches.push(ranged_switch);
     player.switches.push(melee_switch);
@@ -306,7 +311,8 @@ fn simulate_normal_gauntlet() {
     let hunllef = Monster::new("Crystalline Hunllef", None).expect("Error creating monster.");
     calc_active_player_rolls(&mut player, &hunllef);
 
-    let mage_switch = GearSwitch::new(SwitchType::Magic, &player, &hunllef);
+    let mage_switch =
+        GearSwitch::new(SwitchType::Magic, &player, &hunllef).expect("valid gear switch");
 
     // player.equip("Corrupted bow (perfected)", None).unwrap();
     player.equip("Crystal bow (attuned)", None).unwrap();
@@ -316,7 +322,8 @@ fn simulate_normal_gauntlet() {
 
     calc_active_player_rolls(&mut player, &hunllef);
 
-    let ranged_switch = GearSwitch::new(SwitchType::Ranged, &player, &hunllef);
+    let ranged_switch =
+        GearSwitch::new(SwitchType::Ranged, &player, &hunllef).expect("valid gear switch");
 
     player.unequip_slot(&GearSlot::Weapon);
     player.set_active_style(CombatStyle::Kick);
@@ -329,7 +336,8 @@ fn simulate_normal_gauntlet() {
 
     calc_active_player_rolls(&mut player, &hunllef);
 
-    let melee_switch = GearSwitch::new(SwitchType::Melee, &player, &hunllef);
+    let melee_switch =
+        GearSwitch::new(SwitchType::Melee, &player, &hunllef).expect("valid gear switch");
     player.switches.push(mage_switch);
     player.switches.push(ranged_switch);
     player.switches.push(melee_switch);
@@ -432,13 +440,15 @@ fn simulate_vardorvis() {
     let vard = Monster::new("Vardorvis", Some("Post-quest")).expect("Error creating monster.");
     calc_active_player_rolls(&mut player, &vard);
 
-    let mut main_hand = GearSwitch::new(SwitchType::Melee, &player, &vard);
+    let mut main_hand =
+        GearSwitch::new(SwitchType::Melee, &player, &vard).expect("valid gear switch");
     player.switches.push(main_hand);
 
     player.equip("Voidwaker", None).unwrap();
     player.equip("Avernic defender", None).unwrap();
     player.set_active_style(CombatStyle::Slash);
-    let vw_switch = GearSwitch::new(SwitchType::Spec("Voidwaker spec".into()), &player, &vard);
+    let vw_switch = GearSwitch::new(SwitchType::Spec("Voidwaker spec".into()), &player, &vard)
+        .expect("valid gear switch");
     let vw_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&vw_switch)
         .with_monster_hp_above(100)
         .not_on_first_attack()
@@ -451,7 +461,8 @@ fn simulate_vardorvis() {
         SwitchType::Spec("Burning claws spec".into()),
         &player,
         &vard,
-    );
+    )
+    .expect("valid gear switch");
     let bclaws_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&bclaws_switch)
         .with_monster_hp_below(600)
         .with_monster_hp_above(100)
@@ -461,7 +472,8 @@ fn simulate_vardorvis() {
     player.equip("Dragon claws", None).unwrap();
     player.set_active_style(CombatStyle::Slash);
     let dclaws_switch =
-        GearSwitch::new(SwitchType::Spec("Dragon claws spec".into()), &player, &vard);
+        GearSwitch::new(SwitchType::Spec("Dragon claws spec".into()), &player, &vard)
+            .expect("valid gear switch");
     let dclaws_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&dclaws_switch)
         // .with_monster_hp_below(50)
         .with_monster_hp_above(100)
@@ -475,7 +487,8 @@ fn simulate_vardorvis() {
         SwitchType::Spec("Dragon dagger spec".into()),
         &player,
         &vard,
-    );
+    )
+    .expect("valid gear switch");
     let dds_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&dds_switch)
         // .with_monster_hp_below(50)
         .with_monster_hp_above(100)
@@ -484,7 +497,8 @@ fn simulate_vardorvis() {
 
     player.equip("Arkan blade", None).unwrap();
     player.set_active_style(CombatStyle::Slash);
-    let arkan_switch = GearSwitch::new(SwitchType::Spec("Arkan blade spec".into()), &player, &vard);
+    let arkan_switch = GearSwitch::new(SwitchType::Spec("Arkan blade spec".into()), &player, &vard)
+        .expect("valid gear switch");
     let arkan_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&arkan_switch)
         // .with_monster_hp_below(50)
         .with_monster_hp_above(100)
@@ -497,7 +511,8 @@ fn simulate_vardorvis() {
         SwitchType::Spec("Crystal halberd spec".into()),
         &player,
         &vard,
-    );
+    )
+    .expect("valid gear switch");
     let chally_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&chally_switch)
         .with_monster_hp_below(50)
         // .with_monster_hp_above(100)

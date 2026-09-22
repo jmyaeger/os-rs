@@ -354,7 +354,7 @@ impl Simulation for VardorvisFight {
         self.player.attack = crate::combat::attacks::standard::get_attack_functions(&self.player);
     }
 
-    fn reset(&mut self) {
+    fn reset(&mut self) -> Result<(), SimulationError> {
         self.player.state.first_attack = true;
         self.player.state.last_attack_hit = true;
 
@@ -379,8 +379,10 @@ impl Simulation for VardorvisFight {
         } else {
             self.player.reset_current_stats(false);
         }
-        calc_active_player_rolls(&mut self.player, &self.vard);
+        calc_active_player_rolls(&mut self.player, &self.vard)?;
 
         self.vard.reset();
+
+        Ok(())
     }
 }

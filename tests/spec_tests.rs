@@ -33,7 +33,8 @@ mod spec_tests {
     fn test_spec_strategy_creation() {
         let player = create_test_player();
         let monster = Monster::new("General Graardor", None).expect("Error creating monster.");
-        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster);
+        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
+            .expect("valid gear switch");
 
         let strategy: SpecStrategy<CoreCondition> = SpecStrategy::new(&switch, None);
 
@@ -50,13 +51,15 @@ mod spec_tests {
         let monster = Monster::new("General Graardor", None).expect("Error creating monster.");
 
         let fang_switch =
-            GearSwitch::new(SwitchType::Custom("Fang spec".into()), &player, &monster);
+            GearSwitch::new(SwitchType::Custom("Fang spec".into()), &player, &monster)
+                .expect("valid gear switch");
         let fang_strategy: SpecStrategy<CoreCondition> = SpecStrategy::new(&fang_switch, None);
 
         let mut player2 = player.clone();
         player2.equip("Dragon claws", None).unwrap();
         let claw_switch =
-            GearSwitch::new(SwitchType::Custom("Claw spec".into()), &player2, &monster);
+            GearSwitch::new(SwitchType::Custom("Claw spec".into()), &player2, &monster)
+                .expect("valid gear switch");
         let claw_strategy = SpecStrategy::new(&claw_switch, None);
 
         let config = SpecConfig::new(
@@ -74,7 +77,8 @@ mod spec_tests {
         let player = create_test_player();
         let monster = Monster::new("General Graardor", None).expect("Error creating monster.");
 
-        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster);
+        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
+            .expect("valid gear switch");
         let mut strategy: SpecStrategy<CoreCondition> =
             SpecStrategy::builder(&switch).with_max_attempts(2).build();
 
@@ -91,7 +95,8 @@ mod spec_tests {
         let player = create_test_player();
         let monster = Monster::new("General Graardor", None).expect("Error creating monster.");
 
-        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster);
+        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
+            .expect("valid gear switch");
         let mut strategy: SpecStrategy<CoreCondition> =
             SpecStrategy::builder(&switch).with_min_successes(2).build();
 
@@ -108,7 +113,8 @@ mod spec_tests {
         let mut monster = Monster::new("General Graardor", None).expect("Error creating monster.");
         monster.stats.hitpoints.current = 100;
 
-        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster);
+        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
+            .expect("valid gear switch");
         let strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&switch)
             .with_monster_hp_below(50)
             .build();
@@ -127,7 +133,8 @@ mod spec_tests {
         let player = create_test_player();
         let mut monster = Monster::new("General Graardor", None).expect("Error creating monster.");
 
-        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster);
+        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
+            .expect("valid gear switch");
         let strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&switch)
             .with_monster_hp_above(100)
             .build();
@@ -146,7 +153,8 @@ mod spec_tests {
         let player = create_test_player();
         let mut monster = Monster::new("General Graardor", None).expect("Error creating monster.");
 
-        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster);
+        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
+            .expect("valid gear switch");
         let strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&switch)
             .with_target_def_reduction(50)
             .build();
@@ -202,7 +210,8 @@ mod spec_tests {
         let player = create_test_player();
         let monster = Monster::new("General Graardor", None).expect("Error creating monster.");
 
-        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster);
+        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
+            .expect("valid gear switch");
         let mut strategy: SpecStrategy<CoreCondition> = SpecStrategy::new(&switch, None);
 
         strategy.state.attempt_count = 5;
@@ -219,7 +228,8 @@ mod spec_tests {
         let player = create_test_player();
         let monster = Monster::new("General Graardor", None).expect("Error creating monster.");
 
-        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster);
+        let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
+            .expect("valid gear switch");
         let mut strategy: SpecStrategy<CoreCondition> = SpecStrategy::new(&switch, None);
 
         strategy.state.attempt_count = 5;
