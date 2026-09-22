@@ -910,8 +910,8 @@ pub fn tonalztics_of_ralos_attack(
 ) -> Hit {
     let mut info = AttackInfo::new(player, monster);
 
-    // Rolls up to 3/4 of the "true" max hit for each hit
-    info.max_hit = info.max_hit * 3 / 4;
+    // Rolls up to 3/4 of the "true" max hit for each hit (rounded up)
+    info.max_hit = info.max_hit - info.max_hit / 4;
 
     let mut hit1 = base_attack(&info, rng, false);
     if hit1.success {

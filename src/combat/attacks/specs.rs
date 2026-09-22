@@ -1521,8 +1521,8 @@ pub fn tonalztics_of_ralos_spec(
 ) -> Hit {
     let mut info = AttackInfo::new(player, monster);
 
-    // Rolls up to 3/4 of the "true" max hit for each hit
-    info.max_hit = info.max_hit * 3 / 4;
+    // Rolls up to 3/4 of the "true" max hit for each hit (rounded up)
+    info.max_hit = info.max_hit - info.max_hit / 4;
 
     // Accuracy is boosted by 50%
     info.max_att_roll = info.max_att_roll * 3 / 2;
