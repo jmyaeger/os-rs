@@ -128,6 +128,32 @@ fn get_confliction_gauntlets_accuracy(attack: i32, defense: i32) -> f64 {
     double_roll / (1.0 - double_roll - single_roll)
 }
 
+pub fn spec_att_roll_factor(player: &Player) -> Fraction {
+    match &player.gear.weapon.name as &str {
+        "Saradomin godsword" | "Bandos godsword" | "Zamorak godsword" | "Armadyl godsword"
+        | "Zaryte crossbow" | "Webweaver bow" | "Toxic blowpipe" | "Ancient godsword"
+        | "Brine sabre" | "Barrelchest anchor" | "Eye of Ayak" => Fraction::new(2, 1),
+        "Accursed sceptre"
+        | "Accursed sceptre (a)"
+        | "Volatile Nightmare staff"
+        | "Arkan blade"
+        | "Osmumten's fang"
+        | "Osmumten's fang (or)"
+        | "Tonalztics of Ralos"
+        | "Granite hammer" => Fraction::new(3, 2),
+        "Dragon dagger" => Fraction::new(115, 100),
+        "Abyssal dagger" | "Abyssal whip" | "Dragon mace" | "Dragon sword" | "Elder maul" => {
+            Fraction::new(5, 4)
+        }
+        "Soulreaper axe" => Fraction::new(100 + 12 * player.boosts.soulreaper_stacks as i32, 100),
+        "Magic shortbow" | "Magic shortbow (i)" => Fraction::new(10, 7),
+        "Heavy ballista" | "Light ballista" => Fraction::new(5, 4),
+        "Rosewood blowpipe" => Fraction::new(4, 5),
+        _ => Fraction::new(1, 1),
+    }
+    .unwrap()
+}
+
 pub fn get_hit_chance(
     player: &Player,
     monster: &Monster,
@@ -153,31 +179,7 @@ pub fn get_hit_chance(
     let mut max_att_roll = player.att_rolls.get(combat_type)?;
 
     if using_spec {
-        let att_roll_factor = match &player.gear.weapon.name as &str {
-            "Saradomin godsword" | "Bandos godsword" | "Zamorak godsword" | "Armadyl godsword"
-            | "Zaryte crossbow" | "Webweaver bow" | "Toxic blowpipe" | "Ancient godsword"
-            | "Brine sabre" | "Barrelchest anchor" | "Eye of Ayak" => Fraction::new(2, 1),
-            "Accursed sceptre"
-            | "Accursed sceptre (a)"
-            | "Volatile Nightmare staff"
-            | "Arkan blade"
-            | "Osmumten's fang"
-            | "Osmumten's fang (or)"
-            | "Tonalztics of Ralos"
-            | "Granite hammer" => Fraction::new(3, 2),
-            "Dragon dagger" => Fraction::new(115, 100),
-            "Abyssal dagger" | "Abyssal whip" | "Dragon mace" | "Dragon sword" | "Elder maul" => {
-                Fraction::new(5, 4)
-            }
-            "Soulreaper axe" => {
-                Fraction::new(100 + 12 * player.boosts.soulreaper_stacks as i32, 100)
-            }
-            "Magic shortbow" | "Magic shortbow (i)" => Fraction::new(10, 7),
-            "Heavy ballista" | "Light ballista" => Fraction::new(5, 4),
-            "Rosewood blowpipe" => Fraction::new(4, 5),
-            _ => Fraction::new(1, 1),
-        }
-        .unwrap();
+        let att_roll_factor = spec_att_roll_factor(player);
         max_att_roll = att_roll_factor.multiply_to_int(max_att_roll);
     }
 
@@ -859,7 +861,10 @@ pub fn get_distribution(
     Ok(apply_limiters(dist, player, monster))
 }
 
-fn get_spec_min_max_hit(player: &Player, monster: &Monster) -> Result<(u32, u32), DpsCalcError> {
+pub fn get_spec_min_max_hit(
+    player: &Player,
+    monster: &Monster,
+) -> Result<(u32, u32), DpsCalcError> {
     let combat_type = player.combat_type();
     let base_max_hit = player.max_hits.get(combat_type);
     let min_max = match player.gear.weapon.name.as_str() {
