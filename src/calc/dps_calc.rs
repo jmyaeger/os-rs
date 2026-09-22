@@ -817,7 +817,7 @@ pub fn get_distribution(
     if player.is_using_melee() && player.set_effects.full_dharoks {
         let full_hp = player.stats.hitpoints.base;
         let current_hp = player.stats.hitpoints.current;
-        let numerator = 10000 + (full_hp - current_hp) as i32 * full_hp as i32;
+        let numerator = 10000 + (full_hp.saturating_sub(current_hp)) as i32 * full_hp as i32;
         dist = dist.scale_damage(Fraction::new(numerator, 10000).unwrap());
     }
 

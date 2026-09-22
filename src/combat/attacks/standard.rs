@@ -300,7 +300,7 @@ pub fn dharoks_axe_attack(
         // Set effect damage increase is applied post-roll
         let max_hp = player.stats.hitpoints.base;
         let current_hp = player.stats.hitpoints.current;
-        let dmg_mod = 10000 + (max_hp - current_hp) * max_hp;
+        let dmg_mod = 10000 + (max_hp.saturating_sub(current_hp)) * max_hp;
         hit.damage = hit.damage * dmg_mod / 10000;
     }
 
