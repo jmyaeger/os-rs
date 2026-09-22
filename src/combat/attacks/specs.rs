@@ -1858,8 +1858,8 @@ pub fn sunspear_spec(
 }
 // TODO: implement purging staff spec
 
-pub fn get_spec_attack_function(player: &Player) -> AttackFn {
-    match player.gear.weapon.name.as_str() {
+pub fn get_spec_attack_function(player: &Player) -> Option<AttackFn> {
+    let spec_fn = match player.gear.weapon.name.as_str() {
         "Osmumten's fang" => fang_spec,
         "Dragon crossbow" => dragon_crossbow_spec,
         "Arclight" | "Darklight" => arclight_spec,
@@ -1915,8 +1915,9 @@ pub fn get_spec_attack_function(player: &Player) -> AttackFn {
         "Rosewood blowpipe" => rosewood_bp_spec,
         "Arkan blade" => arkan_blade_spec,
         "Sunspear" => sunspear_spec,
-        _ => player.attack,
-    }
+        _ => return None,
+    };
+    Some(spec_fn)
 }
 
 #[cfg(test)]

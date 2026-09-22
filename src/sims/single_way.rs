@@ -180,7 +180,10 @@ impl SingleWayMechanics {
                     &[&fight.monster],
                 );
 
-                let hit = (fight.player.spec)(
+                let hit = (fight
+                    .player
+                    .spec
+                    .expect("player should have spec method if spec config exists"))(
                     &mut fight.player,
                     &mut fight.monster,
                     &mut fight.rng,
