@@ -115,11 +115,13 @@ pub trait Mechanics {
                 // Vardorvis is immune to voidwaker spec as the first attack
                 Hit::inaccurate()
             } else {
-                (player
-                    .spec
-                    .expect("player should have spec method if spec config exists"))(
-                    player, monster, rng, limiter,
-                )
+                let spec = player.spec.ok_or_else(|| {
+                    SimulationError::ConfigError(format!(
+                        "Special attack for {} not implemented",
+                        player.gear.weapon.name
+                    ))
+                })?;
+                spec(player, monster, rng, limiter)
             };
 
             log.record(
