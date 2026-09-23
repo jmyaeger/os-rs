@@ -148,6 +148,7 @@ pub fn spec_att_roll_factor(player: &Player) -> Fraction {
         "Soulreaper axe" => Fraction::new(100 + 12 * player.boosts.soulreaper_stacks as i32, 100),
         "Magic shortbow" | "Magic shortbow (i)" => Fraction::new(10, 7),
         "Heavy ballista" | "Light ballista" => Fraction::new(5, 4),
+        "Dual macuahuitl" if player.set_effects.full_blood_moon => Fraction::new(5, 4),
         "Rosewood blowpipe" => Fraction::new(4, 5),
         _ => Fraction::new(1, 1),
     }
@@ -480,8 +481,8 @@ pub fn get_distribution(
         dist = AttackDistribution::new(hits);
     }
 
-    // Dual macuahuitl distribution (without set effect)
-    if player.is_using_melee() && player.is_wearing("Dual macuahuitl", None) {
+    // Dual macuahuitl normal attack distribution
+    if player.is_using_melee() && player.is_wearing("Dual macuahuitl", None) && !using_spec {
         let half_max = max_hit / 2;
         let first_hit = AttackDistribution::new(vec![HitDistribution::linear(acc, 0, half_max)]);
         let second_hit = HitDistribution::linear(acc, 0, max_hit - half_max);
@@ -502,8 +503,11 @@ pub fn get_distribution(
         );
     }
 
-    // Double-hitting weapon distribution (Torag's hammers/sulphur blades)
-    if player.is_using_melee() && player.is_wearing_any(constants::DOUBLE_HIT_WEAPONS) {
+    // Double-hitting weapon distribution (Torag's hammers/sulphur blades, plus dual macuahuitl spec)
+    if player.is_using_melee()
+        && (player.is_wearing_any(constants::DOUBLE_HIT_WEAPONS)
+            || (player.set_effects.full_blood_moon && using_spec))
+    {
         let half_max = max_hit / 2;
         let first_hit = HitDistribution::linear(acc, 0, half_max);
         let second_hit = HitDistribution::linear(acc, 0, max_hit - half_max);
@@ -513,7 +517,7 @@ pub fn get_distribution(
 
     // Tonalztics distribution
     if player.is_using_ranged() && player.gear.weapon.name.contains("Tonalztics") {
-        let three_fourths = max_hit * 3 / 4;
+        let three_fourths = max_hit - max_hit / 4;
         let first_hit = HitDistribution::linear(acc, 0, three_fourths);
         if player.gear.weapon.matches_version("Uncharged") {
             dist = AttackDistribution::new(vec![first_hit]);
@@ -904,9 +908,7 @@ pub fn get_spec_min_max_hit(
                 1000 + 5 * max(0, player.stats.prayer.base - player.stats.prayer.current);
             (0, base_max_hit * damage_mod / 1000)
         }
-        "Dual macuahuitl" if player.set_effects.full_blood_moon => {
-            (base_max_hit / 4, base_max_hit * 5 / 4)
-        }
+        "Dual macuahuitl" if player.set_effects.full_blood_moon => (0, base_max_hit * 5 / 4),
         "Webweaver bow" => (0, base_max_hit - base_max_hit * 6 / 10),
         "Dark bow" => {
             let descent_of_dragons = player.is_wearing_any_version("Dragon arrow")
@@ -1218,6 +1220,16 @@ pub fn get_ttk(
 fn get_weapon_delay_provider(player: &Player, using_spec: bool) -> Box<WeaponDelayProvider> {
     let base_speed = get_attack_speed(player, using_spec);
     if player.set_effects.full_blood_moon {
+        if using_spec {
+            return Box::new(move |wh: &WeightedHit| {
+                let delay = if wh.any_accurate() {
+                    base_speed - 1
+                } else {
+                    base_speed
+                };
+                vec![ProbabilisticDelay::new(1.0, delay)]
+            });
+        }
         Box::new(move |wh: &WeightedHit| {
             let mut chance_no_effect = 1.0;
             for hitsplat in &wh.hitsplats {

@@ -962,8 +962,8 @@ pub fn dual_macuahuitl_attack(
 
     // Roll 33% chance for next attack to be one tick faster if the full set is equipped
     if player.set_effects.full_blood_moon
-        && ((hit1.success && rng.random_range(0..3) == 0)
-            || (hit2.success && rng.random_range(0..3) == 0))
+        && ((hit1.success && rng.random_range(0..100) < 33)
+            || (hit2.success && rng.random_range(0..100) < 33))
     {
         Rc::make_mut(&mut player.gear).weapon.speed = 3;
     }

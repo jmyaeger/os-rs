@@ -1561,16 +1561,20 @@ pub fn dual_macuahuitl_spec(
         return (player.attack)(player, monster, rng, limiter);
     }
 
+    // Reset attack speed to 4 ticks
+    Rc::make_mut(&mut player.gear).weapon.speed = 4;
+
     let mut info1 = AttackInfo::new(player, monster);
+
+    // Boost accuracy by 25%
+    info1.max_att_roll = info1.max_att_roll * 5 / 4;
+
     let mut info2 = info1.clone();
 
-    // Boost max hit and min hit by 25%
+    // Boost max hit by 25%
     let max_hit = info1.max_hit * 5 / 4;
-    let min_hit = info1.max_hit / 4;
     info1.max_hit = max_hit / 2;
     info2.max_hit = max_hit - max_hit / 2;
-    info1.min_hit = min_hit / 2;
-    info2.min_hit = min_hit - min_hit / 2;
 
     // Take damage equal to 25% of current HP
     let damage = player.stats.hitpoints.current / 4;
@@ -1581,19 +1585,17 @@ pub fn dual_macuahuitl_spec(
     if hit1.success {
         hit1.apply_transforms(player, monster, rng, limiter);
     }
-    let mut hit2 = if hit1.success {
-        // Only roll the second hit if the first hit was accurate
-        base_attack(&info2, rng, false)
-    } else {
-        Hit::inaccurate()
-    };
 
+    // The spec rolls both hits independently, unlike the normal attack
+    let mut hit2 = base_attack(&info2, rng, false);
     if hit2.success {
         hit2.apply_transforms(player, monster, rng, limiter);
     }
 
-    // Next attack is guaranteed to be 3 ticks
-    Rc::make_mut(&mut player.gear).weapon.speed = 3;
+    // Next attack is guaranteed to be 3 ticks if either attack hits
+    if hit1.success || hit2.success {
+        Rc::make_mut(&mut player.gear).weapon.speed = 3;
+    }
 
     hit1.combine(&hit2)
 }
