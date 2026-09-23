@@ -36,7 +36,8 @@ mod spec_tests {
         let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
             .expect("valid gear switch");
 
-        let strategy: SpecStrategy<CoreCondition> = SpecStrategy::new(&switch, None);
+        let strategy: SpecStrategy<CoreCondition> =
+            SpecStrategy::new(&switch, None).expect("valid spec strategy");
 
         assert_eq!(strategy.switch_type.label(), "Test spec");
         assert_eq!(strategy.spec_cost, 25);
@@ -53,14 +54,15 @@ mod spec_tests {
         let fang_switch =
             GearSwitch::new(SwitchType::Custom("Fang spec".into()), &player, &monster)
                 .expect("valid gear switch");
-        let fang_strategy: SpecStrategy<CoreCondition> = SpecStrategy::new(&fang_switch, None);
+        let fang_strategy: SpecStrategy<CoreCondition> =
+            SpecStrategy::new(&fang_switch, None).expect("valid spec strategy");
 
         let mut player2 = player.clone();
         player2.equip("Dragon claws", None).unwrap();
         let claw_switch =
             GearSwitch::new(SwitchType::Custom("Claw spec".into()), &player2, &monster)
                 .expect("valid gear switch");
-        let claw_strategy = SpecStrategy::new(&claw_switch, None);
+        let claw_strategy = SpecStrategy::new(&claw_switch, None).expect("valid spec strategy");
 
         let config = SpecConfig::new(
             vec![fang_strategy, claw_strategy],
@@ -79,8 +81,10 @@ mod spec_tests {
 
         let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
             .expect("valid gear switch");
-        let mut strategy: SpecStrategy<CoreCondition> =
-            SpecStrategy::builder(&switch).with_max_attempts(2).build();
+        let mut strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&switch)
+            .expect("valid spec strategy")
+            .with_max_attempts(2)
+            .build();
 
         // Should allow first two attempts
         assert!(strategy.can_execute(&player, &monster, &()));
@@ -97,8 +101,10 @@ mod spec_tests {
 
         let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
             .expect("valid gear switch");
-        let mut strategy: SpecStrategy<CoreCondition> =
-            SpecStrategy::builder(&switch).with_min_successes(2).build();
+        let mut strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&switch)
+            .expect("valid spec strategy")
+            .with_min_successes(2)
+            .build();
 
         assert!(strategy.can_execute(&player, &monster, &()));
         strategy.state.success_count = 1;
@@ -116,6 +122,7 @@ mod spec_tests {
         let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
             .expect("valid gear switch");
         let strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&switch)
+            .expect("valid spec strategy")
             .with_monster_hp_below(50)
             .build();
 
@@ -136,6 +143,7 @@ mod spec_tests {
         let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
             .expect("valid gear switch");
         let strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&switch)
+            .expect("valid spec strategy")
             .with_monster_hp_above(100)
             .build();
 
@@ -156,6 +164,7 @@ mod spec_tests {
         let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
             .expect("valid gear switch");
         let strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&switch)
+            .expect("valid spec strategy")
             .with_target_def_reduction(50)
             .build();
 
@@ -212,7 +221,8 @@ mod spec_tests {
 
         let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
             .expect("valid gear switch");
-        let mut strategy: SpecStrategy<CoreCondition> = SpecStrategy::new(&switch, None);
+        let mut strategy: SpecStrategy<CoreCondition> =
+            SpecStrategy::new(&switch, None).expect("valid spec strategy");
 
         strategy.state.attempt_count = 5;
         strategy.state.success_count = 3;
@@ -230,7 +240,8 @@ mod spec_tests {
 
         let switch = GearSwitch::new(SwitchType::Custom("Test spec".into()), &player, &monster)
             .expect("valid gear switch");
-        let mut strategy: SpecStrategy<CoreCondition> = SpecStrategy::new(&switch, None);
+        let mut strategy: SpecStrategy<CoreCondition> =
+            SpecStrategy::new(&switch, None).expect("valid spec strategy");
 
         strategy.state.attempt_count = 5;
         strategy.state.success_count = 3;

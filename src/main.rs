@@ -109,6 +109,7 @@ fn simulate_single_way() {
     let vw_switch = GearSwitch::new(SwitchType::Spec("Voidwaker spec".into()), &player, &monster)
         .expect("valid gear switch");
     let vw_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&vw_switch)
+        .expect("valid spec strategy")
         // .with_max_attempts(1)
         .build();
     player.switches.push(vw_switch);
@@ -450,6 +451,7 @@ fn simulate_vardorvis() {
     let vw_switch = GearSwitch::new(SwitchType::Spec("Voidwaker spec".into()), &player, &vard)
         .expect("valid gear switch");
     let vw_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&vw_switch)
+        .expect("valid spec strategy")
         .with_monster_hp_above(100)
         .not_on_first_attack()
         .build();
@@ -464,6 +466,7 @@ fn simulate_vardorvis() {
     )
     .expect("valid gear switch");
     let bclaws_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&bclaws_switch)
+        .expect("valid spec strategy")
         .with_monster_hp_below(600)
         .with_monster_hp_above(100)
         .build();
@@ -475,6 +478,7 @@ fn simulate_vardorvis() {
         GearSwitch::new(SwitchType::Spec("Dragon claws spec".into()), &player, &vard)
             .expect("valid gear switch");
     let dclaws_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&dclaws_switch)
+        .expect("valid spec strategy")
         // .with_monster_hp_below(50)
         .with_monster_hp_above(100)
         .build();
@@ -490,6 +494,7 @@ fn simulate_vardorvis() {
     )
     .expect("valid gear switch");
     let dds_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&dds_switch)
+        .expect("valid spec strategy")
         // .with_monster_hp_below(50)
         .with_monster_hp_above(100)
         .build();
@@ -500,6 +505,7 @@ fn simulate_vardorvis() {
     let arkan_switch = GearSwitch::new(SwitchType::Spec("Arkan blade spec".into()), &player, &vard)
         .expect("valid gear switch");
     let arkan_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&arkan_switch)
+        .expect("valid spec strategy")
         // .with_monster_hp_below(50)
         .with_monster_hp_above(100)
         .build();
@@ -514,6 +520,7 @@ fn simulate_vardorvis() {
     )
     .expect("valid gear switch");
     let chally_spec_strategy: SpecStrategy<CoreCondition> = SpecStrategy::builder(&chally_switch)
+        .expect("valid spec strategy")
         .with_monster_hp_below(50)
         // .with_monster_hp_above(100)
         .build();

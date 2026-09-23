@@ -1,4 +1,5 @@
 use crate::constants;
+use crate::error::SimulationError;
 use crate::types::monster::Monster;
 use crate::types::player::{GearSwitch, Player, SwitchType};
 use crate::types::timers::Timer;
@@ -231,21 +232,35 @@ pub struct SpecStrategy<C: SpecCondition> {
 }
 
 impl<C: SpecCondition> SpecStrategy<C> {
-    pub fn new(gear: &GearSwitch, conditions: Option<Vec<C>>) -> Self {
+    pub fn new(
+        gear_switch: &GearSwitch,
+        conditions: Option<Vec<C>>,
+    ) -> Result<Self, SimulationError> {
+        let weapon = &gear_switch.gear.weapon.name;
+        if gear_switch.spec.is_none() {
+            return Err(SimulationError::ConfigError(format!(
+                "{weapon}'s special attack is not implemented"
+            )));
+        }
+
         let spec_cost = constants::SPEC_COSTS
             .iter()
-            .find(|w| w.0 == gear.gear.weapon.name)
-            .expect("Spec cost not found")
-            .1;
+            .find(|(name, _)| *name == weapon.as_str())
+            .map(|(_, cost)| *cost)
+            .ok_or_else(|| {
+                SimulationError::ConfigError(format!(
+                    "No special attack cost is defined for {weapon}"
+                ))
+            })?;
 
-        Self {
+        Ok(Self {
             conditions: conditions.unwrap_or_default(),
             state: SpecStrategyState::default(),
-            switch_type: gear.switch_type.clone(),
+            switch_type: gear_switch.switch_type.clone(),
             spec_cost,
             max_attempts: None,
             min_successes: None,
-        }
+        })
     }
 
     pub fn add_condition(&mut self, condition: C) {
@@ -279,7 +294,7 @@ impl<C: SpecCondition> SpecStrategy<C> {
             .all(|condition| condition.evaluate(player, monster, boss_state))
     }
 
-    pub fn builder(gear: &GearSwitch) -> SpecStrategyBuilder<C> {
+    pub fn builder(gear: &GearSwitch) -> Result<SpecStrategyBuilder<C>, SimulationError> {
         SpecStrategyBuilder::new(gear)
     }
 
@@ -294,10 +309,10 @@ pub struct SpecStrategyBuilder<C: SpecCondition> {
 }
 
 impl<C: SpecCondition> SpecStrategyBuilder<C> {
-    pub fn new(gear: &GearSwitch) -> Self {
-        Self {
-            strategy: SpecStrategy::new(gear, None),
-        }
+    pub fn new(gear: &GearSwitch) -> Result<Self, SimulationError> {
+        Ok(Self {
+            strategy: SpecStrategy::new(gear, None)?,
+        })
     }
 
     fn with_condition(mut self, condition: C) -> Self {
