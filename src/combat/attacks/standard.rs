@@ -865,9 +865,7 @@ pub fn soulreaper_axe_attack(
 ) -> Hit {
     let hit = standard_attack(player, monster, rng, limiter);
 
-    if player.boosts.soulreaper_stacks < 5 && player.stats.hitpoints.current > 8 {
-        // Add a soulreaper stack if the player has less than 5 stacks and can survive the self-damage
-        player.take_damage(constants::SOULREAPER_STACK_DAMAGE);
+    if player.boosts.soulreaper_stacks < 5 {
         player.boosts.soulreaper_stacks += 1;
 
         // Recalculate melee rolls with stack boost added
@@ -1302,37 +1300,30 @@ mod tests {
         let mut limiter = assign_limiter(&player, &monster);
 
         assert_eq!(player.boosts.soulreaper_stacks, 0);
-        assert_eq!(player.stats.hitpoints.current, 99);
-        assert_eq!(player.max_hits.get(CombatType::Slash), 62);
+        assert_eq!(player.max_hits.get(CombatType::Slash), 63);
 
         let _ = (player.attack)(&mut player, &mut monster, &mut rng, &mut limiter);
         assert_eq!(player.boosts.soulreaper_stacks, 1);
-        assert_eq!(player.stats.hitpoints.current, 91);
-        assert_eq!(player.max_hits.get(CombatType::Slash), 65);
+        assert_eq!(player.max_hits.get(CombatType::Slash), 66);
 
         let _ = (player.attack)(&mut player, &mut monster, &mut rng, &mut limiter);
         assert_eq!(player.boosts.soulreaper_stacks, 2);
-        assert_eq!(player.stats.hitpoints.current, 83);
-        assert_eq!(player.max_hits.get(CombatType::Slash), 68);
+        assert_eq!(player.max_hits.get(CombatType::Slash), 69);
 
         let _ = (player.attack)(&mut player, &mut monster, &mut rng, &mut limiter);
         assert_eq!(player.boosts.soulreaper_stacks, 3);
-        assert_eq!(player.stats.hitpoints.current, 75);
-        assert_eq!(player.max_hits.get(CombatType::Slash), 71);
+        assert_eq!(player.max_hits.get(CombatType::Slash), 72);
 
         let _ = (player.attack)(&mut player, &mut monster, &mut rng, &mut limiter);
         assert_eq!(player.boosts.soulreaper_stacks, 4);
-        assert_eq!(player.stats.hitpoints.current, 67);
-        assert_eq!(player.max_hits.get(CombatType::Slash), 73);
+        assert_eq!(player.max_hits.get(CombatType::Slash), 74);
 
         let _ = (player.attack)(&mut player, &mut monster, &mut rng, &mut limiter);
         assert_eq!(player.boosts.soulreaper_stacks, 5);
-        assert_eq!(player.stats.hitpoints.current, 59);
-        assert_eq!(player.max_hits.get(CombatType::Slash), 76);
+        assert_eq!(player.max_hits.get(CombatType::Slash), 77);
 
         let _ = (player.attack)(&mut player, &mut monster, &mut rng, &mut limiter);
         assert_eq!(player.boosts.soulreaper_stacks, 5);
-        assert_eq!(player.stats.hitpoints.current, 59);
-        assert_eq!(player.max_hits.get(CombatType::Slash), 76);
+        assert_eq!(player.max_hits.get(CombatType::Slash), 77);
     }
 }
