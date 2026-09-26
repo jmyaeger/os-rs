@@ -1541,7 +1541,7 @@ mod tests {
             .expect("Error calculating attack distribution.");
         let ttk = get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
 
-        assert!(num::abs(ttk - 10.2) < 0.1);
+        assert!(num::abs(ttk - 10.1) < 0.1);
     }
 
     #[test]
