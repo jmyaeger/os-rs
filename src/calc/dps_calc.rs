@@ -125,7 +125,7 @@ fn get_confliction_gauntlets_accuracy(attack: i32, defense: i32) -> f64 {
     let single_roll = normal_accuracy(attack, defense);
     let double_roll = fang_accuracy(attack, defense);
 
-    double_roll / (1.0 - double_roll - single_roll)
+    double_roll / (1.0 + double_roll - single_roll)
 }
 
 pub fn spec_att_roll_factor(player: &Player) -> Fraction {
