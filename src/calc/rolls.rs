@@ -825,6 +825,7 @@ fn charged_staff_max_hit(player: &Player) -> Result<u32, RollError> {
         "Crystal staff (basic)" | "Corrupted staff (basic)" => 23,
         "Crystal staff (attuned)" | "Corrupted staff (attuned)" => 31,
         "Crystal staff (perfected)" | "Corrupted staff (perfected)" => 39,
+        "Eye of Ayak" => max(1, (visible_magic / 3).saturating_sub(6)),
         _ => {
             return Err(RollError::MissingMagicMaxHit {
                 weapon_name: player.gear.weapon.name.clone(),
