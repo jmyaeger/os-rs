@@ -1,3 +1,4 @@
+//! Methods on `Player` related to prayers and potion boosts.
 use super::Player;
 use crate::types::potions::{Potion, PotionBoost, PotionStat};
 use crate::types::prayers::Prayer;

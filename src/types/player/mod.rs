@@ -1,3 +1,5 @@
+//! Module for the core `Player` type, which is used to store all of the player-related
+//! data, perform attacks, etc. during simulations and calculations.
 mod attack;
 mod boosts;
 mod builder;

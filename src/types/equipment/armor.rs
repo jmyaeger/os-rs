@@ -1,3 +1,4 @@
+//! The `Armor` type, which represents any non-weapon piece of equipment.
 use std::{any::Any, fmt};
 
 use serde::Deserialize;

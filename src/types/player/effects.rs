@@ -1,3 +1,5 @@
+//! Types for `Player` fields related to effects and conditional boosts.
+
 // Struct for holding sunfire rune min hit value
 #[derive(Debug, PartialEq, Default, Clone, Copy)]
 pub struct SunfireBoost {

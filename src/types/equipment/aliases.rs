@@ -1,3 +1,4 @@
+//! A map of item variant IDs to their base item ID.
 pub const fn canonical_item_id(id: i32) -> i32 {
     match id {
         // Abyssal tentacle

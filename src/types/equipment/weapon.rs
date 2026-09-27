@@ -1,3 +1,4 @@
+//! The `Weapon` type, which represents any item equippable to the `Player`'s weapon slot.
 use crate::error::GearError;
 use crate::types::equipment::Equipment;
 use crate::types::equipment::bonuses::EquipmentBonuses;

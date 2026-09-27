@@ -1,3 +1,5 @@
+//! Types for storing and tracking a `Player`'s combat rolls (maximum attack rolls,
+//! maximum defence rolls, and maximum hit).
 use crate::error::PlayerError;
 use crate::types::equipment::CombatType;
 

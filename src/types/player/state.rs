@@ -1,3 +1,4 @@
+//! `Player` methods for manipulating `Player` stats and effects during combat.
 use super::Player;
 use crate::combat::attacks::effects::CombatEffect;
 use crate::types::prayers::Prayer;

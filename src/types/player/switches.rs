@@ -1,3 +1,4 @@
+//! Types and methods for a `Player`'s gear switches.
 use super::attack::validate_attack_setup;
 use super::{Player, PlayerAttRolls, PlayerDefRolls, PlayerMaxHits, SetEffects};
 use crate::calc::rolls::calc_active_player_rolls;

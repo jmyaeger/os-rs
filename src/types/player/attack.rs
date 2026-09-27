@@ -1,3 +1,4 @@
+//! Combat-related methods for `Player`.
 use super::Player;
 use crate::constants;
 use crate::error::{AttackValidationError, PlayerError};

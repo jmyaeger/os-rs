@@ -1,3 +1,4 @@
+//! Convenience methods for checking if a `Player` is using/wearing specific things.
 use super::Player;
 use crate::constants;
 use crate::types::equipment::{CombatStance, CombatType};

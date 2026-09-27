@@ -1,3 +1,4 @@
+//! Builder type for `Player`.
 use super::{
     Player, PlayerAttRolls, PlayerAttrs, PlayerDefRolls, PlayerMaxHits, PlayerState, SetEffects,
     StatusBoosts,

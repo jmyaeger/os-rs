@@ -1,3 +1,4 @@
+//! Types and methods for deserializing equipment info from the JSON database.
 use serde::Deserialize;
 use std::sync::LazyLock;
 

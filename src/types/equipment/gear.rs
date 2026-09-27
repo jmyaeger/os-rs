@@ -1,3 +1,5 @@
+//! The `Gear` type, which contains all of a `Player`'s equipped items. This
+//! module also includes a builder for `Gear`.
 use crate::constants;
 use crate::error::GearError;
 use crate::types::equipment::Equipment;

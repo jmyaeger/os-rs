@@ -1,3 +1,6 @@
+//! This module contains the `Equipment` trait, which is implemented on the `Armor`
+//! and `Weapon` types. Also contained within the module are the `Gear` type and various
+//! other utility types/methods for interacting with equipment.
 mod aliases;
 mod ammo;
 mod armor;

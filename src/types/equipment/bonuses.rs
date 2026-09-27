@@ -1,3 +1,4 @@
+//! Types representing equipment stats/bonuses.
 use serde::Deserialize;
 
 use crate::types::equipment::styles::CombatType;

@@ -1,3 +1,4 @@
+//! Types related to a weapon's combat options.
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter};
 

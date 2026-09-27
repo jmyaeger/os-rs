@@ -1,3 +1,5 @@
+//! Methods for fetching player data from the OSRS Hiscores. This module is optional
+//! and requires the `hiscores` feature to be enabled.
 use super::Player;
 use crate::error::PlayerError;
 use crate::types::stats::{PlayerStats, SpecEnergy, Stat};

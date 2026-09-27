@@ -1,3 +1,6 @@
+//! Types related to validating ranged ammunition and its compatibility
+//! with a `Player`'s equipped weapon. This module also contains related methods
+//! implemented on `Player`, `Weapon`, `Armor`, and `Gear`.
 use crate::{
     constants,
     error::AmmoError,
@@ -475,10 +478,7 @@ impl Player {
         if let Ok(opt) = active_ammo
             && let Some(ammo) = opt
         {
-            let ammo_label = (
-                ammo.name.as_str(),
-                ammo.version.as_deref(),
-            );
+            let ammo_label = (ammo.name.as_str(), ammo.version.as_deref());
             match bolt_type {
                 EnchantedBoltType::Diamond => constants::DIAMOND_BOLTS.contains(&ammo_label),
                 EnchantedBoltType::Dragonstone => {

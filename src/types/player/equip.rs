@@ -1,3 +1,4 @@
+//! Methods on `Player` related to equipping items.
 use super::Player;
 use crate::constants;
 use crate::error::GearError;
