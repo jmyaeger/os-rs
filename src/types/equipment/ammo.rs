@@ -477,7 +477,7 @@ impl Player {
         {
             let ammo_label = (
                 ammo.name.as_str(),
-                ammo.version.as_ref().map(|a| a.as_str()),
+                ammo.version.as_deref(),
             );
             match bolt_type {
                 EnchantedBoltType::Diamond => constants::DIAMOND_BOLTS.contains(&ammo_label),
@@ -501,6 +501,6 @@ impl Player {
     pub fn is_firing_ammo(&self, name: &str) -> bool {
         self.gear
             .choose_compatible_ammo()
-            .is_ok_and(|opt| opt.is_some_and(|ammo| &ammo.name == name))
+            .is_ok_and(|opt| opt.is_some_and(|ammo| ammo.name == name))
     }
 }

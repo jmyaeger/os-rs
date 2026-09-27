@@ -183,7 +183,7 @@ pub(super) fn validate_attack_setup(
     }
 
     gear.choose_compatible_ammo()
-        .map_err(|e| AttackValidationError::Ammo(e))?;
+        .map_err(AttackValidationError::Ammo)?;
 
     Ok(())
 }

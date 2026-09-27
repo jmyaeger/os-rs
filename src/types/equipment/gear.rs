@@ -220,25 +220,25 @@ impl GearBuilder {
 
         if let Some((name, version)) = self.head {
             let head = Armor::new(&name, version.as_deref())?;
-            validate_slot(Box::new(&head), GearSlot::Head)?;
+            validate_slot(&head, GearSlot::Head)?;
             gear.head = Some(head);
         }
 
         if let Some((name, version)) = self.neck {
             let neck = Armor::new(&name, version.as_deref())?;
-            validate_slot(Box::new(&neck), GearSlot::Neck)?;
+            validate_slot(&neck, GearSlot::Neck)?;
             gear.neck = Some(neck);
         }
 
         if let Some((name, version)) = self.cape {
             let cape = Armor::new(&name, version.as_deref())?;
-            validate_slot(Box::new(&cape), GearSlot::Cape)?;
+            validate_slot(&cape, GearSlot::Cape)?;
             gear.cape = Some(cape);
         }
 
         if let Some((name, version)) = self.ammo {
             let ammo = Armor::new(&name, version.as_deref())?;
-            validate_slot(Box::new(&ammo), GearSlot::Ammo)?;
+            validate_slot(&ammo, GearSlot::Ammo)?;
             gear.ammo = Some(ammo);
         }
 
@@ -246,7 +246,7 @@ impl GearBuilder {
             // Since the builder allows the second slot to be individually addressed
             // (unlike `Player::equip_item()`), the bolt/arrow requirement is enforced here
             let second_ammo = Armor::new(&name, version.as_deref())?;
-            validate_slot(Box::new(&second_ammo), GearSlot::Ammo)?;
+            validate_slot(&second_ammo, GearSlot::Ammo)?;
             if !second_ammo.is_bolt_or_arrow() {
                 return Err(GearError::WrongQuiverAmmo(second_ammo.name.clone()));
             }
@@ -255,43 +255,43 @@ impl GearBuilder {
 
         if let Some((name, version)) = self.weapon {
             let weapon = Weapon::new(&name, version.as_deref())?;
-            validate_slot(Box::new(&weapon), GearSlot::Weapon)?;
+            validate_slot(&weapon, GearSlot::Weapon)?;
             gear.weapon = weapon;
         }
 
         if let Some((name, version)) = self.shield {
             let shield = Armor::new(&name, version.as_deref())?;
-            validate_slot(Box::new(&shield), GearSlot::Shield)?;
+            validate_slot(&shield, GearSlot::Shield)?;
             gear.shield = Some(shield);
         }
 
         if let Some((name, version)) = self.body {
             let body = Armor::new(&name, version.as_deref())?;
-            validate_slot(Box::new(&body), GearSlot::Body)?;
+            validate_slot(&body, GearSlot::Body)?;
             gear.body = Some(body);
         }
 
         if let Some((name, version)) = self.legs {
             let legs = Armor::new(&name, version.as_deref())?;
-            validate_slot(Box::new(&legs), GearSlot::Legs)?;
+            validate_slot(&legs, GearSlot::Legs)?;
             gear.legs = Some(legs);
         }
 
         if let Some((name, version)) = self.hands {
             let hands = Armor::new(&name, version.as_deref())?;
-            validate_slot(Box::new(&hands), GearSlot::Hands)?;
+            validate_slot(&hands, GearSlot::Hands)?;
             gear.hands = Some(hands);
         }
 
         if let Some((name, version)) = self.feet {
             let feet = Armor::new(&name, version.as_deref())?;
-            validate_slot(Box::new(&feet), GearSlot::Feet)?;
+            validate_slot(&feet, GearSlot::Feet)?;
             gear.feet = Some(feet);
         }
 
         if let Some((name, version)) = self.ring {
             let ring = Armor::new(&name, version.as_deref())?;
-            validate_slot(Box::new(&ring), GearSlot::Ring)?;
+            validate_slot(&ring, GearSlot::Ring)?;
             gear.ring = Some(ring);
         }
 
@@ -299,7 +299,7 @@ impl GearBuilder {
     }
 }
 
-fn validate_slot(item: Box<&dyn Equipment>, slot: GearSlot) -> Result<(), GearError> {
+fn validate_slot(item: &dyn Equipment, slot: GearSlot) -> Result<(), GearError> {
     if item.slot() == slot {
         Ok(())
     } else {

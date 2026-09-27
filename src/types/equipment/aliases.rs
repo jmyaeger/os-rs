@@ -192,7 +192,7 @@ pub const fn canonical_item_id(id: i32) -> i32 {
         // Dagon'hai robe top
         27125 => 24291,
         // Dark bow#Regular
-        12766 | 12765 | 12768 | 12767 => 11235,
+        12765..=12768 => 11235,
         // Decorative armour (gold platebody)#Normal
         24158 => 4509,
         // Decorative armour (gold platelegs)#Normal
@@ -222,13 +222,13 @@ pub const fn canonical_item_id(id: i32) -> i32 {
         // Decorative sword (gold)#Normal
         24157 => 4508,
         // Dharok's greataxe#Undamaged
-        4890 | 4886 | 4889 | 4888 | 4887 => 4718,
+        4886..=4890 => 4718,
         // Dharok's helm#Undamaged
-        4884 | 4880 | 4883 | 4882 | 4881 => 4716,
+        4880..=4884 => 4716,
         // Dharok's platebody#Undamaged
-        4896 | 4892 | 4895 | 4894 | 4893 => 4720,
+        4892..=4896 => 4720,
         // Dharok's platelegs#Undamaged
-        4902 | 4898 | 4901 | 4900 | 4899 => 4722,
+        4898..=4902 => 4722,
         // Dinh's bulwark
         28682 => 21015,
         // Dizana's max cape#Normal
@@ -348,13 +348,13 @@ pub const fn canonical_item_id(id: i32) -> i32 {
         // Grid master tabard
         31190 => 31181,
         // Guthan's chainskirt#Undamaged
-        4926 | 4922 | 4925 | 4924 | 4923 => 4730,
+        4922..=4926 => 4730,
         // Guthan's helm#Undamaged
-        4908 | 4904 | 4907 | 4906 | 4905 => 4724,
+        4904..=4908 => 4724,
         // Guthan's platebody#Undamaged
-        4920 | 4916 | 4919 | 4918 | 4917 => 4728,
+        4916..=4920 => 4728,
         // Guthan's warspear#Undamaged
-        4914 | 4910 | 4913 | 4912 | 4911 => 4726,
+        4910..=4914 => 4726,
         // Guthix halo#Normal
         24171 => 12639,
         // Healer hat#Normal
@@ -408,13 +408,13 @@ pub const fn canonical_item_id(id: i32) -> i32 {
         // Iron plateskirt
         12239 | 12229 => 1081,
         // Karil's coif#Undamaged
-        4932 | 4928 | 4931 | 4930 | 4929 => 4732,
+        4928..=4932 => 4732,
         // Karil's crossbow#Undamaged
-        4938 | 4934 | 4937 | 4936 | 4935 => 4734,
+        4934..=4938 => 4734,
         // Karil's leatherskirt#Undamaged
-        4950 | 4946 | 4949 | 4948 | 4947 => 4738,
+        4946..=4950 => 4738,
         // Karil's leathertop#Undamaged
-        4944 | 4940 | 4943 | 4942 | 4941 => 4736,
+        4940..=4944 => 4736,
         // Koriff's coif#Normal
         26742 => 26741,
         // Koriff's cowl#Normal
@@ -584,13 +584,13 @@ pub const fn canonical_item_id(id: i32) -> i32 {
         // Swords and emblem
         31202 => 31193,
         // Torag's hammers#Undamaged
-        4962 | 4958 | 4961 | 4960 | 4959 => 4747,
+        4958..=4962 => 4747,
         // Torag's helm#Undamaged
-        4956 | 4952 | 4955 | 4954 | 4953 => 4745,
+        4952..=4956 => 4745,
         // Torag's platebody#Undamaged
-        4968 | 4964 | 4967 | 4966 | 4965 => 4749,
+        4964..=4968 => 4749,
         // Torag's platelegs#Undamaged
-        4974 | 4970 | 4973 | 4972 | 4971 => 4751,
+        4970..=4974 => 4751,
         // Tormented bracelet
         23444 => 19544,
         // Torva full helm#Restored
@@ -630,13 +630,13 @@ pub const fn canonical_item_id(id: i32) -> i32 {
         // Venator bow#Uncharged
         30436 => 27612,
         // Verac's brassard#Undamaged
-        4992 | 4988 | 4991 | 4990 | 4989 => 4757,
+        4988..=4992 => 4757,
         // Verac's flail#Undamaged
-        4986 | 4982 | 4985 | 4984 | 4983 => 4755,
+        4982..=4986 => 4755,
         // Verac's helm#Undamaged
-        4980 | 4976 | 4979 | 4978 | 4977 => 4753,
+        4976..=4980 => 4753,
         // Verac's plateskirt#Undamaged
-        4998 | 4994 | 4997 | 4996 | 4995 => 4759,
+        4994..=4998 => 4759,
         // Virtus mask
         30437 => 26241,
         // Virtus robe bottom
@@ -658,7 +658,7 @@ pub const fn canonical_item_id(id: i32) -> i32 {
         // Void ranger helm#Normal
         24184 | 27006 | 26475 => 11664,
         // Void seal#(8)
-        11673 | 11672 | 11671 | 11670 | 11669 | 11668 | 11667 => 11666,
+        11667..=11673 => 11666,
         // Voidwaker
         29607 => 27690,
         // Volatile Nightmare staff
