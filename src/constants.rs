@@ -698,6 +698,19 @@ pub const OPAL_BOLTS: [(&str, Option<&str>); 2] =
 pub const PEARL_BOLTS: [(&str, Option<&str>); 2] =
     [("Pearl bolts (e)", None), ("Pearl dragon bolts (e)", None)];
 
+pub const TOPAZ_BOLTS: [(&str, Option<&str>); 2] =
+    [("Topaz bolts (e)", None), ("Topaz dragon bolts (e)", None)];
+
+pub const SAPPHIRE_BOLTS: [(&str, Option<&str>); 2] = [
+    ("Sapphire bolts (e)", None),
+    ("Sapphire dragon bolts (e)", None),
+];
+
+pub const EMERALD_BOLTS: [(&str, Option<&str>); 2] = [
+    ("Emerald bolts (e)", None),
+    ("Emerald dragon bolts (e)", None),
+];
+
 pub const DIAMOND_BOLTS: [(&str, Option<&str>); 2] = [
     ("Diamond bolts (e)", None),
     ("Diamond dragon bolts (e)", None),
@@ -707,6 +720,9 @@ pub const DRAGONSTONE_BOLTS: [(&str, Option<&str>); 2] = [
     ("Dragonstone bolts (e)", None),
     ("Dragonstone dragon bolts (e)", None),
 ];
+
+pub const JADE_BOLTS: [(&str, Option<&str>); 2] =
+    [("Jade bolts (e)", None), ("Jade dragon bolts (e)", None)];
 
 pub const ONYX_BOLTS: [(&str, Option<&str>); 2] =
     [("Onyx bolts (e)", None), ("Onyx dragon bolts (e)", None)];
@@ -845,4 +861,27 @@ pub const BOWS_THAT_USE_ARROWS: &[i32] = &[
     27612, // Venator bow (uncharged)
     20997, // Twisted bow
     29591, // Scorching bow
+];
+
+pub const CANNOT_ATTACK_WHILE_UNCHARGED: &[&str] = &[
+    "Sanguinesti staff",
+    "Holy sanguinesti staff",
+    "Tumeken's shadow",
+    "Warped sceptre",
+    "Toxic blowpipe",
+    "Blazing blowpipe",
+    "Craw's bow",
+    "Webweaver bow",
+    "Trident of the Seas",
+    "Trident of the Seas (e)",
+    "Trident of the Swamp",
+    "Trident of the Swamp (e)",
+    "Eye of Ayak",
+];
+
+pub const QUIVER_VARIANTS: [(&str, Option<&str>); 4] = [
+    ("Blessed Dizana's quiver", None),
+    ("Dizana's max cape", None),
+    ("Dizana's quiver", Some("Uncharged")),
+    ("Dizana's quiver", Some("Charged")),
 ];

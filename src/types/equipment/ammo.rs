@@ -1,4 +1,11 @@
-use crate::types::equipment::{Armor, GearSlot, Weapon};
+use crate::{
+    constants,
+    error::AmmoError,
+    types::{
+        equipment::{Armor, Gear, GearSlot, Weapon, canonical_item_id, weapon::WeaponCategory},
+        player::Player,
+    },
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum AmmoType {
@@ -48,6 +55,20 @@ pub enum BoltTier {
     Dragon,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum EnchantedBoltType {
+    Opal,
+    Jade,
+    Pearl,
+    Topaz,
+    Sapphire,
+    Emerald,
+    Ruby,
+    Diamond,
+    Dragonstone,
+    Onyx,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum OgreTier {
     Bronze,
@@ -69,11 +90,12 @@ pub enum TarType {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum AmmoApplicability {
-    // Ammo is compatible and ranged bonuses are applied
-    Included,
-    // Ammo is compatible, but ranged bonuses are ignored
-    Allowed,
+pub enum AmmoCompatibility {
+    // Ammo is used by the weapon, and ranged bonuses are applied
+    Compatible,
+    // Weapon can still be used with this ammo equipped, but the bonuses
+    // are ignored
+    Ignored,
     Incompatible,
     Unsupported,
 }
@@ -91,54 +113,54 @@ pub enum AmmoRequirement {
 }
 
 impl AmmoRequirement {
-    pub fn applicability(&self, ammo_type: AmmoType) -> AmmoApplicability {
+    pub fn compatibility(&self, ammo_type: AmmoType) -> AmmoCompatibility {
         match (self, ammo_type) {
-            (Self::OwnAmmo | &Self::None, _) => AmmoApplicability::Allowed,
-            (Self::Unsupported, _) | (_, AmmoType::Unsupported) => AmmoApplicability::Unsupported,
-            (_, AmmoType::NotAmmo) => AmmoApplicability::Incompatible,
+            (Self::OwnAmmo | &Self::None, _) => AmmoCompatibility::Ignored,
+            (Self::Unsupported, _) | (_, AmmoType::Unsupported) => AmmoCompatibility::Unsupported,
+            (_, AmmoType::NotAmmo) => AmmoCompatibility::Incompatible,
             (Self::ArrowsUpTo(max_tier), AmmoType::Arrow(tier)) => {
                 if tier <= *max_tier {
-                    AmmoApplicability::Included
+                    AmmoCompatibility::Compatible
                 } else {
-                    AmmoApplicability::Incompatible
+                    AmmoCompatibility::Incompatible
                 }
             }
             (Self::BoltsUpTo(max_tier), AmmoType::Bolt(tier) | AmmoType::GemTippedBolt(tier)) => {
                 if tier <= *max_tier {
-                    AmmoApplicability::Included
+                    AmmoCompatibility::Compatible
                 } else {
-                    AmmoApplicability::Incompatible
+                    AmmoCompatibility::Incompatible
                 }
             }
             (Self::BoltsUpTo(max_tier), AmmoType::SilverBolt) => {
                 if *max_tier < BoltTier::Iron {
-                    AmmoApplicability::Incompatible
+                    AmmoCompatibility::Incompatible
                 } else {
-                    AmmoApplicability::Included
+                    AmmoCompatibility::Compatible
                 }
             }
             (Self::Exact(exact), _) => {
                 if *exact == ammo_type {
-                    AmmoApplicability::Included
+                    AmmoCompatibility::Compatible
                 } else {
-                    AmmoApplicability::Incompatible
+                    AmmoCompatibility::Incompatible
                 }
             }
             (Self::OgreAmmoUpTo(max_tier), AmmoType::OgreAmmo(tier)) => {
                 if tier <= *max_tier {
-                    AmmoApplicability::Included
+                    AmmoCompatibility::Compatible
                 } else {
-                    AmmoApplicability::Incompatible
+                    AmmoCompatibility::Incompatible
                 }
             }
             (Self::OneOf(options), _) => {
                 if options.contains(&ammo_type) {
-                    AmmoApplicability::Included
+                    AmmoCompatibility::Compatible
                 } else {
-                    AmmoApplicability::Incompatible
+                    AmmoCompatibility::Incompatible
                 }
             }
-            _ => AmmoApplicability::Incompatible,
+            _ => AmmoCompatibility::Incompatible,
         }
     }
 }
@@ -165,7 +187,7 @@ impl Armor {
             }
 
             // Bolts
-            877 | 878 | 6061 | 6062 => AmmoType::Bolt(BoltTier::Bronze),
+            877 | 878 | 881 | 6061 | 6062 => AmmoType::Bolt(BoltTier::Bronze),
             879 | 9236 => AmmoType::GemTippedBolt(BoltTier::Bronze),
             9139 | 9286 | 9293 | 9300 => AmmoType::Bolt(BoltTier::Blurite),
             9335 | 9237 => AmmoType::GemTippedBolt(BoltTier::Blurite),
@@ -237,11 +259,38 @@ impl Armor {
         };
         Some(ammo_type)
     }
+
+    pub fn is_arrow(&self) -> bool {
+        // TODO: verify in-game that all of these actually work with the quiver
+        matches!(
+            self.ammo_type(),
+            Some(AmmoType::Arrow(_)) | Some(AmmoType::OgreAmmo(_)) | Some(AmmoType::TrainingArrow)
+        )
+    }
+
+    pub fn is_bolt(&self) -> bool {
+        // TODO: verify in-game that all of these actually work with the quiver
+        matches!(
+            self.ammo_type(),
+            Some(AmmoType::Bolt(_))
+                | Some(AmmoType::GemTippedBolt(_))
+                | Some(AmmoType::KebbitBolt)
+                | Some(AmmoType::AntlerBolt)
+                | Some(AmmoType::BoneBolt)
+                | Some(AmmoType::SilverBolt)
+                | Some(AmmoType::BoltRack)
+        )
+    }
+
+    pub fn is_bolt_or_arrow(&self) -> bool {
+        self.is_arrow() || self.is_bolt()
+    }
 }
 
 impl Weapon {
+    /// Determine the type of ammo required for a ranged weapon
     pub fn ammo_requirement(&self) -> AmmoRequirement {
-        match self.id {
+        match canonical_item_id(self.id) {
             11708 | 23357 | 841 | 839 => AmmoRequirement::ArrowsUpTo(ArrowTier::BronzeAndIron),
             9705 => AmmoRequirement::Exact(AmmoType::TrainingArrow),
             843 | 845 | 4236 => AmmoRequirement::ArrowsUpTo(ArrowTier::Steel),
@@ -274,7 +323,9 @@ impl Weapon {
             10156 => AmmoRequirement::Exact(AmmoType::KebbitBolt),
             4734 => AmmoRequirement::Exact(AmmoType::BoltRack),
             12924 | 12926 | 22547 | 22550 | 23983 | 23985 | 24123 | 27652 | 27655 | 25862
-            | 25865 => AmmoRequirement::OwnAmmo,
+            | 25865 | 25867 | 23901 | 23902 | 23903 | 23855 | 23856 | 23857 => {
+                AmmoRequirement::OwnAmmo
+            }
             10149 => AmmoRequirement::Exact(AmmoType::HerbTar(TarType::Guam)),
             10146 => AmmoRequirement::Exact(AmmoType::HerbTar(TarType::Marrentill)),
             10147 => AmmoRequirement::Exact(AmmoType::HerbTar(TarType::Tarromin)),
@@ -282,16 +333,174 @@ impl Weapon {
             28834 => AmmoRequirement::Exact(AmmoType::HerbTar(TarType::Irit)),
             28869 => AmmoRequirement::Exact(AmmoType::AntlerBolt),
             29000 => AmmoRequirement::Exact(AmmoType::AtlatlDart),
+            _ if matches!(
+                self.category,
+                WeaponCategory::Thrown | WeaponCategory::Chinchompas | WeaponCategory::Blaster
+            ) =>
+            {
+                AmmoRequirement::OwnAmmo
+            }
             _ if self.is_ranged_weapon() => AmmoRequirement::Unsupported,
             _ => AmmoRequirement::None,
         }
     }
 
-    pub fn ammo_applicability(&self, ammo: &Armor) -> AmmoApplicability {
-        if let Some(ammo_type) = ammo.ammo_type() {
-            self.ammo_requirement().applicability(ammo_type)
+    /// Find the compatibility of the weapon with a specific piece of ammo
+    pub fn ammo_compatibility(&self, ammo: Option<&Armor>) -> AmmoCompatibility {
+        if let Some(ammo) = ammo {
+            if let Some(ammo_type) = ammo.ammo_type() {
+                self.ammo_requirement().compatibility(ammo_type)
+            } else {
+                AmmoCompatibility::Ignored
+            }
+        } else if [AmmoRequirement::None, AmmoRequirement::OwnAmmo]
+            .contains(&self.ammo_requirement())
+        {
+            AmmoCompatibility::Ignored
         } else {
-            AmmoApplicability::Allowed
+            AmmoCompatibility::Incompatible
         }
+    }
+
+    /// Convenience method for determining whether the weapon is not incompatible with the ammo
+    pub fn is_ammo_allowed(&self, ammo: Option<&Armor>) -> bool {
+        [AmmoCompatibility::Compatible, AmmoCompatibility::Ignored]
+            .contains(&self.ammo_compatibility(ammo))
+    }
+}
+
+impl Gear {
+    pub fn choose_compatible_ammo(&self) -> Result<Option<&Armor>, AmmoError> {
+        // Check if the weapon needs ammo
+        if matches!(
+            self.weapon.ammo_requirement(),
+            AmmoRequirement::None | AmmoRequirement::OwnAmmo
+        ) {
+            return Ok(None);
+        }
+
+        // Check to see if ammo is equipped at all
+        if (self.ammo.is_none() && self.second_ammo.is_none())
+            || (self.ammo.is_none() && !self.is_wearing_any(constants::QUIVER_VARIANTS))
+        {
+            // Prioritize reporting an unsupported weapon over empty ammo slots
+            if self.weapon.ammo_requirement() == AmmoRequirement::Unsupported {
+                return Err(AmmoError::Unsupported {
+                    ammo1: "empty".to_string(),
+                    ammo2: "empty".to_string(),
+                    weapon: self.weapon.name.clone(),
+                });
+            }
+            return Err(AmmoError::NoAmmoEquipped(self.weapon.name.clone()));
+        }
+
+        let wearing_quiver = self.is_wearing_any(constants::QUIVER_VARIANTS);
+        let main = self.weapon.ammo_compatibility(self.ammo.as_ref());
+        let second = self.weapon.ammo_compatibility(self.second_ammo.as_ref());
+
+        if main == AmmoCompatibility::Compatible {
+            return Ok(self.ammo.as_ref());
+        }
+
+        if wearing_quiver && second == AmmoCompatibility::Compatible {
+            return Ok(self.second_ammo.as_ref());
+        }
+
+        let main_name = self
+            .ammo
+            .as_ref()
+            .map_or("empty", |ammo| ammo.name.as_str())
+            .to_owned();
+        let second_name = self
+            .second_ammo
+            .as_ref()
+            .map_or("empty", |ammo| ammo.name.as_str())
+            .to_owned();
+        let weapon_name = self.weapon.name.clone();
+
+        match (
+            main,
+            second,
+            self.is_wearing_any(constants::QUIVER_VARIANTS),
+        ) {
+            // First two branches return before reaching this match statement
+            (AmmoCompatibility::Compatible, _, _) => unreachable!(),
+            (_, AmmoCompatibility::Compatible, true) => unreachable!(),
+            (AmmoCompatibility::Ignored, AmmoCompatibility::Ignored, true)
+            | (AmmoCompatibility::Ignored, _, false) => Ok(None),
+            (AmmoCompatibility::Incompatible, AmmoCompatibility::Incompatible, true) => {
+                Err(AmmoError::InvalidAmmoBothSlots {
+                    ammo1: main_name,
+                    ammo2: second_name,
+                    weapon: weapon_name,
+                })
+            }
+            (AmmoCompatibility::Incompatible, _, false) => Err(AmmoError::InvalidAmmo {
+                ammo: main_name,
+                weapon: weapon_name,
+            }),
+            (AmmoCompatibility::Unsupported, AmmoCompatibility::Unsupported, true)
+            | (AmmoCompatibility::Unsupported, _, false) => Err(AmmoError::Unsupported {
+                ammo1: main_name,
+                ammo2: second_name,
+                weapon: weapon_name,
+            }),
+            // Not possible for only one ammo type to be ignored, unless one ammo type is unsupported
+            // (which is covered in the previous case)
+            (AmmoCompatibility::Ignored, _, _) | (_, AmmoCompatibility::Ignored, _) => {
+                unreachable!()
+            }
+            // This is probably never going to be reached, so I don't think it's worth making a special
+            // error variant for having one incompatible ammo type and one unsupported ammo type with a quiver
+            _ => Err(AmmoError::Unsupported {
+                ammo1: main_name,
+                ammo2: second_name,
+                weapon: weapon_name,
+            }),
+        }
+    }
+}
+
+impl Player {
+    /// Evaluate whether the player has valid ammo equipped for their current weapon
+    pub fn validate_ammo(&self) -> Result<(), AmmoError> {
+        let _ = self.gear.choose_compatible_ammo()?;
+        Ok(())
+    }
+
+    /// Determine whether the player is actively using a particular enchanted bolt type
+    pub fn is_using_enchanted_bolt(&self, bolt_type: EnchantedBoltType) -> bool {
+        let active_ammo = self.gear.choose_compatible_ammo();
+
+        if let Ok(opt) = active_ammo
+            && let Some(ammo) = opt
+        {
+            let ammo_label = (
+                ammo.name.as_str(),
+                ammo.version.as_ref().map(|a| a.as_str()),
+            );
+            match bolt_type {
+                EnchantedBoltType::Diamond => constants::DIAMOND_BOLTS.contains(&ammo_label),
+                EnchantedBoltType::Dragonstone => {
+                    constants::DRAGONSTONE_BOLTS.contains(&ammo_label)
+                }
+                EnchantedBoltType::Jade => constants::JADE_BOLTS.contains(&ammo_label),
+                EnchantedBoltType::Emerald => constants::EMERALD_BOLTS.contains(&ammo_label),
+                EnchantedBoltType::Onyx => constants::ONYX_BOLTS.contains(&ammo_label),
+                EnchantedBoltType::Opal => constants::OPAL_BOLTS.contains(&ammo_label),
+                EnchantedBoltType::Pearl => constants::PEARL_BOLTS.contains(&ammo_label),
+                EnchantedBoltType::Ruby => constants::RUBY_BOLTS.contains(&ammo_label),
+                EnchantedBoltType::Sapphire => constants::SAPPHIRE_BOLTS.contains(&ammo_label),
+                EnchantedBoltType::Topaz => constants::TOPAZ_BOLTS.contains(&ammo_label),
+            }
+        } else {
+            false
+        }
+    }
+
+    pub fn is_firing_ammo(&self, name: &str) -> bool {
+        self.gear
+            .choose_compatible_ammo()
+            .is_ok_and(|opt| opt.is_some_and(|ammo| &ammo.name == name))
     }
 }

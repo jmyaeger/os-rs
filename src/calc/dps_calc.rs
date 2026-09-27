@@ -13,7 +13,7 @@ use crate::constants::{self, TTK_DIST_MAX_ITER_ROUNDS};
 use crate::dists;
 use crate::dists::bolts::{self, BoltContext};
 use crate::error::DpsCalcError;
-use crate::types::equipment::{CombatStance, CombatType};
+use crate::types::equipment::{CombatStance, CombatType, EnchantedBoltType};
 use crate::types::monster::Monster;
 use crate::types::player::Player;
 use crate::types::spells::{Spell, StandardSpell};
@@ -160,6 +160,9 @@ pub fn get_hit_chance(
     monster: &Monster,
     using_spec: bool,
 ) -> Result<f64, DpsCalcError> {
+    // Check if the player's attacks are invalid
+    player.validate_attack()?;
+
     // Always accurate in these cases
     if (monster.info.name.contains("Verzik")
         && monster.matches_version("Phase 1")
@@ -306,6 +309,9 @@ pub fn get_distribution(
     monster: &Monster,
     using_spec: bool,
 ) -> Result<AttackDistribution, DpsCalcError> {
+    // Check if the player's attacks are invalid
+    player.validate_attack()?;
+
     // Get the attack distribution for the given player and monster
     let acc = get_hit_chance(player, monster, using_spec)?;
     let combat_type = player.combat_type();
@@ -760,12 +766,12 @@ pub fn get_distribution(
     // Enchanted bolt distributions
     if player.is_using_ranged() && player.is_using_crossbow() {
         // Opal bolts
-        if player.is_wearing_any(constants::OPAL_BOLTS) {
+        if player.is_using_enchanted_bolt(EnchantedBoltType::Opal) {
             dist = dist.transform(&bolts::opal_bolts(&bolt_context), &TransformOpts::default());
         }
 
         // Pearl bolts
-        if player.is_wearing_any(constants::PEARL_BOLTS) {
+        if player.is_using_enchanted_bolt(EnchantedBoltType::Pearl) {
             dist = dist.transform(
                 &bolts::pearl_bolts(&bolt_context),
                 &TransformOpts::default(),
@@ -773,7 +779,7 @@ pub fn get_distribution(
         }
 
         // Diamond bolts
-        if player.is_wearing_any(constants::DIAMOND_BOLTS) {
+        if player.is_using_enchanted_bolt(EnchantedBoltType::Diamond) {
             dist = dist.transform(
                 &bolts::diamond_bolts(&bolt_context),
                 &TransformOpts::default(),
@@ -781,7 +787,7 @@ pub fn get_distribution(
         }
 
         // Dragonstone bolts
-        if player.is_wearing_any(constants::DRAGONSTONE_BOLTS)
+        if player.is_using_enchanted_bolt(EnchantedBoltType::Dragonstone)
             && (!monster.is_fiery() || !monster.is_dragon())
         {
             dist = dist.transform(
@@ -791,7 +797,7 @@ pub fn get_distribution(
         }
 
         // Onyx bolts
-        if player.is_wearing_any(constants::ONYX_BOLTS) {
+        if player.is_using_enchanted_bolt(EnchantedBoltType::Onyx) {
             dist = dist.transform(&bolts::onyx_bolts(&bolt_context), &TransformOpts::default());
         }
     }
@@ -804,7 +810,7 @@ pub fn get_distribution(
     // Ruby bolts
     if player.is_using_ranged()
         && player.is_using_crossbow()
-        && player.is_wearing_any(constants::RUBY_BOLTS)
+        && player.is_using_enchanted_bolt(EnchantedBoltType::Ruby)
     {
         dist = dist.transform(&bolts::ruby_bolts(&bolt_context), &TransformOpts::default());
     }
@@ -911,9 +917,9 @@ pub fn get_spec_min_max_hit(
         "Dual macuahuitl" if player.set_effects.full_blood_moon => (0, base_max_hit * 5 / 4),
         "Webweaver bow" => (0, base_max_hit - base_max_hit * 6 / 10),
         "Dark bow" => {
-            let descent_of_dragons = player.is_wearing_any_version("Dragon arrow")
-                || player.is_wearing_any_version("Seeking dragon arrow");
-            let min_hit = if descent_of_dragons { 5 } else { 8 };
+            let descent_of_dragons = player.is_firing_ammo("Dragon arrow")
+                || player.is_firing_ammo("Seeking dragon arrow");
+            let min_hit = if descent_of_dragons { 8 } else { 5 };
             let damage_factor = if descent_of_dragons { 15 } else { 13 };
             (min_hit, base_max_hit * damage_factor / 10)
         }
@@ -1023,9 +1029,8 @@ fn apply_limiters(
         } else if !player.is_using_ranged()
             || !player
                 .gear
-                .ammo
-                .as_ref()
-                .is_some_and(|ammo| ammo.name.contains(" brutal"))
+                .choose_compatible_ammo()
+                .is_ok_and(|opt| opt.is_some_and(|ammo| ammo.name.contains(" brutal")))
             || !player.gear.weapon.name.contains("Comp ogre bow")
         {
             dist = dist.transform(&division_transformer(4, 0), &TransformOpts::default());
@@ -1099,6 +1104,9 @@ pub fn get_expected_damage(
     monster: &Monster,
     using_spec: bool,
 ) -> Result<f64, DpsCalcError> {
+    // Check if the player's attacks are invalid
+    player.validate_attack()?;
+
     Ok(dist.get_expected_damage() + get_dot_expected(player, monster, using_spec)?)
 }
 
@@ -1185,6 +1193,9 @@ pub fn get_ttk(
     using_spec: bool,
     remove_final_hit_delay: bool,
 ) -> Result<f64, DpsCalcError> {
+    // Check if the player's attacks are invalid
+    player.validate_attack()?;
+
     let ttk = if dist_is_current_hp_dependent(player, monster)
         || has_probabilistic_attack_speed(player)
     {
@@ -1275,6 +1286,9 @@ pub fn get_ttk_distribution(
     using_spec: bool,
     include_final_hit_delay: bool,
 ) -> Result<HashMap<usize, f64>, DpsCalcError> {
+    // Check if the player's attacks are invalid
+    player.validate_attack()?;
+
     // Return empty distribution if the expected damage is 0
     if dist.get_expected_damage() == 0.0 {
         return Ok(HashMap::new());
@@ -1412,7 +1426,7 @@ fn dist_is_current_hp_dependent(player: &Player, monster: &Monster) -> bool {
         return true;
     }
 
-    if player.is_using_crossbow() && player.is_wearing_any(constants::RUBY_BOLTS) {
+    if player.is_using_crossbow() && player.is_using_enchanted_bolt(EnchantedBoltType::Ruby) {
         return true;
     }
 
@@ -1444,7 +1458,7 @@ fn dist_at_hp(
             && hp >= monster.stats.hitpoints.current as usize / 4)
         || (player.is_using_ranged()
             && player.is_using_crossbow()
-            && player.is_wearing_any(constants::RUBY_BOLTS)
+            && player.is_using_enchanted_bolt(EnchantedBoltType::Ruby)
             && monster.stats.hitpoints.current >= 500
             && hp >= 500)
     {

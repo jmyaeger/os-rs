@@ -148,9 +148,8 @@ pub fn assign_limiter(player: &Player, monster: &Monster) -> Option<Box<dyn limi
         } else if !player.is_using_ranged()
             || !player
                 .gear
-                .ammo
-                .as_ref()
-                .is_some_and(|ammo| ammo.name.contains(" brutal"))
+                .choose_compatible_ammo()
+                .is_ok_and(|opt| opt.is_some_and(|ammo| ammo.name.contains(" brutal")))
             || !player.gear.weapon.name.contains("Comp ogre bow")
         {
             return Some(Box::new(limiters::Zogre {}));
@@ -191,6 +190,9 @@ pub fn simulate_n_fights(
             simulation.monster().info.name.clone(),
         ));
     }
+
+    // Check if the player's attacks are invalid
+    simulation.player().validate_all_attacks()?;
 
     // Set up result variables
     let mut results = CumulativeResults::new(n as usize);
@@ -237,6 +239,9 @@ pub fn simulate_log_fights(
             simulation.monster().info.name.clone(),
         ));
     }
+
+    // Check if the player's attacks are invalid
+    simulation.player().validate_all_attacks()?;
 
     // Retrieve attack function and limiter
     simulation.set_attack_function();

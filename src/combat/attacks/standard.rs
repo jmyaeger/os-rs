@@ -1092,7 +1092,15 @@ pub fn get_attack_functions(player: &Player) -> AttackFn {
     }
 
     if player.is_using_crossbow() && !player.gear.weapon.name.contains("Karil") {
-        match player.gear.ammo.as_ref().unwrap().name.as_str() {
+        match player
+            .gear
+            .choose_compatible_ammo()
+            .as_ref()
+            .unwrap()
+            .unwrap()
+            .name
+            .as_str()
+        {
             "Opal bolts (e)" | "Opal dragon bolts (e)" => return opal_bolt_attack as AttackFn,
             "Pearl bolts (e)" | "Pearl dragon bolts (e)" => return pearl_bolt_attack as AttackFn,
             "Emerald bolts (e)" | "Emerald dragon bolts (e)" => {

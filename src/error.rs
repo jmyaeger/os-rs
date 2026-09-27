@@ -4,7 +4,11 @@ use thiserror::Error;
 
 use crate::{
     combat::simulation::FightResult,
-    types::{equipment::CombatStyle, player::SwitchType, spells::Spell},
+    types::{
+        equipment::{CombatStyle, GearSlot},
+        player::SwitchType,
+        spells::Spell,
+    },
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -28,6 +32,8 @@ pub enum DpsCalcError {
     Player(#[from] PlayerError),
     #[error(transparent)]
     Roll(#[from] RollError),
+    #[error(transparent)]
+    AttackValidation(#[from] AttackValidationError),
 }
 
 #[derive(Error, Debug)]
@@ -48,6 +54,8 @@ pub enum SimulationError {
     Player(#[from] PlayerError),
     #[error(transparent)]
     Roll(#[from] RollError),
+    #[error(transparent)]
+    AttackValidation(#[from] AttackValidationError),
 }
 
 #[derive(Error, Debug)]
@@ -97,6 +105,36 @@ pub enum PlayerError {
 }
 
 #[derive(Error, Debug)]
+pub enum AttackValidationError {
+    #[error("Weapon is {0} and cannot attack")]
+    WeaponVersionWithNoAttack(String),
+    #[error(transparent)]
+    Ammo(#[from] AmmoError),
+}
+
+#[derive(Error, Debug)]
+pub enum AmmoError {
+    #[error("{ammo} is not valid ammo for {weapon}")]
+    InvalidAmmo { ammo: String, weapon: String },
+    #[error("Neither {ammo1} nor {ammo2} are valid ammo for {weapon}")]
+    InvalidAmmoBothSlots {
+        ammo1: String,
+        ammo2: String,
+        weapon: String,
+    },
+    #[error(
+        "Unsupported weapon and/or ammo. Weapon: {weapon}, main ammo: {ammo1}, second ammo: {ammo2}"
+    )]
+    Unsupported {
+        ammo1: String,
+        ammo2: String,
+        weapon: String,
+    },
+    #[error("Ammo is required for {0} but no ammo is equipped")]
+    NoAmmoEquipped(String),
+}
+
+#[derive(Error, Debug)]
 pub enum MathError {
     #[error("Fraction has {0} components.")]
     InvalidFraction(usize),
@@ -129,10 +167,14 @@ pub enum GearError {
     MissingTwoHandedField(String),
     #[error("Unknown slot: {0}")]
     UnknownSlot(String),
-    #[error("Error parsing equipment JSON: {0}")]
-    JsonParseError(#[from] serde_json::Error),
-    #[error("Error opening equipment JSON: {0}")]
-    JsonReadError(#[from] std::io::Error),
     #[error("{0} has the slot type None.")]
     NoneSlot(String),
+    #[error("Second slot ammo {0} is not a bolt or arrow")]
+    WrongQuiverAmmo(String),
+    #[error("{item} is in the {wrong} slot but should be in the {right} slot")]
+    WrongSlot {
+        item: String,
+        wrong: GearSlot,
+        right: GearSlot,
+    },
 }

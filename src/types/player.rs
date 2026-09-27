@@ -3,7 +3,7 @@ use crate::combat::attacks::effects::CombatEffect;
 use crate::combat::attacks::specs::{SpecialAttackFn, get_spec_attack_function};
 use crate::combat::attacks::standard::{AttackFn, get_attack_functions, standard_attack};
 use crate::constants;
-use crate::error::{GearError, PlayerError, RollError};
+use crate::error::{AttackValidationError, GearError, PlayerError, RollError};
 use crate::types::equipment::{
     Armor, CombatStance, CombatStyle, CombatType, Equipment, EquipmentBonuses, Gear, GearSlot,
     Weapon,
@@ -225,6 +225,10 @@ impl GearSwitch {
             def_rolls: player_copy.def_rolls,
             soulreaper_max_hits,
         })
+    }
+
+    pub fn validate_attack(&self) -> Result<(), AttackValidationError> {
+        validate_attack_setup(&self.gear, self.active_style)
     }
 }
 
@@ -510,6 +514,7 @@ impl Player {
             GearSlot::Legs => gear.legs = None,
             GearSlot::Neck => gear.neck = None,
             GearSlot::Ring => gear.ring = None,
+            GearSlot::SecondAmmo => gear.second_ammo = None,
             GearSlot::Shield => gear.shield = None,
             GearSlot::Weapon => {
                 gear.weapon = Weapon::default();
@@ -541,8 +546,6 @@ impl Player {
                     {
                         gear.weapon.speed = gear.weapon.base_speed - 1;
                     }
-
-                    self.set_quiver_bonuses();
                 } else {
                     return Err(GearError::NotAWeapon {
                         item_name: item.name().to_string(),
@@ -551,24 +554,29 @@ impl Player {
                 }
             }
             GearSlot::Ammo => {
-                // If quiver is equipped and the ammo slot is already full with a different ammo type,
-                // equip the new ammo in the second_ammo slot
-                if let Some(ammo) = &gear.ammo
-                    && !((ammo.is_bolt() && item.name().contains("bolts"))
-                        || (ammo.is_arrow() && item.name().contains("arrow")))
-                    && gear.is_wearing_any_version("Dizana's quiver")
+                let item = item.as_any().downcast_ref::<Armor>().cloned();
+                if gear.is_wearing_any(constants::QUIVER_VARIANTS)
+                    && let Some(ammo) = &gear.ammo
+                    && let Some(ref item) = item
                 {
-                    gear.second_ammo = item.as_any().downcast_ref::<Armor>().cloned();
-                    self.set_quiver_bonuses();
+                    if item.is_bolt_or_arrow() {
+                        // Equip the new ammo to the quiver slot if it's a bolt or arrow
+                        gear.second_ammo = Some(item.clone());
+                    } else if ammo.is_bolt_or_arrow() {
+                        // If it's not a bolt or arrow but the first slot is, move the
+                        // first slot to the second slot and replace it with this ammo
+                        gear.second_ammo = Some(ammo.clone());
+                        gear.ammo = Some(item.clone());
+                    } else {
+                        // Otherwise, just replace the first ammo slot
+                        gear.ammo = Some(item.clone());
+                    }
                 } else {
-                    gear.ammo = item.as_any().downcast_ref::<Armor>().cloned();
-
-                    self.set_quiver_bonuses();
+                    gear.ammo = item;
                 }
             }
             GearSlot::Cape => {
                 gear.cape = item.as_any().downcast_ref::<Armor>().cloned();
-                self.set_quiver_bonuses();
             }
             GearSlot::Shield => {
                 gear.shield = item.as_any().downcast_ref::<Armor>().cloned();
@@ -583,10 +591,44 @@ impl Player {
             GearSlot::Legs => gear.legs = item.as_any().downcast_ref::<Armor>().cloned(),
             GearSlot::Neck => gear.neck = item.as_any().downcast_ref::<Armor>().cloned(),
             GearSlot::Ring => gear.ring = item.as_any().downcast_ref::<Armor>().cloned(),
+            // Items cannot have a "second ammo" specific slot
+            GearSlot::SecondAmmo => unreachable!(),
             GearSlot::None => {
                 return Err(GearError::NoneSlot(item.name().to_string()));
             }
         }
+        self.update_bonuses();
+        self.update_set_effects();
+        Ok(())
+    }
+
+    pub fn equip_ammo_in_slot(&mut self, ammo: Armor, slot: GearSlot) -> Result<(), GearError> {
+        let gear = Rc::make_mut(&mut self.gear);
+
+        if ammo.slot != GearSlot::Ammo {
+            return Err(GearError::WrongSlot {
+                item: ammo.name.clone(),
+                wrong: slot,
+                right: ammo.slot,
+            });
+        }
+
+        if slot == GearSlot::SecondAmmo && !ammo.is_bolt_or_arrow() {
+            return Err(GearError::WrongQuiverAmmo(ammo.name.clone()));
+        }
+
+        if slot == GearSlot::Ammo {
+            gear.ammo = Some(ammo);
+        } else if slot == GearSlot::SecondAmmo {
+            gear.second_ammo = Some(ammo);
+        } else {
+            return Err(GearError::WrongSlot {
+                item: ammo.name.clone(),
+                wrong: slot,
+                right: GearSlot::Ammo,
+            });
+        }
+
         self.update_bonuses();
         self.update_set_effects();
         Ok(())
@@ -640,28 +682,17 @@ impl Player {
                 .ring
                 .as_ref()
                 .map(|item| Box::new(item.clone()) as Box<dyn Equipment>),
+            GearSlot::SecondAmmo => self
+                .gear
+                .second_ammo
+                .as_ref()
+                .map(|item| Box::new(item.clone()) as Box<dyn Equipment>),
             GearSlot::Shield => self
                 .gear
                 .shield
                 .as_ref()
                 .map(|item| Box::new(item.clone()) as Box<dyn Equipment>),
             GearSlot::None => None,
-        }
-    }
-
-    fn set_quiver_bonuses(&mut self) {
-        let gear = Rc::make_mut(&mut self.gear);
-        // Apply extra +10 accuracy and +1 strength to quiver if applicable
-        if gear.is_quiver_bonus_valid()
-            && let Some(cape) = &mut gear.cape
-        {
-            cape.bonuses.attack.ranged = 28;
-            cape.bonuses.strength.ranged = 4;
-        } else if gear.is_wearing_any_version("Dizana's quiver")
-            && let Some(cape) = &mut gear.cape
-        {
-            cape.bonuses.attack.ranged = 18;
-            cape.bonuses.strength.ranged = 3;
         }
     }
 
@@ -686,21 +717,29 @@ impl Player {
             self.bonuses.add_bonuses(&item.bonuses);
         }
 
-        // Don't add ammo bonuses if the weapon uses its own ammo
-        if !constants::USES_OWN_AMMO.contains(&(
-            self.gear.weapon.name.as_str(),
-            self.gear.weapon.version.as_deref(),
-        )) {
-            for item in [&self.gear.ammo, &self.gear.second_ammo]
-                .into_iter()
-                .flatten()
-            {
-                self.bonuses.add_bonuses(&item.bonuses);
-            }
-        } else if let Some(ammo) = &self.gear.ammo
-            && !ammo.is_valid_ranged_ammo()
+        // Add ammo ranged bonuses if applicable
+        let included_ammo = self.gear.choose_compatible_ammo();
+        if let Ok(included_ammo) = included_ammo
+            && let Some(ammo) = included_ammo
         {
-            self.bonuses.add_bonuses(&ammo.bonuses);
+            self.bonuses.attack.ranged += ammo.bonuses.attack.ranged;
+            self.bonuses.strength.ranged += ammo.bonuses.strength.ranged;
+        }
+
+        // Add prayer bonuses even if ammo is not compatible
+        if let Some(main_ammo) = &self.gear.ammo {
+            self.bonuses.prayer += main_ammo.bonuses.prayer;
+        }
+        if let Some(second_ammo) = &self.gear.second_ammo
+            && self.is_wearing_quiver()
+        {
+            self.bonuses.prayer += second_ammo.bonuses.prayer;
+        }
+
+        // Add charged quiver bonuses if applicable
+        if self.gear.is_quiver_bonus_valid() {
+            self.bonuses.attack.ranged += 10;
+            self.bonuses.strength.ranged += 1;
         }
 
         // Dinh's bulwark bonus is applied directly to gear strength bonus
@@ -977,8 +1016,7 @@ impl Player {
 
     pub fn is_wearing_silver_weapon(&self) -> bool {
         // Check if the player is wearing any type of silver weapon
-        self.is_wearing_any(constants::SILVER_WEAPONS)
-            || (self.is_wearing_any_version("Silver bolts") && self.is_using_crossbow())
+        self.is_wearing_any(constants::SILVER_WEAPONS) || (self.is_firing_ammo("Silver bolts"))
     }
 
     pub fn is_wearing_ivandis_weapon(&self) -> bool {
@@ -994,9 +1032,10 @@ impl Player {
     pub fn is_wearing_leaf_bladed_weapon(&self) -> bool {
         // Check if the player is wearing any type of leaf-bladed weapon or broad bolts
         (self.is_using_melee() && self.is_wearing_any(constants::LEAF_BLADED_WEAPONS))
-            || (self.combat_type() == CombatType::Ranged
-                && (self.is_using_crossbow() && self.is_wearing_any(constants::BROAD_BOLTS)))
-            || self.is_wearing("Broad arrows", None)
+            || self.is_firing_ammo("Broad bolts")
+            || self.is_firing_ammo("Amethyst broad bolts")
+            || self.is_firing_ammo("Broad arrows")
+            || self.is_firing_ammo("Seeking broad arrows")
     }
 
     pub fn is_wearing_full_void(&self) -> bool {
@@ -1025,6 +1064,10 @@ impl Player {
     pub fn is_wearing_ratbone_weapon(&self) -> bool {
         // Check if the player is wearing any type of ratbone weapon
         self.is_wearing_any(constants::RATBANE_WEAPONS)
+    }
+
+    pub fn is_wearing_quiver(&self) -> bool {
+        self.is_wearing_any(constants::QUIVER_VARIANTS)
     }
 
     pub fn is_using_spell(&self) -> bool {
@@ -1109,9 +1152,9 @@ impl Player {
             && self.combat_type() == CombatType::Heavy
             && self
                 .gear
-                .ammo
+                .choose_compatible_ammo()
                 .as_ref()
-                .is_some_and(|a| a.name.contains("bolt"))
+                .is_ok_and(|opt| opt.is_some_and(|a| a.is_bolt()))
     }
 
     pub fn is_using_demonbane(&self) -> bool {
@@ -1153,17 +1196,9 @@ impl Player {
     }
 
     pub fn is_using_seeking_arrows(&self) -> bool {
-        self.is_using_normal_bow()
-            && (self
-                .gear
-                .ammo
-                .as_ref()
-                .is_some_and(|ammo| ammo.name.contains("Seeking"))
-                || self
-                    .gear
-                    .second_ammo
-                    .as_ref()
-                    .is_some_and(|ammo| ammo.name.contains("Seeking")))
+        self.gear
+            .choose_compatible_ammo()
+            .is_ok_and(|opt| opt.is_some_and(|ammo| ammo.name.contains("Seeking")))
     }
 
     pub fn set_spell(&mut self, spell: spells::Spell) -> Result<(), PlayerError> {
@@ -1345,9 +1380,9 @@ impl Player {
         // Calculate the max hit for Seercull, MSB, etc.
         let str_bonus = self
             .gear
-            .ammo
+            .choose_compatible_ammo()
             .as_ref()
-            .map_or(0, |ammo| ammo.bonuses.strength.ranged);
+            .map_or(0, |ammo| ammo.map_or(0, |a| a.bonuses.strength.ranged));
 
         (320 + (self.stats.ranged.current + 10) * (str_bonus + 64) as u32) / 640
     }
@@ -1398,6 +1433,53 @@ impl Player {
     pub fn highest_offensive_style(&self) -> CombatType {
         self.bonuses.attack.highest_style()
     }
+
+    pub fn validate_attack(&self) -> Result<(), AttackValidationError> {
+        validate_attack_setup(&self.gear, self.attrs.active_style)
+    }
+
+    pub fn validate_all_attacks(&self) -> Result<(), AttackValidationError> {
+        self.validate_attack()?;
+
+        for switch in &self.switches {
+            switch.validate_attack()?;
+        }
+
+        Ok(())
+    }
+}
+
+fn validate_attack_setup(
+    gear: &Gear,
+    active_style: CombatStyle,
+) -> Result<(), AttackValidationError> {
+    let version = gear
+        .weapon
+        .version
+        .as_deref()
+        .unwrap_or_default()
+        .to_ascii_lowercase();
+    let stance = gear.weapon.combat_styles[&active_style].stance;
+    if (version == "uncharged"
+        && constants::CANNOT_ATTACK_WHILE_UNCHARGED.contains(&gear.weapon.name.as_str())
+        && stance != CombatStance::ManualCast)
+        || gear.weapon.name.to_ascii_lowercase().contains("uncharged")
+    {
+        return Err(AttackValidationError::WeaponVersionWithNoAttack(
+            "uncharged".to_string(),
+        ));
+    }
+
+    if ["broken", "inactive", "mangled", "empty"].contains(&version.as_str())
+        && gear.weapon.name != "Rat pole"
+    {
+        return Err(AttackValidationError::WeaponVersionWithNoAttack(version));
+    }
+
+    gear.choose_compatible_ammo()
+        .map_err(|e| AttackValidationError::Ammo(e))?;
+
+    Ok(())
 }
 
 /// Builder for constructing `Player` instances.

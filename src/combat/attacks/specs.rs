@@ -1061,20 +1061,22 @@ pub fn dark_bow_spec(
     let mut info = AttackInfo::new(player, monster);
 
     // Increase max hit by 50% if using dragon arrows and 30% otherwise
-    let damage_mod = if player.is_wearing("Dragon arrow", None) {
-        15
-    } else {
-        13
-    };
+    let damage_mod =
+        if player.is_firing_ammo("Dragon arrow") || player.is_firing_ammo("Seeking dragon arrow") {
+            15
+        } else {
+            13
+        };
 
     info.max_hit = info.max_hit * damage_mod / 10;
 
     // Clamp minimum hit to 8 if using dragon arrows and 5 otherwise
-    let clamp_min = if player.is_wearing("Dragon arrow", None) {
-        8
-    } else {
-        5
-    };
+    let clamp_min =
+        if player.is_firing_ammo("Dragon arrow") | player.is_firing_ammo("Seeking dragon arrow") {
+            8
+        } else {
+            5
+        };
 
     // Clamp max hit to 48
     let clamp_max = 48;

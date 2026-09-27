@@ -9,14 +9,15 @@ mod weapon;
 
 pub use aliases::canonical_item_id;
 pub use ammo::{
-    AmmoApplicability, AmmoRequirement, AmmoType, ArrowTier, BoltTier, OgreTier, TarType,
+    AmmoCompatibility, AmmoRequirement, AmmoType, ArrowTier, BoltTier, EnchantedBoltType, OgreTier,
+    TarType,
 };
 pub use armor::Armor;
 pub use bonuses::{EquipmentBonuses, StrengthBonus, StyleBonus};
 pub use gear::{Gear, GearBuilder, GearSlot};
 pub use json::{EquipmentJson, all_equipment};
 pub use styles::{CombatOption, CombatStance, CombatStyle, CombatType};
-pub use weapon::Weapon;
+pub use weapon::{Weapon, WeaponCategory};
 
 use std::any::Any;
 
@@ -36,12 +37,6 @@ pub trait Equipment: Any {
         self.set_from_entry(entry.clone())
     }
     fn set_from_entry(&mut self, entry: EquipmentJson) -> Result<(), GearError>;
-    fn set_fields_from_json(
-        &mut self,
-        json: &str,
-        item_name: &str,
-        version: Option<&str>,
-    ) -> Result<(), GearError>;
     fn as_any(&self) -> &dyn Any;
     fn name(&self) -> &str;
     fn get_image_path(&self) -> &str;

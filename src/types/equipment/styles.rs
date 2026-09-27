@@ -75,6 +75,13 @@ pub enum CombatStyle {
     Scorch,
     Flare,
     Blaze,
+    Melee,
+    Ranged,
+    Magic,
+    Poke,
+    AimAndFire,
+    Explosive,
+    Flamer,
 }
 
 // Contains the type and stance, to be associated with a CombatStyle

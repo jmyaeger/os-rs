@@ -1,80 +1,35 @@
 use crate::error::GearError;
 use crate::types::equipment::Equipment;
+use crate::types::equipment::bonuses::EquipmentBonuses;
 use crate::types::equipment::gear::GearSlot;
 use crate::types::equipment::json::EquipmentJson;
 use crate::types::equipment::styles::{CombatOption, CombatStance, CombatStyle, CombatType};
-use crate::{constants, types::equipment::bonuses::EquipmentBonuses};
-use serde::{Deserialize, Deserializer};
+use serde::Deserialize;
 use std::any::Any;
 use std::collections::HashMap;
 use std::fmt;
-use std::string::ToString;
 
 // Needs to be a separate struct from Armor because of additional fields
-#[derive(Debug, PartialEq, Deserialize, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Weapon {
     pub name: String,
     pub version: Option<String>,
     pub id: i32,
     pub bonuses: EquipmentBonuses,
-    #[serde(skip)]
-    pub slot: GearSlot, // Can skip deserializing because it's always a weapon
+    pub slot: GearSlot,
     pub speed: i32,
-    #[serde(skip)]
-    pub base_speed: i32, // Will be set during new() method
+    pub base_speed: i32,
     pub attack_range: i8,
     pub is_two_handed: bool,
-    #[serde(default)]
-    pub spec_cost: Option<u8>, // Not implemented for anything yet
-    #[serde(default)]
+    pub spec_cost: Option<u8>,
     pub poison_severity: u8, // May be restructured to use Poison/Venom struct, or removed
-    #[serde(rename(deserialize = "category"))]
-    #[serde(deserialize_with = "deserialize_combat_styles")]
     pub combat_styles: HashMap<CombatStyle, CombatOption>,
-    #[serde(default)]
-    pub is_staff: bool, // Will be set in new() method
+    pub is_staff: bool,
     pub image: String,
+    pub category: WeaponCategory,
 }
 
 impl Equipment for Weapon {
-    fn set_fields_from_json(
-        &mut self,
-        json: &str,
-        item_name: &str,
-        version: Option<&str>,
-    ) -> Result<(), GearError> {
-        let all_items: Vec<EquipmentJson> = serde_json::from_str(json)?;
-        let version_string = version.map(ToString::to_string);
-        let matching_item = all_items
-            .into_iter()
-            .find(|a| a.name == item_name && a.version == version_string)
-            .ok_or(GearError::EquipmentNotFound {
-                name: self.name.clone(),
-                version: self.version.clone(),
-            })?;
-
-        let mut weapon = matching_item.into_weapon()?;
-
-        // Check if the item is a staff that can cast spells
-        if weapon.combat_styles.contains_key(&CombatStyle::Spell) {
-            weapon.is_staff = true;
-        }
-
-        // Set base speed and item slot
-        weapon.base_speed = weapon.speed;
-        weapon.slot = GearSlot::Weapon;
-
-        // Set spec cost, if applicable
-        let spec_cost = constants::SPEC_COSTS.iter().find(|w| w.0 == weapon.name);
-        if let Some(cost) = spec_cost {
-            weapon.spec_cost = Some(cost.1);
-        }
-
-        *self = weapon;
-
-        Ok(())
-    }
-
     fn set_from_entry(&mut self, entry: EquipmentJson) -> Result<(), GearError> {
         *self = entry.into_weapon()?;
         Ok(())
@@ -122,30 +77,30 @@ impl Default for Weapon {
             is_two_handed: false,
             spec_cost: None,
             poison_severity: 0,
-            combat_styles: Weapon::get_styles_from_weapon_type("Unarmed"),
+            combat_styles: Weapon::get_styles_from_weapon_category(WeaponCategory::Unarmed),
             is_staff: false,
             image: String::new(),
+            category: WeaponCategory::Unarmed,
         }
     }
 }
 
 macro_rules! weapon_styles {
     (
-        $weapon_type:expr;
+        $weapon_category:expr;
         $(
-            $lit:literal => [
+            $pat:pat => [
                 $(($style:ident, $combat_type:ident, $stance:ident)),* $(,)?
             ]
         ),*
         $(,)?
     ) => {
-        match $weapon_type {
+        match $weapon_category {
             $(
-                $lit => HashMap::from([
+                $pat => HashMap::from([
                     $((CombatStyle::$style, CombatOption::new(CombatType::$combat_type, CombatStance::$stance)),)*
                 ]),
             )*
-            _ => HashMap::new(),
         }
     };
 }
@@ -157,172 +112,185 @@ impl Weapon {
         Ok(weapon)
     }
 
-    pub fn uses_bolts_or_arrows(&self) -> bool {
-        // Check if the weapon fires bolts or arrows (used for determining quiver bonuses)
-        !constants::NON_BOLT_OR_ARROW_AMMO
-            .iter()
-            .any(|(name, _)| name == &self.name)
-            && self.combat_styles.contains_key(&CombatStyle::Rapid)
-    }
-
     pub fn matches_version(&self, version: &str) -> bool {
         self.version.as_ref().is_some_and(|v| v.contains(version))
     }
 
-    pub fn get_styles_from_weapon_type(weapon_type: &str) -> HashMap<CombatStyle, CombatOption> {
-        weapon_styles!(weapon_type;
-            "2h Sword" => [
+    pub fn get_styles_from_weapon_category(
+        weapon_category: WeaponCategory,
+    ) -> HashMap<CombatStyle, CombatOption> {
+        weapon_styles!(weapon_category;
+            WeaponCategory::TwoHandedSword => [
                 (Chop, Slash, Accurate),
                 (Slash, Slash, Aggressive),
                 (Smash, Crush, Aggressive),
                 (Block, Slash, Defensive),
             ],
-            "Axe" => [
+            WeaponCategory::Axe => [
                 (Chop, Slash, Accurate),
                 (Hack, Slash, Aggressive),
                 (Smash, Crush, Aggressive),
                 (Block, Slash, Defensive),
             ],
-            "Banner" => [
+            WeaponCategory::Banner => [
                 (Lunge, Stab, Accurate),
                 (Swipe, Slash, Aggressive),
                 (Pound, Crush, Controlled),
                 (Block, Stab, Defensive),
             ],
-            "Blunt" => [
+            WeaponCategory::Blunt => [
                 (Pound, Crush, Accurate),
                 (Pummel, Crush, Aggressive),
                 (Block, Crush, Defensive),
             ],
-            "Bludgeon" => [
+            WeaponCategory::Bludgeon => [
                 (Pound, Crush, Aggressive),
                 (Pummel, Crush, Aggressive),
                 (Smash, Crush, Aggressive),
             ],
-            "Bulwark" => [
+            WeaponCategory::Bulwark => [
                 (Pummel, Crush, Accurate),
                 (Block, None, None),
             ],
-            "Claw" => [
+            WeaponCategory::Claw => [
                 (Chop, Slash, Accurate),
                 (Slash, Slash, Aggressive),
                 (Lunge, Stab, Controlled),
                 (Block, Slash, Defensive),
             ],
-            "Egg" => [
+            WeaponCategory::Egg => [
                 (Pound, Crush, Accurate),
                 (Pummel, Crush, Aggressive),
                 (Block, Crush, Defensive),
             ],
-            "Flail" => [
+            WeaponCategory::Flail => [
                 (Chop, Slash, Accurate),
                 (Slash, Slash, Aggressive),
                 (Block, Slash, Defensive),
             ],
-            "Partisan" => [
+            WeaponCategory::Partisan => [
                 (Stab, Stab, Accurate),
                 (Lunge, Stab, Aggressive),
                 (Pound, Crush, Aggressive),
                 (Block, Stab, Defensive),
             ],
-            "Pickaxe" => [
+            WeaponCategory::Pickaxe => [
                 (Spike, Stab, Accurate),
                 (Impale, Stab, Aggressive),
                 (Smash, Crush, Aggressive),
                 (Block, Stab, Defensive),
             ],
-            "Polearm" => [
+            WeaponCategory::Polearm => [
                 (Jab, Stab, Controlled),
                 (Swipe, Slash, Aggressive),
                 (Fend, Stab, Defensive),
             ],
-            "Polestaff" => [
+            WeaponCategory::Polestaff => [
                 (Bash, Crush, Accurate),
                 (Pound, Crush, Aggressive),
                 (Block, Crush, Defensive),
             ],
-            "Scythe" => [
+            WeaponCategory::Scythe => [
                 (Reap, Slash, Accurate),
                 (Chop, Slash, Aggressive),
                 (Jab, Crush, Aggressive),
                 (Block, Slash, Defensive),
             ],
-            "Slash Sword" => [
+            WeaponCategory::SlashSword => [
                 (Chop, Slash, Accurate),
                 (Slash, Slash, Aggressive),
                 (Lunge, Stab, Controlled),
                 (Block, Slash, Defensive),
             ],
-            "Spear" => [
+            WeaponCategory::Spear => [
                 (Lunge, Stab, Controlled),
                 (Swipe, Slash, Controlled),
                 (Pound, Crush, Controlled),
                 (Block, Stab, Defensive),
             ],
-            "Spiked" => [
+            WeaponCategory::Spiked => [
                 (Pound, Crush, Accurate),
                 (Pummel, Crush, Aggressive),
                 (Spike, Stab, Controlled),
                 (Block, Crush, Defensive),
             ],
-            "Stab Sword" => [
+            WeaponCategory::StabSword => [
                 (Stab, Stab, Accurate),
                 (Slash, Slash, Aggressive),
                 (Lunge, Stab, Aggressive),
                 (Block, Stab, Defensive),
             ],
-            "Unarmed" => [
+            WeaponCategory::Unarmed => [
                 (Punch, Crush, Accurate),
                 (Kick, Crush, Aggressive),
                 (Block, Crush, Defensive),
             ],
-            "Whip" => [
+            WeaponCategory::Whip => [
                 (Flick, Slash, Accurate),
                 (Lash, Slash, Controlled),
                 (Deflect, Slash, Defensive),
             ],
-            "Bow" => [
+            WeaponCategory::Blaster => [
+                (Explosive, None, None),
+                (Flamer, None, None),
+            ],
+            WeaponCategory::Bow => [
                 (Accurate, Standard, Accurate),
                 (Rapid, Standard, Rapid),
                 (Longrange, Standard, Longrange),
             ],
-            "Crossbow" => [
+            WeaponCategory::Crossbow => [
                 (Accurate, Heavy, Accurate),
                 (Rapid, Heavy, Rapid),
                 (Longrange, Heavy, Longrange),
             ],
-            "Thrown" => [
+            WeaponCategory::Gun => [
+                (AimAndFire, None, None),
+                (Kick, Crush, Aggressive),
+            ],
+            WeaponCategory::Thrown => [
                 (Accurate, Light, Accurate),
                 (Rapid, Light, Rapid),
                 (Longrange, Light, Longrange),
             ],
-            "Chinchompas" => [
+            WeaponCategory::Chinchompas => [
                 (ShortFuse, Heavy, ShortFuse),
                 (MediumFuse, Heavy, MediumFuse),
                 (LongFuse, Heavy, LongFuse),
             ],
-            "Bladed Staff" => [
+            WeaponCategory::BladedStaff => [
                 (Jab, Stab, Accurate),
                 (Swipe, Slash, Aggressive),
                 (Fend, Crush, Defensive),
                 (DefensiveSpell, Magic, DefensiveAutocast),
                 (Spell, Magic, Autocast),
             ],
-            "Powered Staff" => [
+            WeaponCategory::PoweredStaff => [
                 (Accurate, Magic, Accurate),
                 (Longrange, Magic, Longrange),
             ],
-            "Staff" => [
+            WeaponCategory::Staff => [
                 (Bash, Crush, Accurate),
                 (Pound, Crush, Aggressive),
                 (Fend, Crush, Defensive),
                 (DefensiveSpell, Magic, DefensiveAutocast),
                 (Spell, Magic, Autocast),
             ],
-            "Salamander" => [
+            WeaponCategory::Salamander => [
                 (Scorch, Slash, Aggressive),
                 (Flare, Standard, Accurate),
                 (Blaze, Magic, Defensive),
+            ],
+            WeaponCategory::MultiStyle => [
+                (Melee, Stab, Aggressive),
+                (Ranged, Ranged, Rapid),
+                (Magic, Magic, Defensive),
+            ],
+            WeaponCategory::MultiMelee => [
+                (Poke, Stab, Accurate),
+                (Slash, Slash, Aggressive),
+                (Pound, Crush, Aggressive),
+                (Block, Slash, Defensive)
             ]
         )
     }
@@ -337,12 +305,54 @@ impl Weapon {
     }
 }
 
-fn deserialize_combat_styles<'de, D>(
-    deserializer: D,
-) -> Result<HashMap<CombatStyle, CombatOption>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let weapon_type = String::deserialize(deserializer)?;
-    Ok(Weapon::get_styles_from_weapon_type(weapon_type.as_str()))
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq, Hash, Default)]
+pub enum WeaponCategory {
+    // Melee
+    #[serde(alias = "2h Sword")]
+    TwoHandedSword,
+    Axe,
+    Banner,
+    #[serde(alias = "blunt")]
+    Blunt,
+    Bludgeon,
+    Bulwark,
+    Claw,
+    Egg,
+    Flail,
+    Partisan,
+    Pickaxe,
+    Polearm,
+    Polestaff,
+    Scythe,
+    #[serde(alias = "Slash Sword")]
+    SlashSword,
+    Spear,
+    Spiked,
+    #[serde(alias = "Stab Sword")]
+    StabSword,
+    #[default]
+    Unarmed,
+    Whip,
+
+    // Ranged
+    Blaster,
+    Bow,
+    Chinchompas,
+    Crossbow,
+    Gun,
+    Thrown,
+
+    // Magic
+    #[serde(alias = "Bladed Staff")]
+    BladedStaff,
+    #[serde(alias = "Powered Staff")]
+    PoweredStaff,
+    Staff,
+
+    // Other
+    Salamander,
+    #[serde(alias = "Multi-Style")]
+    MultiStyle,
+    #[serde(alias = "Multi-Melee")]
+    MultiMelee,
 }

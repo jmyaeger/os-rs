@@ -2,8 +2,14 @@ use serde::Deserialize;
 use std::sync::LazyLock;
 
 use crate::{
+    constants,
     error::GearError,
-    types::equipment::{armor::Armor, bonuses::EquipmentBonuses, gear::GearSlot, weapon::Weapon},
+    types::equipment::{
+        armor::Armor,
+        bonuses::EquipmentBonuses,
+        gear::GearSlot,
+        weapon::{Weapon, WeaponCategory},
+    },
 };
 
 const EQUIPMENT_JSON_STR: &str = include_str!(concat!(env!("OUT_DIR"), "/equipment.json"));
@@ -25,7 +31,7 @@ pub struct EquipmentJson {
     pub slot: String,
     pub image: String,
     pub speed: Option<i32>,
-    pub category: Option<String>,
+    pub category: Option<WeaponCategory>,
     pub bonuses: EquipmentBonuses,
     pub is_two_handed: Option<bool>,
     pub attack_range: Option<i8>,
@@ -40,10 +46,11 @@ impl EquipmentJson {
             });
         }
 
-        let combat_styles = match self.category {
-            Some(category) => Weapon::get_styles_from_weapon_type(&category),
-            None => return Err(GearError::MissingWeaponCategory(self.name)),
+        let Some(category) = self.category else {
+            return Err(GearError::MissingWeaponCategory(self.name));
         };
+
+        let combat_styles = Weapon::get_styles_from_weapon_category(category);
 
         let speed = self
             .speed
@@ -54,6 +61,14 @@ impl EquipmentJson {
         let is_two_handed = self
             .is_two_handed
             .ok_or(GearError::MissingTwoHandedField(self.name.clone()))?;
+        let is_staff = matches!(
+            category,
+            WeaponCategory::BladedStaff | WeaponCategory::Staff
+        );
+        let spec_cost = constants::SPEC_COSTS
+            .iter()
+            .find(|w| w.0 == self.name)
+            .map(|c| c.1);
 
         let weapon = Weapon {
             name: self.name,
@@ -65,11 +80,12 @@ impl EquipmentJson {
             base_speed: speed,
             attack_range,
             is_two_handed,
-            spec_cost: None,
+            spec_cost,
             poison_severity: 0,
             combat_styles,
-            is_staff: false,
+            is_staff,
             image: self.image,
+            category,
         };
 
         Ok(weapon)
