@@ -874,9 +874,14 @@ pub const CANNOT_ATTACK_WHILE_UNCHARGED: &[&str] = &[
     "Webweaver bow",
     "Trident of the Seas",
     "Trident of the Seas (e)",
+    "Trident of the Seas (e) (o)",
+    "Trident of the Seas (o)",
     "Trident of the Swamp",
     "Trident of the Swamp (e)",
+    "Trident of the Swamp (e) (o)",
+    "Trident of the Swamp (o)",
     "Eye of Ayak",
+    "Lithic sceptre",
 ];
 
 pub const QUIVER_VARIANTS: [(&str, Option<&str>); 4] = [
