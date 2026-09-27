@@ -528,12 +528,14 @@ impl Player {
     }
 
     pub fn equip_item(&mut self, item: Box<dyn Equipment>) -> Result<(), GearError> {
+        let mut weapon_changed = false;
         let gear = Rc::make_mut(&mut self.gear);
         let slot = item.slot();
         match slot {
             GearSlot::Weapon => {
                 if let Some(weapon) = item.as_any().downcast_ref::<Weapon>() {
                     gear.weapon = weapon.clone();
+                    weapon_changed = true;
 
                     // Unequip shield if weapon is two handed
                     if gear.weapon.is_two_handed {
@@ -582,6 +584,7 @@ impl Player {
                 gear.shield = item.as_any().downcast_ref::<Armor>().cloned();
                 if gear.weapon.is_two_handed {
                     gear.weapon = Weapon::default();
+                    weapon_changed = true;
                 }
             }
             GearSlot::Body => gear.body = item.as_any().downcast_ref::<Armor>().cloned(),
@@ -597,6 +600,11 @@ impl Player {
                 return Err(GearError::NoneSlot(item.name().to_string()));
             }
         }
+
+        if weapon_changed {
+            self.set_active_style(self.gear.weapon.category.default_style());
+        }
+
         self.update_bonuses();
         self.update_set_effects();
         Ok(())
@@ -1648,9 +1656,13 @@ impl PlayerBuilder {
 
     /// Build the `Player` instance.
     pub fn build(self) -> Result<Player, PlayerError> {
+        let gear = self.gear.unwrap_or_default();
+        let active_style = self
+            .active_style
+            .unwrap_or(gear.weapon.category.default_style());
         let mut player = Player {
             stats: self.stats.unwrap_or_default(),
-            gear: Rc::new(self.gear.unwrap_or_default()),
+            gear: Rc::new(gear),
             bonuses: EquipmentBonuses::default(),
             potions: PotionBoosts::default(),
             prayers: Rc::new(PrayerBoosts::default()),
@@ -1659,7 +1671,7 @@ impl PlayerBuilder {
             set_effects: SetEffects::default(),
             attrs: PlayerAttrs {
                 name: None,
-                active_style: self.active_style.unwrap_or(CombatStyle::Punch),
+                active_style,
                 spell: self.spell,
                 fight_id: self.fight_id.unwrap_or_default(),
             },

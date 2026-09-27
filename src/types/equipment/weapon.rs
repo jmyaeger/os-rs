@@ -356,3 +356,41 @@ pub enum WeaponCategory {
     #[serde(alias = "Multi-Melee")]
     MultiMelee,
 }
+
+impl WeaponCategory {
+    pub fn default_style(&self) -> CombatStyle {
+        match self {
+            WeaponCategory::TwoHandedSword
+            | WeaponCategory::Claw
+            | WeaponCategory::Flail
+            | WeaponCategory::SlashSword
+            | WeaponCategory::MultiMelee => CombatStyle::Slash,
+            WeaponCategory::Axe => CombatStyle::Hack,
+            WeaponCategory::Banner | WeaponCategory::Polearm | WeaponCategory::BladedStaff => {
+                CombatStyle::Swipe
+            }
+            WeaponCategory::Blunt
+            | WeaponCategory::Bludgeon
+            | WeaponCategory::Bulwark
+            | WeaponCategory::Egg
+            | WeaponCategory::Spiked => CombatStyle::Pummel,
+            WeaponCategory::Partisan | WeaponCategory::Spear | WeaponCategory::StabSword => {
+                CombatStyle::Lunge
+            }
+            WeaponCategory::Pickaxe => CombatStyle::Smash,
+            WeaponCategory::Polestaff | WeaponCategory::Staff => CombatStyle::Pound,
+            WeaponCategory::Scythe => CombatStyle::Chop,
+            WeaponCategory::Unarmed => CombatStyle::Kick,
+            WeaponCategory::Whip => CombatStyle::Lash,
+            WeaponCategory::Blaster => CombatStyle::Explosive,
+            WeaponCategory::Bow | WeaponCategory::Crossbow | WeaponCategory::Thrown => {
+                CombatStyle::Rapid
+            }
+            WeaponCategory::Chinchompas => CombatStyle::MediumFuse,
+            WeaponCategory::Gun => CombatStyle::AimAndFire,
+            WeaponCategory::PoweredStaff => CombatStyle::Accurate,
+            WeaponCategory::Salamander => CombatStyle::Scorch,
+            WeaponCategory::MultiStyle => CombatStyle::Melee,
+        }
+    }
+}
