@@ -93,6 +93,7 @@ pub enum PlayerError {
     MagicLevelTooLow(Spell),
     #[error("Error parsing player stats: {0}")]
     StatParseError(#[from] std::num::ParseIntError),
+    #[cfg(feature = "hiscores")]
     #[error("Error fetching player data: {0}")]
     StatLookupError(#[from] reqwest::Error),
     #[error("Equipped weapon {weapon_name} does not have the {style} combat style.")]
