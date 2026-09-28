@@ -451,6 +451,14 @@ pub fn get_distribution(
     }
 
     // Karil's set effect + amulet of the damned distribution
+    // TODO: Confirm how the second hitsplat interacts with transforms.
+    // 1) Does it get the accurate 0->1 treatment, or will it stay 0 if
+    // the first hit is a 1?
+    // 2) Are flat armour and other NPC transforms applied before or after the second hit is
+    // calculated?
+    // My guesses for both are 1) it does not get 0->1, and 2) NPC transforms are applied afterward.
+    // Current behavior in the calc is to calculate the second hit and then apply all transforms
+    // including 0->1 to both hits separately, which differs from the simulated behavior.
     if player.is_using_ranged()
         && player.set_effects.full_karils
         && player.is_wearing_any_version("Amulet of the Damned")
@@ -1077,7 +1085,8 @@ fn apply_limiters(
     }
 
     // Subtract flat armour from hitsplat, with a minimum of 1 on an accurate hit
-    if monster.bonuses.flat_armour > 0 && player.combat_type() != CombatType::Magic {
+    // (negative flat armour adds damage)
+    if monster.bonuses.flat_armour != 0 && player.combat_type() != CombatType::Magic {
         dist = dist.transform(
             &flat_add_transformer(-monster.bonuses.flat_armour, 0),
             &TransformOpts {

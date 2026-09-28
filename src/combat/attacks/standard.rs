@@ -339,6 +339,14 @@ pub fn karils_crossbow_attack(
         && rng.random_range(0..4) == 0
     {
         // Set effect rolls 25% chance to hit an additional time for half the first hit's damage
+        // TODO: Confirm how the second hitsplat interacts with transforms.
+        // 1) Does it get the accurate 0->1 treatment, or will it stay 0 if
+        // the first hit is a 1?
+        // 2) Are flat armour and other NPC transforms applied before or after the second hit is
+        // calculated?
+        // My guesses for both are 1) it does not get 0->1, and 2) NPC transforms are applied afterward.
+        // Current behavior in the sim is to apply all transforms to the first hit, and then calculate
+        // the second as half of that.
         let hit1 = standard_attack(player, monster, rng, limiter);
         let hit2 = Hit::new(hit1.damage / 2, hit1.success);
         hit1.combine(&hit2)

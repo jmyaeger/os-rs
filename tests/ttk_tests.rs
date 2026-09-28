@@ -3,6 +3,7 @@ use osrs::calc::dps_calc;
 use osrs::calc::monster_scaling::scale_monster_hp_only;
 use osrs::calc::rolls::calc_active_player_rolls;
 use osrs::combat::simulation::simulate_n_fights;
+use osrs::constants::SECONDS_PER_TICK;
 use osrs::sims::single_way::{SingleWayConfig, SingleWayFight};
 use osrs::types::equipment::CombatStyle;
 use osrs::types::monster::Monster;
@@ -12,14 +13,16 @@ use rstest::rstest;
 mod fixtures;
 use fixtures::*;
 
-#[rstest]
-#[case(max_melee_player())]
-#[case(max_ranged_zcb_player())]
-#[case(max_mage_sang_staff_player())]
-fn test_max_setups_ammonite_crab_ttk(#[case] mut player: Player, ammonite_crab: Monster) {
-    let monster = ammonite_crab;
-    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
+// Maximum allowed distance between the calculated TTK and the simulated mean TTK,
+// in standard errors of the simulated mean.
+const Z_THRESHOLD: f64 = 5.0;
 
+// Tolerance for floating-point error
+const FLOAT_TOLERANCE: f64 = 1e-9;
+
+/// Simulate `n_fights` fights and assert that the mean TTK is statistically
+/// consistent with the calculated TTK.
+fn assert_sim_matches_calc_ttk(player: &Player, monster: &Monster, n_fights: u32) {
     let simulation = SingleWayFight::new(
         player.clone(),
         monster.clone(),
@@ -28,14 +31,40 @@ fn test_max_setups_ammonite_crab_ttk(#[case] mut player: Player, ammonite_crab: 
     )
     .expect("Error setting up single way fight.");
     let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
+        simulate_n_fights(Box::new(simulation), n_fights, true).expect("Simulation failed.");
 
-    let dist = dps_calc::get_distribution(&player, &monster, false)
+    let dist = dps_calc::get_distribution(player, monster, false)
         .expect("Error calculating attack distribution.");
     let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+        dps_calc::get_ttk(&dist, player, monster, false, false).expect("Error calculating ttk.");
+
+    let ttks: Vec<f64> = results
+        .ttks_ticks
+        .iter()
+        .map(|&t| f64::from(t) * SECONDS_PER_TICK)
+        .collect();
+    let n = ttks.len() as f64;
+    let sim_ttk = ttks.iter().sum::<f64>() / n;
+    let variance = ttks.iter().map(|t| (t - sim_ttk).powi(2)).sum::<f64>() / (n - 1.0);
+    let std_err = (variance / n).sqrt();
+
+    let diff = (calc_ttk - sim_ttk).abs();
+    assert!(
+        diff <= Z_THRESHOLD * std_err + FLOAT_TOLERANCE,
+        "calc_ttk={calc_ttk:.4}s, sim_ttk={sim_ttk:.4}s, diff={diff:.4}s ({:.2} SE, SE={std_err:.4}s)",
+        diff / std_err
+    );
+}
+
+#[rstest]
+#[case(max_melee_player())]
+#[case(max_ranged_zcb_player())]
+#[case(max_mage_sang_staff_player())]
+fn test_max_setups_ammonite_crab_ttk(#[case] mut player: Player, ammonite_crab: Monster) {
+    let monster = ammonite_crab;
+    calc_active_player_rolls(&mut player, &monster).expect("valid setup");
+
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -47,22 +76,7 @@ fn test_max_mage_brimstone_ring_kril_ttk(
     let mut player = max_mage_sang_staff_brimstone_ring_player;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -73,22 +87,7 @@ fn test_vardorvis_ttk(#[case] mut player: Player, vardorvis: Monster) {
     scale_monster_hp_only(&mut monster, true);
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -98,24 +97,7 @@ fn test_fang_ttk(max_melee_fang_player: Player, #[case] monster: Monster) {
     let mut player = max_melee_fang_player;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    println!("calc_ttk: {calc_ttk}");
-    println!("stats.ttk: {}", stats.ttk);
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -129,22 +111,7 @@ fn test_barrows_gear_ttks(#[case] mut player: Player, scurrius: Monster) {
     let monster = scurrius;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -156,22 +123,7 @@ fn test_blue_keris_kq_ttk(
     let monster = kalphite_queen_p1;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -189,22 +141,7 @@ fn test_enchanted_bolt_acb_ttks(#[case] bolt_name: &str) {
     player.update_bonuses();
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -221,22 +158,7 @@ fn test_enchanted_bolt_zcb_ttks(#[case] bolt_name: &str) {
     player.update_bonuses();
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -251,22 +173,7 @@ fn test_scythe_against_different_sizes_ttk(
     let mut player = max_melee_scythe_player;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -274,24 +181,10 @@ fn test_scythe_against_different_sizes_ttk(
 #[case(ammonite_crab())]
 fn test_gadderhammer_ttk(max_melee_player: Player, #[case] monster: Monster) {
     let mut player = max_melee_player;
+    player.equip("Gadderhammer", None).unwrap();
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -301,22 +194,7 @@ fn test_tonalztics_ttk(#[case] mut player: Player, scurrius: Monster) {
     let monster = scurrius;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -325,22 +203,7 @@ fn test_macuahuitl_no_set_effect_ttk(max_melee_macuahuitl_player: Player, scurri
     let monster = scurrius;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -350,22 +213,7 @@ fn test_macuahuitl_no_set_effect_baba_ttk(max_melee_macuahuitl_player: Player, b
     let monster = baba_300;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -375,22 +223,7 @@ fn test_max_range_zulrah(#[case] mut player: Player, zulrah_tanzanite: Monster) 
     let monster = zulrah_tanzanite;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -399,22 +232,7 @@ fn test_max_mage_shadow_zulrah(max_mage_shadow_player: Player, zulrah_magma: Mon
     let monster = zulrah_magma;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -423,23 +241,7 @@ fn test_max_mage_seren(max_mage_shadow_player: Player, seren: Monster) {
     let monster = seren;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -448,21 +250,7 @@ fn test_max_ranged_kraken(max_ranged_tbow_player: Player, kraken: Monster) {
     let monster = kraken;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results = simulate_n_fights(Box::new(simulation), 10000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.5);
+    assert_sim_matches_calc_ttk(&player, &monster, 10000);
 }
 
 #[rstest]
@@ -473,21 +261,7 @@ fn test_verzik_p1(#[case] mut player: Player, verzik_p1: Monster) {
     let monster = verzik_p1;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results = simulate_n_fights(Box::new(simulation), 10000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 1.0);
+    assert_sim_matches_calc_ttk(&player, &monster, 10000);
 }
 
 #[rstest]
@@ -496,22 +270,7 @@ fn test_max_mage_tekton(max_mage_shadow_player: Player, tekton: Monster) {
     let monster = tekton;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -520,22 +279,7 @@ fn max_mage_vasa_crystal(max_mage_shadow_player: Player, vasa_crystal: Monster) 
     let monster = vasa_crystal;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -545,22 +289,7 @@ fn test_olm_mage_offstyle(max_mage_shadow_player: Player, #[case] monster: Monst
     let mut player = max_mage_shadow_player;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.2);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -570,22 +299,7 @@ fn test_olm_ranged_offstyle(max_ranged_tbow_overload_player: Player, #[case] mon
     let mut player = max_ranged_tbow_overload_player;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.5);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -594,22 +308,7 @@ fn test_max_ranged_tbow_ice_demon(max_ranged_tbow_overload_player: Player, ice_d
     let monster = ice_demon;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -618,22 +317,7 @@ fn test_max_melee_slagilith(max_melee_player: Player, slagilith: Monster) {
     let monster = slagilith;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -644,22 +328,7 @@ fn test_zogre_ttk(#[case] mut player: Player, zogre: Monster) {
     let monster = zogre;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.1);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -672,22 +341,7 @@ fn test_ruby_bolts_zcb_zebak_500(max_ranged_zcb_ruby_player: Player, zebak: Mons
     monster.scale_toa(true, true);
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.2);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
@@ -698,22 +352,7 @@ fn test_corp_limiters(#[case] mut player: Player, corp: Monster) {
     let monster = corp;
     calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
-    let results =
-        simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-    let stats = SimulationStats::new(&results);
-
-    let dist = dps_calc::get_distribution(&player, &monster, false)
-        .expect("Error calculating attack distribution.");
-    let calc_ttk =
-        dps_calc::get_ttk(&dist, &player, &monster, false, false).expect("Error calculating ttk.");
-    assert!(num::abs(calc_ttk - stats.ttk) < 0.5);
+    assert_sim_matches_calc_ttk(&player, &monster, 100000);
 }
 
 #[rstest]
