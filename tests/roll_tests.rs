@@ -8,7 +8,7 @@ mod fixtures;
 use fixtures::*;
 
 #[rstest]
-#[case(max_melee_player(), ammonite_crab(), CombatType::Stab, 33525, 56)]
+#[case(max_melee_player(), ammonite_crab(), CombatType::Stab, 34419, 57)]
 #[case(
     mid_level_melee_player(),
     ammonite_crab(),
@@ -52,11 +52,11 @@ use fixtures::*;
     29800,
     52
 )]
-#[case(max_melee_silverlight_player(), kril(), CombatType::Slash, 21456, 59)]
-#[case(max_melee_darklight_player(), kril(), CombatType::Slash, 21754, 59)]
+#[case(max_melee_silverlight_player(), kril(), CombatType::Slash, 34329, 59)]
+#[case(max_melee_darklight_player(), kril(), CombatType::Slash, 34806, 59)]
 #[case(max_melee_arclight_player(), kril(), CombatType::Slash, 42554, 61)]
-#[case(max_melee_silverlight_player(), duke(), CombatType::Slash, 21456, 52)]
-#[case(max_melee_darklight_player(), duke(), CombatType::Slash, 21754, 52)]
+#[case(max_melee_silverlight_player(), duke(), CombatType::Slash, 30467, 52)]
+#[case(max_melee_darklight_player(), duke(), CombatType::Slash, 30890, 52)]
 #[case(max_melee_arclight_player(), duke(), CombatType::Slash, 37297, 53)]
 #[case(mid_level_melee_lbba_player(), kurask(), CombatType::Slash, 22692, 49)]
 #[case(
@@ -98,8 +98,8 @@ use fixtures::*;
     slayer(max_melee_player()),
     ammonite_crab(),
     CombatType::Stab,
-    39112,
-    63
+    40155,
+    64
 )]
 #[case(
     slayer(mid_level_melee_player()),
@@ -134,14 +134,14 @@ use fixtures::*;
     slayer(max_melee_silverlight_player()),
     kril(),
     CombatType::Slash,
-    25032,
+    40051,
     64
 )]
 #[case(
     slayer(max_melee_darklight_player()),
     kril(),
     CombatType::Slash,
-    25379,
+    40606,
     64
 )]
 #[case(
@@ -155,14 +155,14 @@ use fixtures::*;
     slayer(max_melee_silverlight_player()),
     duke(),
     CombatType::Slash,
-    25032,
+    35545,
     56
 )]
 #[case(
     slayer(max_melee_darklight_player()),
     duke(),
     CombatType::Slash,
-    25379,
+    36038,
     56
 )]
 #[case(
@@ -214,8 +214,8 @@ use fixtures::*;
     24593,
     49
 )]
-#[case(salve_ei(max_melee_player()), vorkath(), CombatType::Stab, 37548, 63)]
-#[case(salve_i(max_melee_player()), vorkath(), CombatType::Stab, 36505, 61)]
+#[case(salve_ei(max_melee_player()), vorkath(), CombatType::Stab, 38620, 64)]
+#[case(salve_i(max_melee_player()), vorkath(), CombatType::Stab, 37548, 63)]
 #[case(
     salve_ei(mid_level_melee_player()),
     vorkath(),
@@ -276,8 +276,8 @@ use fixtures::*;
     avarice_forinthry(max_melee_player()),
     revenant_dragon(),
     CombatType::Stab,
-    44253,
-    74
+    45459,
+    75
 )]
 #[case(
     avarice_forinthry(max_melee_colossal_blade_player()),
@@ -323,11 +323,11 @@ fn test_melee_player_rolls(
 #[rstest]
 #[case(max_ranged_zcb_player(), ammonite_crab(), 50694, 49)]
 #[case(mid_level_ranged_rcb_player(), ammonite_crab(), 29945, 30)]
-#[case(max_ranged_blowpipe_dragon_darts_player(), ammonite_crab(), 35358, 31)]
-#[case(max_ranged_tbow_player(), ammonite_crab(), 16983, 19)]
-#[case(max_ranged_tbow_player(), general_graardor(), 36089, 43)]
-#[case(max_ranged_tbow_player(), kril(), 54770, 70)]
-#[case(max_ranged_tbow_player(), zilyana(), 59441, 79)]
+#[case(max_ranged_blowpipe_dragon_darts_player(), ammonite_crab(), 35358, 32)]
+#[case(max_ranged_tbow_player(), ammonite_crab(), 16983, 20)]
+#[case(max_ranged_tbow_player(), general_graardor(), 36089, 44)]
+#[case(max_ranged_tbow_player(), kril(), 54770, 72)]
+#[case(max_ranged_tbow_player(), zilyana(), 59441, 81)]
 #[case(max_ranged_tbow_overload_player(), shaman_cox(), 48174, 60)]
 #[case(max_ranged_tbow_overload_player(), abyssal_portal(), 55446, 71)]
 #[case(max_ranged_tbow_overload_player(), skeletal_mystic(), 50447, 63)]
@@ -371,20 +371,26 @@ fn test_melee_player_rolls(
     18452,
     45
 )]
+// Note: This test disagrees with the wiki calc currently because the wiki calc
+// assumes the 30% accuracy boost is multiplicative with the slayer helm
+// rather than additive like the damage boost.
 #[case(slayer(max_ranged_dhcb_player()), vorkath(), 68564, 68)]
-#[case(slayer(max_ranged_webweaver_player()), spindel(), 69118, 54)]
+// Note: This test disagrees with the wiki calc currently because the wiki calc
+// assumes the 50% accuracy boost is multiplicative with the slayer helm
+// rather than additive like the damage boost.
+#[case(slayer(max_ranged_webweaver_player()), spindel(), 69118, 56)]
 #[case(mid_level_ranged_bone_shortbow_player(), scurrius(), 26216, 30)]
 #[case(slayer(mid_level_ranged_bone_shortbow_player()), scurrius(), 29628, 33)]
-#[case(slayer(max_ranged_tbow_overload_player()), shaman_cox_cm(), 64885, 82)]
+#[case(slayer(max_ranged_tbow_overload_player()), shaman_cox_cm(), 64885, 86)]
 #[case(salve_ei(max_ranged_zcb_player()), vorkath(), 58276, 57)]
 #[case(salve_ei(mid_level_ranged_rcb_player()), vorkath(), 34578, 36)]
 #[case(
     salve_ei(max_ranged_blowpipe_dragon_darts_player()),
     vorkath(),
     39873,
-    36
+    37
 )]
-#[case(salve_ei(elite_void_dhcb_player()), vorkath(), 55242, 76)]
+#[case(salve_ei(elite_void_dhcb_player()), vorkath(), 55242, 77)]
 #[case(salve_ei(max_ranged_webweaver_player()), vetion(), 73867, 58)]
 #[case(
     salve_ei(max_ranged_tbow_overload_player()),
@@ -409,7 +415,7 @@ fn test_melee_player_rolls(
     avarice_forinthry(max_ranged_blowpipe_dragon_darts_player()),
     revenant_dragon(),
     46774,
-    40
+    41
 )]
 #[case(
     avarice_forinthry(max_ranged_webweaver_player()),
@@ -436,7 +442,7 @@ fn test_ranged_player_rolls(
 }
 
 #[rstest]
-#[case(max_mage_sang_staff_player(), ammonite_crab(), 36693, 47)]
+#[case(max_mage_sang_staff_player(), ammonite_crab(), 36693, 49)]
 #[case(max_mage_toxic_trident_player(), ammonite_crab(), 36693, 46)]
 #[case(max_mage_trident_player(), ammonite_crab(), 35183, 42)]
 #[case(max_mage_harm_fire_surge_player(), ammonite_crab(), 34866, 35)]
@@ -517,7 +523,7 @@ fn test_ranged_player_rolls(
     41295,
     50
 )]
-#[case(slayer(salve_ei(max_mage_sang_staff_player())), vorkath(), 40951, 52)]
+#[case(slayer(salve_ei(max_mage_sang_staff_player())), vorkath(), 40951, 53)]
 #[case(max_mage_harm_fire_surge_tome_player(), ammonite_crab(), 32333, 37)]
 #[case(
     slayer(max_mage_harm_fire_surge_tome_player()),

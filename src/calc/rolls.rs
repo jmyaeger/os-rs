@@ -703,10 +703,14 @@ fn ranged_gear_bonus(player: &Player, monster: &Monster) -> (Fraction, Fraction)
             && player.is_wearing_wildy_bow()
         {
             // Wildy bow boost is applied additively with slayer helm (verified in-game)
+            // Note: The wiki DPS calc currently has the accuracy boost as multiplicative with
+            // the slayer helm, which I believe is unconfirmed. I need to ask Mod Ash or maybe
+            // see if Llemonduck has inside knowledge about this.
             att_gear_bonus += Fraction::new(1, 2).unwrap();
             str_gear_bonus += Fraction::new(1, 2).unwrap();
         } else if player.is_wearing("Dragon hunter crossbow", None) && monster.is_dragon() {
             // DHCB boost is applied additively with slayer helm (verified in-game)
+            // Note: The same as noted above for the wilderness weapons applies here.
             att_gear_bonus += Fraction::new(3, 10).unwrap();
             str_gear_bonus += Fraction::new(1, 4).unwrap();
         } else if player.is_wearing("Scorching bow", None) && monster.is_demon() {

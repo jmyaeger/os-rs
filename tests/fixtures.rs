@@ -831,6 +831,7 @@ pub fn full_virtus_kodai_fire_surge_player() -> Player {
 pub fn max_mage_smoke_staff_fire_surge_player() -> Player {
     let mut player = max_mage_harm_fire_surge_player();
     player.equip("Smoke battlestaff", None).unwrap();
+    player.set_active_style(CombatStyle::Spell);
     player.update_bonuses();
     player
 }
