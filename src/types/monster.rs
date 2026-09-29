@@ -14,7 +14,7 @@ use serde::{Deserialize, de::Error};
 use std::cmp::{max, min};
 use std::str::FromStr;
 use std::sync::LazyLock;
-use strum_macros::Display;
+use strum_macros::{Display, EnumIter};
 
 const MONSTER_JSON_STR: &str = include_str!(concat!(env!("OUT_DIR"), "/monsters.json"));
 static MONSTERS: LazyLock<Vec<Monster>> = LazyLock::new(|| {
@@ -54,7 +54,7 @@ impl StatDrain {
 }
 
 // Enum for monster attributes
-#[derive(Debug, Eq, PartialEq, Hash, Clone, Copy, Display)]
+#[derive(Debug, Eq, PartialEq, Hash, Clone, Copy, Display, EnumIter)]
 #[strum(serialize_all = "lowercase")]
 pub enum Attribute {
     Demon,
