@@ -148,6 +148,13 @@ impl Stat {
         }
     }
 
+    /// Set a new value without resetting the floor
+    pub fn set(&mut self, new: u32) {
+        self.base = new;
+        self.current = new;
+        self.scaled = None;
+    }
+
     pub fn min_level() -> Self {
         Self::new(constants::MIN_LEVEL, None)
     }
