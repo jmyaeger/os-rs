@@ -12,6 +12,7 @@ use crate::utils::logging::MonsterFightId;
 use rand::Rng;
 use serde::{Deserialize, de::Error};
 use std::cmp::{max, min};
+use std::str::FromStr;
 use std::sync::LazyLock;
 use strum_macros::Display;
 
@@ -53,10 +54,11 @@ impl StatDrain {
 }
 
 // Enum for monster attributes
-#[derive(Debug, Eq, PartialEq, Hash, Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Hash, Clone, Copy, Display)]
+#[strum(serialize_all = "lowercase")]
 pub enum Attribute {
     Demon,
-    Draconic,
+    Dragon,
     Fiery,
     Flying,
     Golem,
@@ -68,8 +70,46 @@ pub enum Attribute {
     Shade,
     Spectral,
     Undead,
+    #[strum(to_string = "vampyre{0}")]
     Vampyre(u8), // Value is the vampyre tier (1, 2, 3)
     Xerician,
+}
+
+impl FromStr for Attribute {
+    type Err = MonsterError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_ascii_lowercase().as_str() {
+            "demon" => Ok(Self::Demon),
+            "dragon" => Ok(Self::Dragon),
+            "fiery" => Ok(Self::Fiery),
+            "flying" => Ok(Self::Flying),
+            "golem" => Ok(Self::Golem),
+            "icy" => Ok(Self::Icy),
+            "kalphite" => Ok(Self::Kalphite),
+            "leafy" => Ok(Self::Leafy),
+            "penance" => Ok(Self::Penance),
+            "rat" => Ok(Self::Rat),
+            "shade" => Ok(Self::Shade),
+            "spectral" => Ok(Self::Spectral),
+            "undead" => Ok(Self::Undead),
+            "vampyre1" => Ok(Self::Vampyre(1)),
+            "vampyre2" => Ok(Self::Vampyre(2)),
+            "vampyre3" => Ok(Self::Vampyre(3)),
+            "xerician" => Ok(Self::Xerician),
+            _ => Err(MonsterError::UnknownMonsterAttribute(s.to_string())),
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for Attribute {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        s.parse().map_err(D::Error::custom)
+    }
 }
 
 // Offensive bonus for a each primary combat style
@@ -179,7 +219,6 @@ pub struct MonsterInfo {
     pub combat_level: u32,
     pub size: u32,
     #[serde(default)]
-    #[serde(deserialize_with = "deserialize_attributes")]
     pub attributes: Option<Vec<Attribute>>,
     #[serde(deserialize_with = "deserialize_attack_styles")]
     pub attack_styles: Option<Vec<AttackType>>,
@@ -194,43 +233,6 @@ pub struct MonsterInfo {
     pub toa_level: u32,
     #[serde(default)]
     pub toa_path_level: u32,
-}
-
-fn deserialize_attributes<'de, D>(deserializer: D) -> Result<Option<Vec<Attribute>>, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    // Translate attributes from strings into equivalent enums
-    let attributes: Option<Vec<String>> = Option::deserialize(deserializer)?;
-    attributes
-        .map(|attrs| {
-            attrs
-                .into_iter()
-                .map(|attr| match attr.as_str() {
-                    "demon" => Ok(Attribute::Demon),
-                    "dragon" => Ok(Attribute::Draconic),
-                    "fiery" => Ok(Attribute::Fiery),
-                    "flying" => Ok(Attribute::Flying),
-                    "golem" => Ok(Attribute::Golem),
-                    "icy" => Ok(Attribute::Icy),
-                    "kalphite" => Ok(Attribute::Kalphite),
-                    "leafy" => Ok(Attribute::Leafy),
-                    "penance" => Ok(Attribute::Penance),
-                    "rat" => Ok(Attribute::Rat),
-                    "shade" => Ok(Attribute::Shade),
-                    "spectral" => Ok(Attribute::Spectral),
-                    "undead" => Ok(Attribute::Undead),
-                    "vampyre1" => Ok(Attribute::Vampyre(1)),
-                    "vampyre2" => Ok(Attribute::Vampyre(2)),
-                    "vampyre3" => Ok(Attribute::Vampyre(3)),
-                    "xerician" => Ok(Attribute::Xerician),
-                    _ => Err(D::Error::custom(format!(
-                        "Unknown monster attribute: {attr}"
-                    ))),
-                })
-                .collect()
-        })
-        .transpose()
 }
 
 fn deserialize_attack_speed<'de, D>(deserializer: D) -> Result<Option<u32>, D::Error>
@@ -790,7 +792,7 @@ impl Monster {
     }
 
     pub fn is_dragon(&self) -> bool {
-        self.has_attribute(Attribute::Draconic)
+        self.has_attribute(Attribute::Dragon)
     }
 
     pub fn is_demon(&self) -> bool {
