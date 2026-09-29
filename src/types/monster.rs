@@ -755,10 +755,9 @@ impl Monster {
             CombatType::Heavy,
             CombatType::Magic,
         ] {
-            self.def_rolls.set(
-                defence_type,
-                self.base_def_rolls.get(defence_type) * toa_level_bonus as i32 / 1000,
-            );
+            let scaled =
+                self.base_def_rolls.get(defence_type) as i64 * toa_level_bonus as i64 / 1000;
+            self.def_rolls.set(defence_type, scaled as i32);
         }
     }
 
