@@ -63,7 +63,7 @@ impl Player {
                     if self.attrs.active_style == CombatStyle::Rapid
                         && gear.weapon.combat_styles.contains_key(&CombatStyle::Rapid)
                     {
-                        gear.weapon.speed = gear.weapon.base_speed - 1;
+                        gear.weapon.speed.subtract_from_base(1);
                     }
                 } else {
                     return Err(GearError::NotAWeapon {

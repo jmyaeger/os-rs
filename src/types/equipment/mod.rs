@@ -62,8 +62,7 @@ mod tests {
         let weapon = Weapon::default();
         assert_eq!(weapon.name, "Unarmed");
         assert_eq!(weapon.bonuses, EquipmentBonuses::default());
-        assert_eq!(weapon.speed, 5);
-        assert_eq!(weapon.base_speed, 5);
+        assert_eq!(weapon.speed.current(), 5);
         assert_eq!(weapon.attack_range, 0);
         assert!(!weapon.is_two_handed);
         assert_eq!(weapon.spec_cost, None);

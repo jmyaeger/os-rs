@@ -238,7 +238,7 @@ impl SingleWayMechanics {
                 fight_vars.hit_attempts += 1;
                 fight_vars.hit_count += u32::from(hit.success);
                 fight_vars.hit_amounts.push(hit.damage);
-                fight_vars.attack_tick += fight.player.gear.weapon.speed;
+                fight_vars.attack_tick += fight.player.gear.weapon.speed.as_delay();
 
                 fight.player.stats.spec.drain(strategy.spec_cost);
                 if !fight.spec_state.spec_regen_timer.is_active() {

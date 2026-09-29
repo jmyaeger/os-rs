@@ -190,6 +190,10 @@ def main():
             equipment["slot"] = "weapon"
             equipment["is_two_handed"] = True
 
+        # Ignore items with a negative attack speed
+        if equipment["speed"] is not None and equipment["speed"] < 0:
+            continue
+
         version = (
             str(equipment["version"]) if equipment["version"] is not None else None
         )
@@ -296,7 +300,7 @@ def main():
         # Set the current equipment item to the calc's equipment list
         data[v["page_name_sub"]] = equipment
 
-        if not equipment["image"] == "":
+        if equipment["image"] != "":
             required_imgs.append(equipment["image"])
 
     new_data = list(data.values())

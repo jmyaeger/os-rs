@@ -263,7 +263,7 @@ fn get_dot_expected(
         }
     } else if player.set_effects.full_eclipse_moon {
         let accuracy = get_hit_chance(player, monster, using_spec)?;
-        let attack_speed = player.gear.weapon.speed as usize;
+        let attack_speed = player.gear.weapon.speed.current() as usize;
         Ok(get_expected_burn(
             accuracy,
             attack_speed,
@@ -1123,7 +1123,7 @@ fn get_attack_speed(player: &Player, using_spec: bool) -> u32 {
     if using_spec && player.is_wearing("Eye of Ayak", Some("Charged")) {
         5
     } else {
-        player.gear.weapon.speed as u32
+        player.gear.weapon.speed.current() as u32
     }
 }
 

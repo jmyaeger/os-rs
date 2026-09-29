@@ -104,10 +104,10 @@ impl GraardorFight {
         &mut self,
         log: &mut FightRecorder,
     ) -> Result<FightResult, SimulationError> {
-        if self.player.gear.weapon.speed != 4 {
+        if self.player.gear.weapon.speed.current() != 4 {
             let error_msg = format!(
                 "GraardorFight::simulate_door_altar_fight: player weapon speed must be 4, got {}",
-                self.player.gear.weapon.speed
+                self.player.gear.weapon.speed.current()
             );
             return Err(SimulationError::ConfigError(error_msg));
         }

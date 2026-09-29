@@ -203,7 +203,7 @@ impl HunllefMechanics {
         fight_vars.hit_attempts += 1;
         fight_vars.hit_count += if hit.success { 1 } else { 0 };
         fight_vars.hit_amounts.push(hit.damage);
-        fight_vars.attack_tick += player.gear.weapon.speed;
+        fight_vars.attack_tick += player.gear.weapon.speed.as_delay();
     }
 
     fn apply_queued_damage(

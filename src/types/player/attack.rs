@@ -44,7 +44,7 @@ impl Player {
 
         // Reduce attack speed by 1 on rapid
         if stance == CombatStance::Rapid {
-            gear.weapon.speed = gear.weapon.base_speed - 1;
+            gear.weapon.speed.subtract_from_base(1);
         } else if [
             CombatStance::DefensiveAutocast,
             CombatStance::Autocast,
@@ -53,16 +53,15 @@ impl Player {
         .contains(&stance)
         {
             // Prevent staff speed from being set to its melee attack speed if player is casting spells
-            gear.weapon.speed =
-                if gear.is_wearing("Harmonised Nightmare staff", None) && is_using_standard_spell {
-                    4
-                } else if gear.is_wearing("Twinflame staff", None) {
-                    6
-                } else {
-                    5
-                }
+            if gear.is_wearing("Harmonised Nightmare staff", None) && is_using_standard_spell {
+                gear.weapon.speed.set(4);
+            } else if gear.is_wearing("Twinflame staff", None) {
+                gear.weapon.speed.set(6);
+            } else {
+                gear.weapon.speed.set(5);
+            }
         } else {
-            gear.weapon.speed = gear.weapon.base_speed;
+            gear.weapon.speed.reset();
         }
 
         self.combat_type = gear.weapon.combat_styles[&style].combat_type;

@@ -9,7 +9,7 @@ use crate::{
         armor::Armor,
         bonuses::EquipmentBonuses,
         gear::GearSlot,
-        weapon::{Weapon, WeaponCategory},
+        weapon::{Weapon, WeaponCategory, WeaponSpeed},
     },
 };
 
@@ -31,7 +31,7 @@ pub struct EquipmentJson {
     pub id: i32,
     pub slot: String,
     pub image: String,
-    pub speed: Option<i32>,
+    pub speed: Option<u8>,
     pub category: Option<WeaponCategory>,
     pub bonuses: EquipmentBonuses,
     pub is_two_handed: Option<bool>,
@@ -77,8 +77,7 @@ impl EquipmentJson {
             id: self.id,
             bonuses: self.bonuses,
             slot: GearSlot::Weapon,
-            speed,
-            base_speed: speed,
+            speed: WeaponSpeed::new(speed),
             attack_range,
             is_two_handed,
             spec_cost,

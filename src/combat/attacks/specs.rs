@@ -1564,7 +1564,7 @@ pub fn dual_macuahuitl_spec(
     }
 
     // Reset attack speed to 4 ticks
-    Rc::make_mut(&mut player.gear).weapon.speed = 4;
+    Rc::make_mut(&mut player.gear).weapon.speed.reset();
 
     let mut info1 = AttackInfo::new(player, monster);
 
@@ -1596,7 +1596,10 @@ pub fn dual_macuahuitl_spec(
 
     // Next attack is guaranteed to be 3 ticks if either attack hits
     if hit1.success || hit2.success {
-        Rc::make_mut(&mut player.gear).weapon.speed = 3;
+        Rc::make_mut(&mut player.gear)
+            .weapon
+            .speed
+            .subtract_from_base(1);
     }
 
     hit1.combine(&hit2)
@@ -1772,7 +1775,7 @@ pub fn eye_of_ayak_spec(
     }
 
     // Spec has a 5-tick attack speed
-    Rc::make_mut(&mut player.gear).weapon.speed = 5;
+    Rc::make_mut(&mut player.gear).weapon.speed.set(5);
 
     hit
 }

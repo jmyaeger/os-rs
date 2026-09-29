@@ -64,7 +64,7 @@ pub trait Mechanics {
         fight_vars.hit_attempts += 1;
         fight_vars.hit_count += if hit.success { 1 } else { 0 };
         fight_vars.hit_amounts.push(hit.damage);
-        fight_vars.attack_tick += player.gear.weapon.speed;
+        fight_vars.attack_tick += player.gear.weapon.speed.as_delay();
     }
 
     fn player_special_attack<C: SpecCondition>(
@@ -159,7 +159,7 @@ pub trait Mechanics {
             fight_vars.hit_attempts += 1;
             fight_vars.hit_count += u32::from(hit.success);
             fight_vars.hit_amounts.push(hit.damage);
-            fight_vars.attack_tick += player.gear.weapon.speed;
+            fight_vars.attack_tick += player.gear.weapon.speed.as_delay();
 
             player.stats.spec.drain(strategy.spec_cost);
             if !spec_state.spec_regen_timer.is_active() {

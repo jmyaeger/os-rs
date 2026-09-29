@@ -10,6 +10,47 @@ use std::any::Any;
 use std::collections::HashMap;
 use std::fmt;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct WeaponSpeed {
+    base: u8,
+    current: u8,
+}
+
+impl WeaponSpeed {
+    pub fn new(speed: u8) -> Self {
+        Self {
+            base: speed,
+            current: speed,
+        }
+    }
+
+    pub fn current(&self) -> u8 {
+        self.current
+    }
+
+    /// Return the weapon speed as a tick delay (i32) so that it can be added to a
+    /// tick counter in simulations.
+    pub fn as_delay(&self) -> i32 {
+        self.current as i32
+    }
+
+    pub fn add_to_base(&mut self, amount: u8) {
+        self.current = self.base.saturating_add(amount);
+    }
+
+    pub fn subtract_from_base(&mut self, amount: u8) {
+        self.current = self.base.saturating_sub(amount);
+    }
+
+    pub fn set(&mut self, new: u8) {
+        self.current = new;
+    }
+
+    pub fn reset(&mut self) {
+        self.current = self.base;
+    }
+}
+
 // Needs to be a separate struct from Armor because of additional fields
 #[derive(Debug, PartialEq, Clone)]
 pub struct Weapon {
@@ -18,8 +59,7 @@ pub struct Weapon {
     pub id: i32,
     pub bonuses: EquipmentBonuses,
     pub slot: GearSlot,
-    pub speed: i32,
-    pub base_speed: i32,
+    pub speed: WeaponSpeed,
     pub attack_range: i8,
     pub is_two_handed: bool,
     pub spec_cost: Option<u8>,
@@ -72,8 +112,7 @@ impl Default for Weapon {
             id: 0,
             bonuses: EquipmentBonuses::default(),
             slot: GearSlot::Weapon,
-            speed: 5,
-            base_speed: 5,
+            speed: WeaponSpeed::new(5),
             attack_range: 0,
             is_two_handed: false,
             spec_cost: None,

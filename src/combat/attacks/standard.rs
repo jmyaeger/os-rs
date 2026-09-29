@@ -948,7 +948,7 @@ pub fn dual_macuahuitl_attack(
     info2.max_hit = max_hit - max_hit / 2;
 
     // Reset attack speed to 4 ticks
-    Rc::make_mut(&mut player.gear).weapon.speed = 4;
+    Rc::make_mut(&mut player.gear).weapon.speed.reset();
 
     // Roll two separate hits
     let mut hit1 = base_attack(&info1, rng, false);
@@ -971,7 +971,10 @@ pub fn dual_macuahuitl_attack(
         && ((hit1.success && rng.random_range(0..100) < 33)
             || (hit2.success && rng.random_range(0..100) < 33))
     {
-        Rc::make_mut(&mut player.gear).weapon.speed = 3;
+        Rc::make_mut(&mut player.gear)
+            .weapon
+            .speed
+            .subtract_from_base(1);
     }
 
     hit1.combine(&hit2)
@@ -1209,7 +1212,7 @@ mod tests {
                 }
                 hit_damage += hit.damage as u64;
                 hit_counter += 1;
-                attack_tick += player.gear.weapon.speed as i64;
+                attack_tick += player.gear.weapon.speed.as_delay() as i64;
             }
 
             for effect in &mut monster.active_effects {
