@@ -56,7 +56,7 @@ impl SingleWayFight {
                 .unwrap()
                 .get(monster.stats.hitpoints.base as usize)
                 .strength;
-            monster.reset();
+            monster.reset(None, None);
         }
 
         Ok(SingleWayFight {
@@ -115,7 +115,7 @@ impl Simulation for SingleWayFight {
         }
         calc_active_player_rolls(&mut self.player, &self.monster)?;
 
-        self.monster.reset();
+        self.monster.reset(None, None);
 
         Ok(())
     }

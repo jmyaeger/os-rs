@@ -846,7 +846,7 @@ impl Simulation for HunllefFight {
         self.player.state.first_attack = true;
         self.player.state.last_attack_hit = true;
         self.player.reset_current_stats(true);
-        self.hunllef.reset();
+        self.hunllef.reset(None, None);
 
         Ok(())
     }

@@ -281,10 +281,10 @@ impl Simulation for GraardorFight {
         self.player.reset_current_stats(false);
 
         calc_active_player_rolls(&mut self.player, &self.graardor)?;
-        self.graardor.reset();
-        self.melee_minion.reset();
-        self.ranged_minion.reset();
-        self.mage_minion.reset();
+        self.graardor.reset(None, None);
+        self.melee_minion.reset(None, None);
+        self.ranged_minion.reset(None, None);
+        self.mage_minion.reset(None, None);
 
         Ok(())
     }

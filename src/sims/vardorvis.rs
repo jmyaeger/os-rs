@@ -164,7 +164,7 @@ impl VardorvisFight {
             .unwrap()
             .get(vard.stats.hitpoints.base as usize)
             .strength;
-        vard.reset();
+        vard.reset(None, None);
 
         let limiter = assign_limiter(&player, &vard);
         let rng = SmallRng::from_os_rng();
@@ -381,7 +381,7 @@ impl Simulation for VardorvisFight {
         }
         calc_active_player_rolls(&mut self.player, &self.vard)?;
 
-        self.vard.reset();
+        self.vard.reset(None, None);
 
         Ok(())
     }

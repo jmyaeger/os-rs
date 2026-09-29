@@ -975,17 +975,32 @@ impl Monster {
         }
     }
 
-    pub fn reset(&mut self) {
+    pub fn reset(&mut self, starting_hp: Option<u32>, def_reduction: Option<u32>) {
         // Reset live stats, status effects, and defence rolls
         self.stats.reset_all();
         self.bonuses.defence.magic = self.bonuses.defence.magic_base;
         self.info.poison_severity = 0;
         self.info.freeze_duration = 0;
-        self.base_def_rolls = rolls::monster_def_rolls(self);
-        self.def_rolls = self.base_def_rolls;
-        self.scale_toa(true, true);
-        self.active_effects = Vec::new();
+        self.active_effects.clear();
+
+        // Scale HP before setting it to the supplied starting HP, if there is one
+        self.scale_toa(false, true);
+
+        if let Some(hp) = starting_hp {
+            self.stats.hitpoints.current = hp.clamp(1, self.stats.hitpoints.current.max(1));
+        }
+
+        // Scale the rest of the monster's stats (if applicable) based on the starting HP
         scale_monster_hp_only(self, false);
+
+        self.stats.defence.current = self
+            .stats
+            .defence
+            .current
+            .saturating_sub(def_reduction.unwrap_or(0));
+
+        // Note that this applies the ToA defence scaling we omitted before
+        self.recalculate_def_rolls();
     }
 
     pub fn is_immune(&self, player: &Player) -> bool {
