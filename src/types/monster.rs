@@ -14,6 +14,7 @@ use serde::{Deserialize, de::Error};
 use std::cmp::{max, min};
 use std::str::FromStr;
 use std::sync::LazyLock;
+use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter};
 
 const MONSTER_JSON_STR: &str = include_str!(concat!(env!("OUT_DIR"), "/monsters.json"));
@@ -109,6 +110,15 @@ impl<'de> Deserialize<'de> for Attribute {
     {
         let s = String::deserialize(deserializer)?;
         s.parse().map_err(D::Error::custom)
+    }
+}
+
+impl Attribute {
+    pub fn all() -> impl Iterator<Item = Self> {
+        Self::iter().flat_map(|attr| match attr {
+            Self::Vampyre(_) => (1..=3).map(Self::Vampyre).collect(),
+            other => vec![other],
+        })
     }
 }
 
