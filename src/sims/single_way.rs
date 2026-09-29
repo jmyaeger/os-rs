@@ -13,6 +13,7 @@ use crate::combat::thralls::Thrall;
 use crate::constants::P2_WARDEN_IDS;
 use crate::error::SimulationError;
 use crate::types::player::SwitchType;
+use crate::types::stats::Stat;
 use crate::types::{monster::Monster, player::GearSwitch, player::Player};
 use crate::utils::logging::EventType;
 use crate::utils::logging::FightRecorder;
@@ -44,18 +45,24 @@ impl SingleWayFight {
 
         if monster.info.name == "Vardorvis" {
             monster.hp_scaling_table = Some(build_vard_scaling_table(&monster));
-            monster.stats.defence.base = monster
-                .hp_scaling_table
-                .as_ref()
-                .unwrap()
-                .get(monster.stats.hitpoints.base as usize)
-                .defence;
-            monster.stats.strength.base = monster
-                .hp_scaling_table
-                .as_ref()
-                .unwrap()
-                .get(monster.stats.hitpoints.base as usize)
-                .strength;
+            monster.stats.defence = Stat::new(
+                monster
+                    .hp_scaling_table
+                    .as_ref()
+                    .unwrap()
+                    .get(monster.stats.hitpoints.max() as usize)
+                    .defence,
+                None,
+            );
+            monster.stats.strength = Stat::new(
+                monster
+                    .hp_scaling_table
+                    .as_ref()
+                    .unwrap()
+                    .get(monster.stats.hitpoints.max() as usize)
+                    .strength,
+                None,
+            );
             monster.reset(None, None);
         }
 

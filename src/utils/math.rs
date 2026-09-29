@@ -38,9 +38,14 @@ impl Fraction {
     where
         T: FromPrimitive + ToPrimitive + Mul<Output = T> + Div<Output = T>,
     {
-        let numer = T::from_i32(self.numer).unwrap();
-        let denom = T::from_i32(self.denom).unwrap();
-        numer * value / denom
+        let value = value
+            .to_i64()
+            .expect("multiply_to_int: value out of i64 range");
+        let product = value
+            .checked_mul(i64::from(self.numer))
+            .expect("multiply_to_int: intermediate product overflowed i64");
+        T::from_i64(product / i64::from(self.denom))
+            .expect("multiply_to_int: result out of range for target type")
     }
 
     pub fn from_integer(numer: i32) -> Self {

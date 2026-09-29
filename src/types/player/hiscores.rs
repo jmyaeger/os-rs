@@ -74,12 +74,12 @@ mod test {
     async fn test_lookup_stats() {
         let mut player = Player::new();
         player.lookup_stats("Lynx Titan").await.unwrap();
-        assert_eq!(player.stats.attack.base, 99);
-        assert_eq!(player.stats.defence.base, 99);
-        assert_eq!(player.stats.strength.base, 99);
-        assert_eq!(player.stats.hitpoints.base, 99);
-        assert_eq!(player.stats.ranged.base, 99);
-        assert_eq!(player.stats.magic.base, 99);
-        assert_eq!(player.stats.prayer.base, 99);
+        assert_eq!(player.stats.attack.max(), 99);
+        assert_eq!(player.stats.defence.max(), 99);
+        assert_eq!(player.stats.strength.max(), 99);
+        assert_eq!(player.stats.hitpoints.max(), 99);
+        assert_eq!(player.stats.ranged.max(), 99);
+        assert_eq!(player.stats.magic.max(), 99);
+        assert_eq!(player.stats.prayer.max(), 99);
     }
 }

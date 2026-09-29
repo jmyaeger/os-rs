@@ -355,7 +355,7 @@ impl HunllefMechanics {
             }
             HunllefEatStrategy::EatToFullDuringNadoes => {
                 if ((state.tornado_timer > 0
-                    && player.stats.hitpoints.base - player.stats.hitpoints.current
+                    && player.stats.hitpoints.max() - player.stats.hitpoints.current
                         >= PADDLEFISH_HEAL)
                     || player.stats.hitpoints.current <= hunllef_max)
                     && vars.eat_delay == 0
@@ -519,7 +519,7 @@ impl HunllefFight {
                     // Process Redemption, if applicable
                     if self.player.stats.hitpoints.current > 0
                         && self.player.stats.hitpoints.current
-                            <= (self.player.stats.hitpoints.base / 10)
+                            <= (self.player.stats.hitpoints.max() / 10)
                     {
                         match self.config.redemption_strategy {
                             Some(HunllefRedemptionStrat::BeforeEating(max_procs))
@@ -696,7 +696,7 @@ impl HunllefFight {
                     // Process Redemption, if applicable
                     if self.player.stats.hitpoints.current > 0
                         && self.player.stats.hitpoints.current
-                            <= (self.player.stats.hitpoints.base / 10)
+                            <= (self.player.stats.hitpoints.max() / 10)
                     {
                         match self.config.redemption_strategy {
                             Some(HunllefRedemptionStrat::BeforeEating(max_procs))

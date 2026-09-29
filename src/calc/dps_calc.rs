@@ -189,7 +189,7 @@ pub fn get_hit_chance(
 
     if player.is_wearing("Keris partisan of the sun", None)
         && constants::TOA_MONSTERS.contains(&monster.id())
-        && monster.stats.hitpoints.current < monster.stats.hitpoints.base / 4
+        && monster.stats.hitpoints.current < monster.stats.hitpoints.max() / 4
     {
         max_att_roll = max_att_roll * 5 / 4;
     }
@@ -336,7 +336,7 @@ pub fn get_distribution(
     if constants::ONE_HIT_MONSTERS.contains(&monster.id()) {
         return Ok(AttackDistribution::new(vec![HitDistribution::single(
             1.0,
-            vec![Hitsplat::new(monster.stats.hitpoints.base, true)],
+            vec![Hitsplat::new(monster.stats.hitpoints.max(), true)],
         )]));
     }
 
@@ -542,7 +542,7 @@ pub fn get_distribution(
                 let mut monster_copy = monster.clone();
 
                 // Drains defence by 10% of the magic level
-                let def_drain = monster_copy.stats.magic.base / 8;
+                let def_drain = monster_copy.stats.magic.max() / 8;
                 monster_copy.stats.defence.drain(def_drain);
                 monster_copy.def_rolls = monster_def_rolls(&monster_copy);
 
@@ -833,7 +833,7 @@ pub fn get_distribution(
 
     // Dharok's set effect distribution
     if player.is_using_melee() && player.set_effects.full_dharoks {
-        let full_hp = player.stats.hitpoints.base;
+        let full_hp = player.stats.hitpoints.max();
         let current_hp = player.stats.hitpoints.current;
         let numerator = 10000 + (full_hp.saturating_sub(current_hp)) as i32 * full_hp as i32;
         dist = dist.scale_damage(Fraction::new(numerator, 10000).unwrap());
@@ -919,7 +919,7 @@ pub fn get_spec_min_max_hit(
         "Abyssal dagger" => (0, base_max_hit * 17 / 20),
         "Abyssal bludegon" => {
             let damage_mod =
-                1000 + 5 * max(0, player.stats.prayer.base - player.stats.prayer.current);
+                1000 + 5 * max(0, player.stats.prayer.max() - player.stats.prayer.current);
             (0, base_max_hit * damage_mod / 1000)
         }
         "Dual macuahuitl" if player.set_effects.full_blood_moon => (0, base_max_hit * 5 / 4),
@@ -1510,14 +1510,13 @@ mod tests {
     use crate::types::player::Player;
     use crate::types::potions::Potion;
     use crate::types::prayers::Prayer;
-    use crate::types::stats::PlayerStats;
+    use crate::types::stats::{PlayerStats, Stat};
 
     #[test]
     fn test_ttk_distribution_can_include_final_delay() {
         let player = Player::new();
         let mut monster = Monster::new("Ammonite Crab", None).expect("Error creating monster.");
-        monster.stats.hitpoints.base = 1;
-        monster.stats.hitpoints.current = 1;
+        monster.stats.hitpoints = Stat::new(1, None);
 
         let dist = AttackDistribution::new(vec![HitDistribution::single(
             1.0,

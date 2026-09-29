@@ -544,7 +544,7 @@ pub trait Mechanics {
         log: &mut FightRecorder,
     ) {
         let current_prayer = player.stats.prayer.current;
-        let heal_amount = player.stats.prayer.base / 4;
+        let heal_amount = player.stats.prayer.max() / 4;
         player.stats.prayer.drain(current_prayer);
         player.heal(heal_amount, None);
 

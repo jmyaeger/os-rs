@@ -10,7 +10,7 @@ impl Player {
     }
 
     pub fn regen_all_stats(&mut self) {
-        if self.stats.hitpoints.current < self.stats.hitpoints.base {
+        if self.stats.hitpoints.current < self.stats.hitpoints.max() {
             let wearing_hp_cape =
                 self.is_wearing_any(vec![("Hitpoints cape", None), ("Hitpoints cape(t)", None)]);
             let wearing_regen_bracelet = self.is_wearing("Regen bracelet", None);
@@ -27,23 +27,23 @@ impl Player {
             self.stats.hitpoints.restore(heal_amount, None);
         }
 
-        if self.stats.attack.current < self.stats.attack.base {
+        if self.stats.attack.current < self.stats.attack.max() {
             self.stats.attack.restore(1, None);
         }
 
-        if self.stats.strength.current < self.stats.strength.base {
+        if self.stats.strength.current < self.stats.strength.max() {
             self.stats.strength.restore(1, None);
         }
 
-        if self.stats.defence.current < self.stats.defence.base {
+        if self.stats.defence.current < self.stats.defence.max() {
             self.stats.defence.restore(1, None);
         }
 
-        if self.stats.ranged.current < self.stats.ranged.base {
+        if self.stats.ranged.current < self.stats.ranged.max() {
             self.stats.ranged.restore(1, None);
         }
 
-        if self.stats.magic.current < self.stats.magic.base {
+        if self.stats.magic.current < self.stats.magic.max() {
             self.stats.magic.restore(1, None);
         }
     }
@@ -69,9 +69,9 @@ impl Player {
     }
 
     pub fn restore_prayer(&mut self, amount: u32, max_level: Option<u32>) {
-        let cap = max_level.unwrap_or(self.stats.prayer.base);
+        let cap = max_level.unwrap_or(self.stats.prayer.max());
         self.stats
             .prayer
-            .restore(amount, Some(cap - self.stats.prayer.base));
+            .restore(amount, Some(cap - self.stats.prayer.max()));
     }
 }

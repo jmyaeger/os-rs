@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::constants;
+use crate::utils::math::Fraction;
 use std::cmp::{max, min};
 use std::collections::HashMap;
 
@@ -131,9 +132,10 @@ impl Default for SpecEnergy {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
 pub struct Stat {
-    pub base: u32,
+    base: u32,
     pub current: u32,
     pub min_cap: u32,
+    scaled: Option<u32>,
 }
 
 impl Stat {
@@ -142,16 +144,18 @@ impl Stat {
             base,
             current: base,
             min_cap: min_cap.unwrap_or_default(),
+            scaled: None,
         }
     }
+
     pub fn min_level() -> Self {
         Self::new(constants::MIN_LEVEL, None)
     }
 
     pub fn restore(&mut self, amount: u32, overboost: Option<u32>) {
         let level_cap = match overboost {
-            Some(over) => self.base + over,
-            None => self.base,
+            Some(over) => self.max() + over,
+            None => self.max(),
         };
         self.current = min(level_cap, self.current + amount);
     }
@@ -161,11 +165,43 @@ impl Stat {
     }
 
     pub fn boost(&mut self, amount: u32) {
-        self.current = min(self.current + amount, self.base + amount);
+        self.current = min(self.current + amount, self.max() + amount);
+    }
+
+    pub fn max(&self) -> u32 {
+        self.scaled.unwrap_or(self.base)
+    }
+
+    /// Scale the base value of the stat
+    pub fn scale(&mut self, factor: Fraction) {
+        self.scaled = Some(factor.multiply_to_int(self.base));
+    }
+
+    /// Scale the already-scaled stat, falling back to scaling the base value
+    pub fn scale_on_top(&mut self, factor: Fraction) {
+        self.scaled = Some(factor.multiply_to_int(self.max()));
+    }
+
+    pub fn round_toa(&mut self) {
+        self.scaled = self.scaled.map(|scaled| {
+            match scaled {
+                // Unrounded if scaled HP is below 100 HP
+                0..100 => scaled,
+                // Scaled hp between 100 and 300 HP is rounded to nearest multiple of 5
+                100..300 => (scaled + 2) / 5 * 5,
+                // Scaled hp above 300 HP is rounded to nearest multiple of 10
+                _ => (scaled + 5) / 10 * 10,
+            }
+        });
     }
 
     pub fn reset(&mut self) {
+        self.current = self.max();
+    }
+
+    pub fn reset_to_base(&mut self) {
         self.current = self.base;
+        self.scaled = None;
     }
 }
 
@@ -204,11 +240,13 @@ impl<'de> Deserialize<'de> for Stat {
                 base,
                 current: base,
                 min_cap: 0,
+                scaled: None,
             }),
             StatValue::Object { base, current } => Ok(Stat {
                 base,
                 current,
                 min_cap: 0,
+                scaled: None,
             }),
         }
     }

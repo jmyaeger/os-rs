@@ -40,11 +40,11 @@ impl SpecCondition for CoreCondition {
             Self::MonsterHpAbove(hp) => monster.stats.hitpoints.current > *hp,
             Self::MonsterHpBelow(hp) => monster.stats.hitpoints.current <= *hp,
             Self::MonsterHpPercentAbove(pct) => {
-                monster.stats.hitpoints.current * 100 / monster.stats.hitpoints.base
+                monster.stats.hitpoints.current * 100 / monster.stats.hitpoints.max()
                     > u32::from(*pct)
             }
             Self::MonsterHpPercentBelow(pct) => {
-                monster.stats.hitpoints.current * 100 / monster.stats.hitpoints.base
+                monster.stats.hitpoints.current * 100 / monster.stats.hitpoints.max()
                     <= u32::from(*pct)
             }
             Self::PlayerHpAbove(hp) => player.stats.hitpoints.current > *hp,
@@ -53,7 +53,7 @@ impl SpecCondition for CoreCondition {
                 monster
                     .stats
                     .attack
-                    .base
+                    .max()
                     .saturating_sub(monster.stats.attack.current)
                     < *amt
             }
@@ -61,7 +61,7 @@ impl SpecCondition for CoreCondition {
                 monster
                     .stats
                     .strength
-                    .base
+                    .max()
                     .saturating_sub(monster.stats.strength.current)
                     < *amt
             }
@@ -69,7 +69,7 @@ impl SpecCondition for CoreCondition {
                 monster
                     .stats
                     .defence
-                    .base
+                    .max()
                     .saturating_sub(monster.stats.defence.current)
                     < *amt
             }
@@ -77,7 +77,7 @@ impl SpecCondition for CoreCondition {
                 monster
                     .stats
                     .ranged
-                    .base
+                    .max()
                     .saturating_sub(monster.stats.ranged.current)
                     < *amt
             }
@@ -85,7 +85,7 @@ impl SpecCondition for CoreCondition {
                 monster
                     .stats
                     .magic
-                    .base
+                    .max()
                     .saturating_sub(monster.stats.magic.current)
                     < *amt
             }

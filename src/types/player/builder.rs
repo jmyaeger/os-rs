@@ -272,15 +272,15 @@ mod test {
             .build()
             .expect("Error building player.");
 
-        assert_eq!(player.stats.attack.base, 75);
-        assert_eq!(player.stats.strength.base, 80);
-        assert_eq!(player.stats.defence.base, 70);
-        assert_eq!(player.stats.ranged.base, 90);
-        assert_eq!(player.stats.magic.base, 85);
-        assert_eq!(player.stats.hitpoints.base, 95);
-        assert_eq!(player.stats.prayer.base, 77);
-        assert_eq!(player.stats.mining.base, 70);
-        assert_eq!(player.stats.herblore.base, 71);
+        assert_eq!(player.stats.attack.max(), 75);
+        assert_eq!(player.stats.strength.max(), 80);
+        assert_eq!(player.stats.defence.max(), 70);
+        assert_eq!(player.stats.ranged.max(), 90);
+        assert_eq!(player.stats.magic.max(), 85);
+        assert_eq!(player.stats.hitpoints.max(), 95);
+        assert_eq!(player.stats.prayer.max(), 77);
+        assert_eq!(player.stats.mining.max(), 70);
+        assert_eq!(player.stats.herblore.max(), 71);
     }
 
     #[test]

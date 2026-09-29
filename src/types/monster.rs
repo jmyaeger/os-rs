@@ -9,6 +9,7 @@ use crate::types::equipment::{CombatStyle, CombatType};
 use crate::types::player::Player;
 use crate::types::stats::MonsterStats;
 use crate::utils::logging::MonsterFightId;
+use crate::utils::math::Fraction;
 use rand::Rng;
 use serde::{Deserialize, de::Error};
 use std::cmp::{max, min};
@@ -319,82 +320,163 @@ where
         .transpose()
 }
 
+/// Type for managing attack/defence rolls that are scaled by ToA raid level
+/// (and any future similar scaling mechanic that might enter the game).
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
+struct ScalableRoll {
+    base: i32,
+    scaled: Option<i32>,
+}
+
+impl ScalableRoll {
+    fn new(value: i32) -> Self {
+        Self {
+            base: value,
+            scaled: None,
+        }
+    }
+
+    fn current(&self) -> i32 {
+        self.scaled.unwrap_or(self.base)
+    }
+
+    fn scale(&mut self, factor: Fraction) {
+        self.scaled = Some(factor.multiply_to_int(self.base));
+    }
+}
+
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct MonsterAttRolls {
-    stab: i32,
-    slash: i32,
-    crush: i32,
-    ranged: i32,
-    magic: i32,
+    stab: ScalableRoll,
+    slash: ScalableRoll,
+    crush: ScalableRoll,
+    ranged: ScalableRoll,
+    magic: ScalableRoll,
 }
 
 impl MonsterAttRolls {
+    /// Get the current value of the scalable roll, which is the scaled value if it is scaled
+    /// and the base value if not.
     pub fn get(&self, combat_type: CombatType) -> i32 {
         match combat_type {
-            CombatType::Stab => self.stab,
-            CombatType::Slash => self.slash,
-            CombatType::Crush => self.crush,
+            CombatType::Stab => self.stab.current(),
+            CombatType::Slash => self.slash.current(),
+            CombatType::Crush => self.crush.current(),
             CombatType::Light | CombatType::Standard | CombatType::Heavy | CombatType::Ranged => {
-                self.ranged
+                self.ranged.current()
             }
-            CombatType::Magic => self.magic,
+            CombatType::Magic => self.magic.current(),
             CombatType::None => 0,
         }
     }
 
+    /// Set the base value of the scalable stat and clear any previous scaled value.
     pub fn set(&mut self, combat_type: CombatType, value: i32) {
         match combat_type {
-            CombatType::Stab => self.stab = value,
-            CombatType::Slash => self.slash = value,
-            CombatType::Crush => self.crush = value,
+            CombatType::Stab => self.stab = ScalableRoll::new(value),
+            CombatType::Slash => self.slash = ScalableRoll::new(value),
+            CombatType::Crush => self.crush = ScalableRoll::new(value),
             CombatType::Light | CombatType::Standard | CombatType::Heavy | CombatType::Ranged => {
-                self.ranged = value;
+                self.ranged = ScalableRoll::new(value);
             }
-            CombatType::Magic => self.magic = value,
+            CombatType::Magic => self.magic = ScalableRoll::new(value),
             CombatType::None => {}
         }
+    }
+
+    /// Scale a specific roll by a fractional factor.
+    pub fn scale(&mut self, combat_type: CombatType, factor: Fraction) {
+        match combat_type {
+            CombatType::Stab => self.stab.scale(factor),
+            CombatType::Slash => self.slash.scale(factor),
+            CombatType::Crush => self.crush.scale(factor),
+            CombatType::Light | CombatType::Standard | CombatType::Heavy | CombatType::Ranged => {
+                self.ranged.scale(factor);
+            }
+            CombatType::Magic => self.magic.scale(factor),
+            CombatType::None => {}
+        }
+    }
+
+    /// Scale all rolls by the same fractional factor.
+    pub fn scale_all(&mut self, factor: Fraction) {
+        self.stab.scale(factor);
+        self.slash.scale(factor);
+        self.crush.scale(factor);
+        self.ranged.scale(factor);
+        self.magic.scale(factor);
     }
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct MonsterDefRolls {
-    stab: i32,
-    slash: i32,
-    crush: i32,
-    ranged: i32,
-    light: i32,
-    standard: i32,
-    heavy: i32,
-    magic: i32,
+    stab: ScalableRoll,
+    slash: ScalableRoll,
+    crush: ScalableRoll,
+    ranged: ScalableRoll,
+    light: ScalableRoll,
+    standard: ScalableRoll,
+    heavy: ScalableRoll,
+    magic: ScalableRoll,
 }
 
 impl MonsterDefRolls {
+    /// Get the current value of the scalable roll, which is the scaled value if it is scaled
+    /// and the base value if not.
     pub fn get(&self, combat_type: CombatType) -> i32 {
         match combat_type {
-            CombatType::Stab => self.stab,
-            CombatType::Slash => self.slash,
-            CombatType::Crush => self.crush,
-            CombatType::Light => self.light,
-            CombatType::Standard => self.standard,
-            CombatType::Heavy => self.heavy,
-            CombatType::Ranged => self.ranged,
-            CombatType::Magic => self.magic,
+            CombatType::Stab => self.stab.current(),
+            CombatType::Slash => self.slash.current(),
+            CombatType::Crush => self.crush.current(),
+            CombatType::Light => self.light.current(),
+            CombatType::Standard => self.standard.current(),
+            CombatType::Heavy => self.heavy.current(),
+            CombatType::Ranged => self.ranged.current(),
+            CombatType::Magic => self.magic.current(),
             CombatType::None => 0,
         }
     }
 
+    /// Set the base value of the scalable stat and clear any previous scaled value.
     pub fn set(&mut self, combat_type: CombatType, value: i32) {
         match combat_type {
-            CombatType::Stab => self.stab = value,
-            CombatType::Slash => self.slash = value,
-            CombatType::Crush => self.crush = value,
-            CombatType::Light => self.light = value,
-            CombatType::Standard => self.standard = value,
-            CombatType::Heavy => self.heavy = value,
-            CombatType::Ranged => self.ranged = value,
-            CombatType::Magic => self.magic = value,
+            CombatType::Stab => self.stab = ScalableRoll::new(value),
+            CombatType::Slash => self.slash = ScalableRoll::new(value),
+            CombatType::Crush => self.crush = ScalableRoll::new(value),
+            CombatType::Light => self.light = ScalableRoll::new(value),
+            CombatType::Standard => self.standard = ScalableRoll::new(value),
+            CombatType::Heavy => self.heavy = ScalableRoll::new(value),
+            CombatType::Ranged => self.ranged = ScalableRoll::new(value),
+            CombatType::Magic => self.magic = ScalableRoll::new(value),
             CombatType::None => {}
         }
+    }
+
+    /// Scale a specific roll by a fractional factor.
+    pub fn scale(&mut self, combat_type: CombatType, factor: Fraction) {
+        match combat_type {
+            CombatType::Stab => self.stab.scale(factor),
+            CombatType::Slash => self.slash.scale(factor),
+            CombatType::Crush => self.crush.scale(factor),
+            CombatType::Light => self.light.scale(factor),
+            CombatType::Standard => self.standard.scale(factor),
+            CombatType::Heavy => self.heavy.scale(factor),
+            CombatType::Ranged => self.ranged.scale(factor),
+            CombatType::Magic => self.magic.scale(factor),
+            CombatType::None => {}
+        }
+    }
+
+    /// Scale all rolls by the same fractional factor.
+    pub fn scale_all(&mut self, factor: Fraction) {
+        self.stab.scale(factor);
+        self.slash.scale(factor);
+        self.crush.scale(factor);
+        self.light.scale(factor);
+        self.standard.scale(factor);
+        self.heavy.scale(factor);
+        self.ranged.scale(factor);
+        self.magic.scale(factor);
     }
 }
 
@@ -466,14 +548,10 @@ pub struct Monster {
     pub image: String,
     #[serde(skip)]
     pub def_rolls: MonsterDefRolls,
-    #[serde(skip)]
-    pub base_def_rolls: MonsterDefRolls,
     #[serde(default)]
     #[serde(rename(deserialize = "max_hit"))]
     #[serde(deserialize_with = "deserialize_max_hits")]
     pub max_hits: Option<Vec<MonsterMaxHit>>,
-    #[serde(skip)]
-    pub base_att_rolls: MonsterAttRolls,
     #[serde(skip)]
     pub att_rolls: MonsterAttRolls,
     #[serde(skip)]
@@ -505,13 +583,11 @@ impl Monster {
         // Set base magic def bonus (to allow it to be drained by the eye of ayak)
         monster.bonuses.defence.magic_base = monster.bonuses.defence.magic;
 
-        // Calculate base defence rolls and copy to live defence rolls
-        monster.base_def_rolls = rolls::monster_def_rolls(&monster);
-        monster.def_rolls.clone_from(&monster.base_def_rolls);
+        // Calculate base defence rolls
+        monster.def_rolls = rolls::monster_def_rolls(&monster);
 
-        // Calculate base attack rolls and copy to live attack rolls
-        monster.base_att_rolls = rolls::monster_att_rolls(&monster);
-        monster.att_rolls.clone_from(&monster.base_att_rolls);
+        // Calculate base attack rolls
+        monster.att_rolls = rolls::monster_att_rolls(&monster);
 
         if let (Some(max_hits), Some(attack_styles)) =
             (&mut monster.max_hits, &monster.info.attack_styles)
@@ -543,13 +619,11 @@ impl Monster {
         // Set base magic def bonus (to allow it to be drained by the eye of ayak)
         self.bonuses.defence.magic_base = self.bonuses.defence.magic;
 
-        // Calculate base defence rolls and copy to live defence rolls
-        self.base_def_rolls = rolls::monster_def_rolls(self);
-        self.def_rolls.clone_from(&self.base_def_rolls);
+        // Calculate base defence rolls
+        self.def_rolls = rolls::monster_def_rolls(self);
 
-        // Calculate base attack rolls and copy to live attack rolls
-        self.base_att_rolls = rolls::monster_att_rolls(self);
-        self.att_rolls.clone_from(&self.base_att_rolls);
+        // Calculate base attack rolls
+        self.att_rolls = rolls::monster_att_rolls(self);
 
         if let (Some(max_hits), Some(attack_styles)) =
             (&mut self.max_hits, &self.info.attack_styles)
@@ -732,33 +806,25 @@ impl Monster {
         };
 
         // Apply level scaling
-        let level_scaled_hp = self.stats.hitpoints.base * toa_level_bonus / 100;
+        let level_factor = Fraction::new(toa_level_bonus as i32, 100).expect("non-zero int input");
+        self.stats.hitpoints.scale(level_factor);
 
-        // If the NPC is affected by path scaling, apply it
-        self.stats.hitpoints.current = if constants::TOA_PATH_MONSTERS.contains(&self.id()) {
-            let path_scaled_hp = level_scaled_hp * toa_path_level_bonus / 100;
-            round_toa_hp(path_scaled_hp)
-        } else {
-            round_toa_hp(level_scaled_hp)
-        };
+        // If the NPC is affected by path scaling, apply it on top of the level scaling
+        if constants::TOA_PATH_MONSTERS.contains(&self.id()) {
+            let path_factor =
+                Fraction::new(toa_path_level_bonus as i32, 100).expect("non-zero int input");
+            self.stats.hitpoints.scale_on_top(path_factor);
+        }
+
+        self.stats.hitpoints.round_toa();
+        self.stats.hitpoints.reset()
     }
 
     fn scale_toa_defence(&mut self) {
         // Every 5 levels increases the defence rolls by 2% (0.4% per level)
-        let toa_level_bonus = 1000 + self.info.toa_level * 4;
-        for defence_type in [
-            CombatType::Stab,
-            CombatType::Slash,
-            CombatType::Crush,
-            CombatType::Light,
-            CombatType::Standard,
-            CombatType::Heavy,
-            CombatType::Magic,
-        ] {
-            let scaled =
-                self.base_def_rolls.get(defence_type) as i64 * toa_level_bonus as i64 / 1000;
-            self.def_rolls.set(defence_type, scaled as i32);
-        }
+        let toa_level_bonus = 1000 + self.info.toa_level as i32 * 4;
+        let factor = Fraction::new(toa_level_bonus, 1000).expect("non-zero int inputs");
+        self.def_rolls.scale_all(factor);
     }
 
     pub fn tbow_bonuses(&self) -> (i32, i32) {
@@ -902,8 +968,7 @@ impl Monster {
     }
 
     pub fn recalculate_def_rolls(&mut self) {
-        self.base_def_rolls = rolls::monster_def_rolls(self);
-        self.def_rolls.clone_from(&self.base_def_rolls);
+        self.def_rolls = rolls::monster_def_rolls(self);
         self.scale_toa(true, false);
     }
 
@@ -1210,7 +1275,7 @@ impl Monster {
 
     fn set_defence_floor(&mut self) {
         let floor = match self.name() {
-            "Verzik Vitur" => self.stats.defence.base,
+            "Verzik Vitur" => self.stats.defence.max(),
             "Soteseg" => 100,
             "The Nightmare" | "Phosani's Nightmare" | "The Hueycoatl" => 120,
             "Akkha" => 70,
@@ -1224,7 +1289,7 @@ impl Monster {
                     .expect("No version found")
                     .as_str()
                 {
-                    "Active" => self.stats.defence.base,
+                    "Active" => self.stats.defence.max(),
                     "Damaged" | "Enraged" => 120,
                     _ => 0,
                 }
@@ -1236,19 +1301,6 @@ impl Monster {
         };
 
         self.stats.defence.min_cap = floor;
-    }
-}
-
-fn round_toa_hp(hp: u32) -> u32 {
-    if hp < 100 {
-        // Unrounded if scaled HP is below 100 HP
-        hp
-    } else if hp < 300 {
-        // Scaled hp between 100 and 300 HP is rounded to nearest multiple of 5
-        (hp + 2) / 5 * 5
-    } else {
-        // Scaled hp above 300 HP is rounded to nearest multiple of 10
-        (hp + 5) / 10 * 10
     }
 }
 

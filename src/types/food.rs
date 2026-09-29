@@ -341,7 +341,7 @@ static FOOD_DB: LazyLock<HashMap<Foods, Food>> = LazyLock::new(|| {
             FoodPropertiesBuilder::new()
                 .total_bites(5)
                 .bite_eat_delay(3)
-                .heal_function(|player| player.stats.hitpoints.base * 6 / 100 + 1)
+                .heal_function(|player| player.stats.hitpoints.max() * 6 / 100 + 1)
                 .build(),
         ),
     );
@@ -350,7 +350,7 @@ static FOOD_DB: LazyLock<HashMap<Foods, Food>> = LazyLock::new(|| {
         Foods::Anglerfish,
         Food::new(Foods::Anglerfish, 0, 3, 3, FoodType::Normal).with_properties(
             FoodPropertiesBuilder::new()
-                .heal_function(|player| player.stats.hitpoints.base * 6 / 100 + 1)
+                .heal_function(|player| player.stats.hitpoints.max() * 6 / 100 + 1)
                 .overheal()
                 .build(),
         ),
@@ -362,13 +362,13 @@ static FOOD_DB: LazyLock<HashMap<Foods, Food>> = LazyLock::new(|| {
             FoodPropertiesBuilder::new()
                 .total_bites(4)
                 .bite_eat_delay(3)
-                .heal_function(|player| player.stats.hitpoints.base * 3 / 20 + 2)
+                .heal_function(|player| player.stats.hitpoints.max() * 3 / 20 + 2)
                 .stat_effect(|player| {
-                    let def_boost = player.stats.defence.base / 5 + 2;
+                    let def_boost = player.stats.defence.max() / 5 + 2;
                     player
                         .stats
                         .defence
-                        .restore(def_boost, Some(def_boost + player.stats.defence.base));
+                        .restore(def_boost, Some(def_boost + player.stats.defence.max()));
                     player
                         .stats
                         .attack
@@ -397,13 +397,13 @@ static FOOD_DB: LazyLock<HashMap<Foods, Food>> = LazyLock::new(|| {
             FoodPropertiesBuilder::new()
                 .total_bites(4)
                 .bite_eat_delay(3)
-                .heal_function(|player| player.stats.hitpoints.base * 7 / 100 + 1)
+                .heal_function(|player| player.stats.hitpoints.max() * 7 / 100 + 1)
                 .stat_effect(|player| {
-                    let def_boost = player.stats.defence.base * 14 / 100 + 1;
+                    let def_boost = player.stats.defence.max() * 14 / 100 + 1;
                     player
                         .stats
                         .defence
-                        .restore(def_boost, Some(def_boost + player.stats.defence.base));
+                        .restore(def_boost, Some(def_boost + player.stats.defence.max()));
                     player
                         .stats
                         .attack
@@ -432,13 +432,13 @@ static FOOD_DB: LazyLock<HashMap<Foods, Food>> = LazyLock::new(|| {
             FoodPropertiesBuilder::new()
                 .total_bites(4)
                 .bite_eat_delay(3)
-                .heal_function(|player| player.stats.hitpoints.base * 12 / 100 + 2)
+                .heal_function(|player| player.stats.hitpoints.max() * 12 / 100 + 2)
                 .stat_effect(|player| {
-                    let def_boost = player.stats.defence.base * 18 / 100 + 2;
+                    let def_boost = player.stats.defence.max() * 18 / 100 + 2;
                     player
                         .stats
                         .defence
-                        .restore(def_boost, Some(def_boost + player.stats.defence.base));
+                        .restore(def_boost, Some(def_boost + player.stats.defence.max()));
                     player
                         .stats
                         .attack
@@ -467,13 +467,13 @@ static FOOD_DB: LazyLock<HashMap<Foods, Food>> = LazyLock::new(|| {
             FoodPropertiesBuilder::new()
                 .total_bites(4)
                 .bite_eat_delay(3)
-                .heal_function(|player| player.stats.hitpoints.base * 3 / 20 + 5)
+                .heal_function(|player| player.stats.hitpoints.max() * 3 / 20 + 5)
                 .stat_effect(|player| {
-                    let def_boost = player.stats.defence.base / 5 + 5;
+                    let def_boost = player.stats.defence.max() / 5 + 5;
                     player
                         .stats
                         .defence
-                        .restore(def_boost, Some(def_boost + player.stats.defence.base));
+                        .restore(def_boost, Some(def_boost + player.stats.defence.max()));
                     player
                         .stats
                         .attack
@@ -502,7 +502,7 @@ static FOOD_DB: LazyLock<HashMap<Foods, Food>> = LazyLock::new(|| {
             FoodPropertiesBuilder::new()
                 .total_bites(4)
                 .bite_eat_delay(3)
-                .heal_function(|player| player.stats.hitpoints.base * 3 / 20 + 3)
+                .heal_function(|player| player.stats.hitpoints.max() * 3 / 20 + 3)
                 .stat_effect(|player| {
                     player
                         .stats
@@ -552,10 +552,10 @@ static FOOD_DB: LazyLock<HashMap<Foods, Food>> = LazyLock::new(|| {
                 .total_bites(2)
                 .bite_eat_delay(3)
                 .stat_effect(|player| {
-                    let hp_boost = player.stats.hitpoints.base / 4 + 2;
-                    player.stats.hitpoints.current = player.stats.hitpoints.base + hp_boost;
-                    let prayer_boost = player.stats.prayer.base / 5 + 5;
-                    player.stats.prayer.current = player.stats.prayer.base + prayer_boost;
+                    let hp_boost = player.stats.hitpoints.max() / 4 + 2;
+                    player.stats.hitpoints.current = player.stats.hitpoints.max() + hp_boost;
+                    let prayer_boost = player.stats.prayer.max() / 5 + 5;
+                    player.stats.prayer.current = player.stats.prayer.max() + prayer_boost;
                 })
                 .overheal()
                 .build(),

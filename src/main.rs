@@ -70,7 +70,7 @@ fn simulate_single_way() {
 
     let mut monster = Monster::new("Vorkath", Some("Post-quest")).expect("Error creating monster.");
 
-    // let single_shield_hp = monster.stats.hitpoints.base;
+    // let single_shield_hp = monster.stats.hitpoints.max();
     // monster.stats.hitpoints = Stat::new(single_shield_hp * 2, None);
     // monster.info.toa_level = 350;
     // monster.info.toa_path_level = 0;

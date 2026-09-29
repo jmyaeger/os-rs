@@ -10,6 +10,7 @@ use crate::error::SimulationError;
 use crate::types::monster::{AttackType, Monster, MonsterMaxHit};
 use crate::types::player::Player;
 use crate::types::prayers::Prayer;
+use crate::types::stats::Stat;
 use crate::utils::logging::{EventType, FightRecorder, MonsterSnapshot, PlayerSnapshot};
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
@@ -152,18 +153,22 @@ impl VardorvisFight {
 
         // Build precomputed scaling table
         vard.hp_scaling_table = Some(build_vard_scaling_table(&vard));
-        vard.stats.defence.base = vard
-            .hp_scaling_table
-            .as_ref()
-            .unwrap()
-            .get(vard.stats.hitpoints.base as usize)
-            .defence;
-        vard.stats.strength.base = vard
-            .hp_scaling_table
-            .as_ref()
-            .unwrap()
-            .get(vard.stats.hitpoints.base as usize)
-            .strength;
+        vard.stats.defence = Stat::new(
+            vard.hp_scaling_table
+                .as_ref()
+                .unwrap()
+                .get(vard.stats.hitpoints.max() as usize)
+                .defence,
+            None,
+        );
+        vard.stats.strength = Stat::new(
+            vard.hp_scaling_table
+                .as_ref()
+                .unwrap()
+                .get(vard.stats.hitpoints.max() as usize)
+                .strength,
+            None,
+        );
         vard.reset(None, None);
 
         let limiter = assign_limiter(&player, &vard);

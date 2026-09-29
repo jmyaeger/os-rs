@@ -171,7 +171,7 @@ impl PotionBoost {
 
     pub fn calc_boost(&mut self, level: Stat) {
         // Calculate the level boost based on the player's base level
-        self.boost = self.factor * level.base / 100 + self.constant;
+        self.boost = self.factor * level.max() / 100 + self.constant;
     }
 
     pub fn calc_dragon_battleaxe_boost(
@@ -195,26 +195,26 @@ impl PotionBoost {
     ) {
         match skill {
             PotionStat::Attack => {
-                if herblore_level.base >= 45 {
-                    self.boost = 5 + combat_level.base * 15 / 100;
-                } else if herblore_level.base >= 3 {
-                    self.boost = 3 + combat_level.base / 10;
+                if herblore_level.max() >= 45 {
+                    self.boost = 5 + combat_level.max() * 15 / 100;
+                } else if herblore_level.max() >= 3 {
+                    self.boost = 3 + combat_level.max() / 10;
                 }
             }
             PotionStat::Strength => {
-                if herblore_level.base >= 55 {
-                    self.boost = 5 + combat_level.base * 15 / 100;
-                } else if herblore_level.base >= 12 {
-                    self.boost = 3 + combat_level.base / 10;
+                if herblore_level.max() >= 55 {
+                    self.boost = 5 + combat_level.max() * 15 / 100;
+                } else if herblore_level.max() >= 12 {
+                    self.boost = 3 + combat_level.max() / 10;
                 }
             }
             PotionStat::Defence => {
-                if herblore_level.base >= 70 {
-                    self.boost = 7 + combat_level.base / 5;
-                } else if herblore_level.base >= 65 {
-                    self.boost = 5 + combat_level.base * 15 / 100;
-                } else if herblore_level.base >= 30 {
-                    self.boost = 3 + combat_level.base / 10;
+                if herblore_level.max() >= 70 {
+                    self.boost = 7 + combat_level.max() / 5;
+                } else if herblore_level.max() >= 65 {
+                    self.boost = 5 + combat_level.max() * 15 / 100;
+                } else if herblore_level.max() >= 30 {
+                    self.boost = 3 + combat_level.max() / 10;
                 }
             }
             _ => {}
@@ -223,8 +223,8 @@ impl PotionBoost {
 
     pub fn calc_zamorak_brew_boost(&mut self, combat_level: Stat, skill: &PotionStat) {
         match skill {
-            PotionStat::Attack => self.boost = 2 + combat_level.base * 20 / 100,
-            PotionStat::Strength => self.boost = 2 + combat_level.base * 12 / 100,
+            PotionStat::Attack => self.boost = 2 + combat_level.max() * 20 / 100,
+            PotionStat::Strength => self.boost = 2 + combat_level.max() * 12 / 100,
             _ => {}
         }
     }

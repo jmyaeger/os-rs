@@ -135,17 +135,17 @@ fn demonbane_melee_spec(
         // Drain stats by 1 + 5%, 10%, or 15% of their base values
         monster.drain_stat(
             &CombatStat::Attack,
-            monster.stats.attack.base * demon_mod / 20 + 1,
+            monster.stats.attack.max() * demon_mod / 20 + 1,
             None,
         );
         monster.drain_stat(
             &CombatStat::Strength,
-            monster.stats.strength.base * demon_mod / 20 + 1,
+            monster.stats.strength.max() * demon_mod / 20 + 1,
             None,
         );
         monster.drain_stat(
             &CombatStat::Defence,
-            monster.stats.defence.base * demon_mod / 20 + 1,
+            monster.stats.defence.max() * demon_mod / 20 + 1,
             None,
         );
 
@@ -387,10 +387,10 @@ pub fn bulwark_spec(
 
             // If either attack or strength is the highest stat, drain both of them by 5%
             if highest_stat.0 == CombatStat::Attack || highest_stat.0 == CombatStat::Strength {
-                monster.drain_stat(&CombatStat::Attack, monster.stats.attack.base / 20, None);
+                monster.drain_stat(&CombatStat::Attack, monster.stats.attack.max() / 20, None);
                 monster.drain_stat(
                     &CombatStat::Strength,
-                    monster.stats.strength.base / 20,
+                    monster.stats.strength.max() / 20,
                     None,
                 );
             } else {
@@ -473,8 +473,8 @@ pub fn accursed_sceptre_spec(
         hit.apply_transforms(player, monster, rng, limiter);
 
         // Drain magic and defence by up to 15% of base levels (less if already drained)
-        let def_level_cap = monster.stats.defence.base - monster.stats.defence.base * 15 / 100;
-        let magic_level_cap = monster.stats.magic.base - monster.stats.magic.base * 15 / 100;
+        let def_level_cap = monster.stats.defence.max() - monster.stats.defence.max() * 15 / 100;
+        let magic_level_cap = monster.stats.magic.max() - monster.stats.magic.max() * 15 / 100;
 
         if monster.stats.defence.current > def_level_cap {
             let def_drain_cap = monster.stats.defence.current - def_level_cap;
@@ -588,7 +588,7 @@ pub fn dorgeshuun_weapon_spec(
         hit.damage = max(1, hit.damage);
 
         // Drains defence by damage, but only if it hasn't been drained already
-        if monster.stats.defence.current == monster.stats.defence.base
+        if monster.stats.defence.current == monster.stats.defence.max()
             && !constants::IMMUNE_TO_STAT_DRAIN.contains(&monster.id())
         {
             monster.drain_stat(&CombatStat::Defence, hit.damage, None);
@@ -710,7 +710,7 @@ pub fn abyssal_bludgeon_spec(
     let mut info = AttackInfo::new(player, monster);
 
     // Boost max hit by 0.5% per missing prayer point
-    let damage_mod = 1000 + 5 * max(0, player.stats.prayer.base - player.stats.prayer.current);
+    let damage_mod = 1000 + 5 * max(0, player.stats.prayer.max() - player.stats.prayer.current);
     info.max_hit = info.max_hit * damage_mod / 1000;
 
     let mut hit = base_attack(&info, rng, false);
@@ -1529,8 +1529,8 @@ pub fn tonalztics_of_ralos_spec(
     // Accuracy is boosted by 50%
     info.max_att_roll = info.max_att_roll * 3 / 2;
 
-    let drain_cap = Some(monster.stats.defence.base / 2);
-    let drain_amount = monster.stats.magic.base / 8;
+    let drain_cap = Some(monster.stats.defence.max() / 2);
+    let drain_amount = monster.stats.magic.max() / 8;
 
     let mut hit1 = base_attack(&info, rng, false);
     if hit1.success {

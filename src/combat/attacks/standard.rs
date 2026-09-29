@@ -298,7 +298,7 @@ pub fn dharoks_axe_attack(
 
     if hit.success && player.set_effects.full_dharoks {
         // Set effect damage increase is applied post-roll
-        let max_hp = player.stats.hitpoints.base;
+        let max_hp = player.stats.hitpoints.max();
         let current_hp = player.stats.hitpoints.current;
         let dmg_mod = 10000 + (max_hp.saturating_sub(current_hp)) * max_hp;
         hit.damage = hit.damage * dmg_mod / 10000;
@@ -463,7 +463,7 @@ pub fn yellow_keris_attack(
 ) -> Hit {
     let mut info = AttackInfo::new(player, monster);
 
-    if (monster.stats.hitpoints.current as f32) / (monster.stats.hitpoints.base as f32) < 0.25
+    if (monster.stats.hitpoints.current as f32) / (monster.stats.hitpoints.max() as f32) < 0.25
         && monster.is_toa_monster()
     {
         // In ToA, accuracy is boosted by 25% when monster is below 25% health
@@ -478,7 +478,7 @@ pub fn yellow_keris_attack(
 
     if monster.stats.hitpoints.current.saturating_sub(hit.damage) == 0 && monster.is_toa_monster() {
         // Killing a ToA monster heals the player by 12 and costs 5 prayer points
-        player.heal(12, Some(player.stats.hitpoints.base / 5));
+        player.heal(12, Some(player.stats.hitpoints.max() / 5));
         player.stats.prayer.drain(5);
     }
 
@@ -739,26 +739,26 @@ pub fn shadow_spell_attack(
 
     if hit.success {
         // Only drains attack if it hasn't been drained already
-        if monster.stats.attack.current == monster.stats.attack.base {
+        if monster.stats.attack.current == monster.stats.attack.max() {
             monster.drain_stat(
                 &CombatStat::Attack,
-                monster.stats.attack.base * drain_amount / 1000,
+                monster.stats.attack.max() * drain_amount / 1000,
                 None,
             );
         }
         if player.is_wearing("Shadow ancient sceptre", None) {
             // Shadow ancient sceptre also drains strength and defense if not drained previously
-            if monster.stats.strength.current == monster.stats.strength.base {
+            if monster.stats.strength.current == monster.stats.strength.max() {
                 monster.drain_stat(
                     &CombatStat::Strength,
-                    monster.stats.strength.base * drain_amount / 1000,
+                    monster.stats.strength.max() * drain_amount / 1000,
                     None,
                 );
             }
-            if monster.stats.defence.current == monster.stats.defence.base {
+            if monster.stats.defence.current == monster.stats.defence.max() {
                 monster.drain_stat(
                     &CombatStat::Defence,
-                    monster.stats.defence.base * drain_amount / 1000,
+                    monster.stats.defence.max() * drain_amount / 1000,
                     None,
                 );
             }
@@ -784,7 +784,7 @@ pub fn blood_spell_attack(
 
     let overheal = if player.is_wearing("Blood ancient sceptre", None) {
         // Blood ancient sceptre allows 10% overheal
-        Some(player.stats.hitpoints.base / 10)
+        Some(player.stats.hitpoints.max() / 10)
     } else {
         None
     };
