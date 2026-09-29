@@ -11780,7 +11780,7 @@
     "info": {
       "id": 11063,
       "name": "Bandit (Shayzien)",
-      "version": null,
+      "version": "1",
       "combat_level": 22,
       "attack_speed": 4,
       "attack_styles": [
@@ -11829,7 +11829,117 @@
     "max_hit": [
       "3"
     ],
-    "image": "Bandit (Shayzien).png"
+    "image": "Bandit (Shayzien, 1).png"
+  },
+  {
+    "info": {
+      "id": 11064,
+      "name": "Bandit (Shayzien)",
+      "version": "2",
+      "combat_level": 22,
+      "attack_speed": 4,
+      "attack_styles": [
+        "Stab"
+      ],
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 17,
+      "defence": 17,
+      "hitpoints": 27,
+      "magic": 1,
+      "ranged": 1,
+      "strength": 17
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 11,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 5,
+        "magic": 1,
+        "heavy": 4,
+        "standard": 4,
+        "light": 4,
+        "slash": 8,
+        "stab": 4
+      },
+      "strength": {
+        "melee": 12,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "3"
+    ],
+    "image": "Bandit (Shayzien, 2).png"
+  },
+  {
+    "info": {
+      "id": 11065,
+      "name": "Bandit (Shayzien)",
+      "version": "3",
+      "combat_level": 22,
+      "attack_speed": 4,
+      "attack_styles": [
+        "Stab"
+      ],
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 17,
+      "defence": 17,
+      "hitpoints": 27,
+      "magic": 1,
+      "ranged": 1,
+      "strength": 17
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 11,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 5,
+        "magic": 1,
+        "heavy": 4,
+        "standard": 4,
+        "light": 4,
+        "slash": 8,
+        "stab": 4
+      },
+      "strength": {
+        "melee": 12,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "3"
+    ],
+    "image": "Bandit (Shayzien, 3).png"
   },
   {
     "info": {
@@ -20568,7 +20678,9 @@
       "freeze": 0,
       "burn": null
     },
-    "max_hit": null,
+    "max_hit": [
+      "17"
+    ],
     "image": "Brawler (level 158).png"
   },
   {
@@ -61196,7 +61308,7 @@
   },
   {
     "info": {
-      "id": 7554,
+      "id": 7551,
       "name": "Great Olm",
       "version": "Head (Challenge Mode)",
       "combat_level": 1043,
@@ -61320,7 +61432,7 @@
   },
   {
     "info": {
-      "id": 7555,
+      "id": 7552,
       "name": "Great Olm",
       "version": "Left claw (Challenge Mode)",
       "combat_level": 750,
@@ -61442,7 +61554,7 @@
   },
   {
     "info": {
-      "id": 7553,
+      "id": 7550,
       "name": "Great Olm",
       "version": "Right claw (Challenge Mode)",
       "combat_level": 549,
@@ -62386,7 +62498,7 @@
       "attack_styles": [
         "Crush"
       ],
-      "size": 0,
+      "size": 2,
       "attributes": [
         "undead"
       ],
@@ -104862,6 +104974,116 @@
   },
   {
     "info": {
+      "id": 16528,
+      "name": "Outlaw (A Ruff Situation)",
+      "version": "Level 22",
+      "combat_level": 22,
+      "attack_speed": 4,
+      "attack_styles": [
+        "Crush"
+      ],
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 14,
+      "defence": 20,
+      "hitpoints": 13,
+      "magic": 0,
+      "ranged": 0,
+      "strength": 25
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "3"
+    ],
+    "image": "Outlaw (A Ruff Situation, level 22).png"
+  },
+  {
+    "info": {
+      "id": 16527,
+      "name": "Outlaw (A Ruff Situation)",
+      "version": "Level 23",
+      "combat_level": 23,
+      "attack_speed": 4,
+      "attack_styles": [
+        "Crush"
+      ],
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 18,
+      "defence": 20,
+      "hitpoints": 20,
+      "magic": 0,
+      "ranged": 0,
+      "strength": 25
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "3"
+    ],
+    "image": "Outlaw (A Ruff Situation, level 23).png"
+  },
+  {
+    "info": {
       "id": 4167,
       "name": "Outlaw",
       "version": "1",
@@ -129299,7 +129521,7 @@
       "attack_styles": [
         "Crush"
       ],
-      "size": 0,
+      "size": 2,
       "attributes": [
         "undead"
       ],
@@ -134150,8 +134372,8 @@
       "burn": null
     },
     "max_hit": [
-      "9 Ranged",
-      "4 Melee"
+      "9 (Ranged)",
+      "4 (Melee)"
     ],
     "image": "Spawn.png"
   },
@@ -154143,6 +154365,286 @@
       "19"
     ],
     "image": "Veiled kraken.png"
+  },
+  {
+    "info": {
+      "id": 16213,
+      "name": "Venator (The Blood Moon Rises)",
+      "version": "1",
+      "combat_level": 195,
+      "attack_speed": 0,
+      "attack_styles": [
+        "Stab",
+        "Ranged"
+      ],
+      "size": 2,
+      "attributes": [
+        "vampyre3"
+      ],
+      "weakness": null
+    },
+    "stats": {
+      "attack": 200,
+      "defence": 100,
+      "hitpoints": 160,
+      "magic": 100,
+      "ranged": 75,
+      "strength": 200
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Venator (1).png"
+  },
+  {
+    "info": {
+      "id": 16214,
+      "name": "Venator (The Blood Moon Rises)",
+      "version": "2",
+      "combat_level": 195,
+      "attack_speed": 0,
+      "attack_styles": [
+        "Stab",
+        "Ranged"
+      ],
+      "size": 2,
+      "attributes": [
+        "vampyre3"
+      ],
+      "weakness": null
+    },
+    "stats": {
+      "attack": 200,
+      "defence": 100,
+      "hitpoints": 160,
+      "magic": 100,
+      "ranged": 75,
+      "strength": 200
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Venator (2).png"
+  },
+  {
+    "info": {
+      "id": 16215,
+      "name": "Venator (The Blood Moon Rises)",
+      "version": "3",
+      "combat_level": 195,
+      "attack_speed": 0,
+      "attack_styles": [
+        "Stab",
+        "Ranged"
+      ],
+      "size": 2,
+      "attributes": [
+        "vampyre3"
+      ],
+      "weakness": null
+    },
+    "stats": {
+      "attack": 200,
+      "defence": 100,
+      "hitpoints": 160,
+      "magic": 100,
+      "ranged": 75,
+      "strength": 200
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Venator (3).png"
+  },
+  {
+    "info": {
+      "id": 16216,
+      "name": "Venator (The Blood Moon Rises)",
+      "version": "4",
+      "combat_level": 195,
+      "attack_speed": 0,
+      "attack_styles": [
+        "Stab",
+        "Ranged"
+      ],
+      "size": 2,
+      "attributes": [
+        "vampyre3"
+      ],
+      "weakness": null
+    },
+    "stats": {
+      "attack": 200,
+      "defence": 100,
+      "hitpoints": 160,
+      "magic": 100,
+      "ranged": 75,
+      "strength": 200
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Venator (4).png"
+  },
+  {
+    "info": {
+      "id": 16217,
+      "name": "Venator (The Blood Moon Rises)",
+      "version": "5",
+      "combat_level": 195,
+      "attack_speed": 0,
+      "attack_styles": [
+        "Stab",
+        "Ranged"
+      ],
+      "size": 2,
+      "attributes": [
+        "vampyre3"
+      ],
+      "weakness": null
+    },
+    "stats": {
+      "attack": 200,
+      "defence": 100,
+      "hitpoints": 160,
+      "magic": 100,
+      "ranged": 75,
+      "strength": 200
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Venator (5).png"
   },
   {
     "info": {
