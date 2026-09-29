@@ -257,7 +257,7 @@ impl Player {
             CombatType::Stab => {
                 self.is_wearing("Osmumten's fang", None)
                     || weapon_name.contains("halberd")
-                    || (weapon_name.contains("spear") && weapon_name.as_str() != "Blue moon spear")
+                    || (weapon_name.contains("spear") && weapon_name.as_str() != "Blue Moon spear")
             }
             _ => false,
         }

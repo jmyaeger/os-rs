@@ -96,10 +96,10 @@ pub fn bowfa_crystal_player() -> Player {
 
 pub fn full_eclipse_player() -> Player {
     let gear = Gear::builder()
-        .head("Eclipse moon helm", None)
+        .head("Eclipse Moon helm", None)
         .neck("Amulet of fury", None)
-        .body("Eclipse moon chestplate", None)
-        .legs("Eclipse moon tassets", None)
+        .body("Eclipse Moon chestplate", None)
+        .legs("Eclipse Moon tassets", None)
         .cape("Dizana's quiver", Some("Uncharged"))
         .feet("Avernic treads (max)", None)
         .ring("Ultor ring", None)

@@ -1150,7 +1150,7 @@ pub fn get_attack_functions(player: &Player) -> AttackFn {
         "Tonalztics of Ralos" => tonalztics_of_ralos_attack as AttackFn,
         "Dual macuahuitl" => dual_macuahuitl_attack as AttackFn,
         "Eclipse atlatl" => atlatl_attack as AttackFn,
-        "Blue moon spear" => blue_moon_spear_attack as AttackFn,
+        "Blue Moon spear" => blue_moon_spear_attack as AttackFn,
         _ => standard_attack as AttackFn,
     }
 }
@@ -1174,9 +1174,9 @@ mod tests {
     fn test_atlatl_dps() {
         let mut player = max_melee_player();
         player.equip("Eclipse atlatl", None).unwrap();
-        player.equip("Eclipse moon helm", None).unwrap();
-        player.equip("Eclipse moon chestplate", None).unwrap();
-        player.equip("Eclipse moon tassets", None).unwrap();
+        player.equip("Eclipse Moon helm", None).unwrap();
+        player.equip("Eclipse Moon chestplate", None).unwrap();
+        player.equip("Eclipse Moon tassets", None).unwrap();
         player.equip("Atlatl dart", None).unwrap();
         player.update_bonuses();
         player.update_set_effects();

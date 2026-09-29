@@ -236,23 +236,23 @@ pub const FULL_AHRIMS: [(&str, Option<&str>); 4] = [
 ];
 
 pub const FULL_BLOOD_MOON: [(&str, Option<&str>); 4] = [
-    ("Blood moon helm", None),
-    ("Blood moon chestplate", None),
-    ("Blood moon tassets", None),
+    ("Blood Moon helm", None),
+    ("Blood Moon chestplate", None),
+    ("Blood Moon tassets", None),
     ("Dual macuahuitl", None),
 ];
 
 pub const FULL_BLUE_MOON: [(&str, Option<&str>); 4] = [
-    ("Blue moon helm", None),
-    ("Blue moon chestplate", None),
-    ("Blue moon tassets", None),
-    ("Blue moon spear", None),
+    ("Blue Moon helm", None),
+    ("Blue Moon chestplate", None),
+    ("Blue Moon tassets", None),
+    ("Blue Moon spear", None),
 ];
 
 pub const FULL_ECLIPSE_MOON: [(&str, Option<&str>); 4] = [
-    ("Eclipse moon helm", None),
-    ("Eclipse moon chestplate", None),
-    ("Eclipse moon tassets", None),
+    ("Eclipse Moon helm", None),
+    ("Eclipse Moon chestplate", None),
+    ("Eclipse Moon tassets", None),
     ("Eclipse atlatl", None),
 ];
 
@@ -769,14 +769,14 @@ pub const SPEC_COSTS: [(&str, u8); 75] = [
     ("Elder maul", 50),
     ("Seercull", 100),
     ("Staff of the Dead", 100),
-    ("Toxic staff of the dead", 100),
+    ("Toxic Staff of the Dead", 100),
     ("Staff of Light", 100),
     ("Staff of Balance", 100),
     ("Tonalztics of Ralos", 50),
     ("Abyssal bludgeon", 50),
     ("Armadyl crossbow", 50),
     ("Armadyl godsword", 50),
-    ("Blue moon spear", 50),
+    ("Blue Moon spear", 50),
     ("Dawnbringer", 35),
     ("Dragon longsword", 25),
     ("Dragon mace", 25),
