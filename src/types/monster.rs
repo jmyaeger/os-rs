@@ -490,7 +490,7 @@ impl MonsterDefRolls {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
 pub struct ElementalWeakness {
     pub element: String,
     pub severity: i64,
