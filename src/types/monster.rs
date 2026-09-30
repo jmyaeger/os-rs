@@ -134,7 +134,7 @@ impl Attribute {
 }
 
 // Offensive bonus for a each primary combat style
-#[derive(Debug, Eq, PartialEq, Hash, Default, Clone, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Hash, Default, Clone, Deserialize, Serialize)]
 pub struct AttackBonus {
     pub melee: i32,
     pub ranged: i32,
@@ -142,7 +142,7 @@ pub struct AttackBonus {
 }
 
 // Defensive bonuses for all combat styles
-#[derive(Debug, Eq, PartialEq, Hash, Default, Clone, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Hash, Default, Clone, Deserialize, Serialize)]
 pub struct MonsterDefBonuses {
     pub stab: i32,
     pub slash: i32,
@@ -158,7 +158,7 @@ pub struct MonsterDefBonuses {
 type MonsterStrengthBonus = AttackBonus; // Uses the same fields as AttackBonus
 
 // All offensive and defensive bonuses for a monster
-#[derive(Debug, PartialEq, Default, Clone, Deserialize)]
+#[derive(Debug, PartialEq, Default, Clone, Deserialize, Serialize)]
 pub struct MonsterBonuses {
     pub attack: AttackBonus,
     pub strength: MonsterStrengthBonus,
