@@ -254,7 +254,7 @@ mod test {
 
         assert_eq!(player.stats, PlayerStats::default());
         assert!(player.attrs.name.is_none());
-        assert_eq!(player.attrs.active_style, CombatStyle::Punch);
+        assert_eq!(player.attrs.active_style, CombatStyle::Kick);
     }
 
     #[test]

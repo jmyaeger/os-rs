@@ -116,21 +116,21 @@ pub const fn canonical_item_id(id: i32) -> i32 {
         28957 => 28955,
         // Blood ancient sceptre#Normal
         28473 => 28260,
-        // Blood moon chestplate#New
+        // Blood Moon chestplate#New
         29043 => 29022,
-        // Blood moon helm#New
+        // Blood Moon helm#New
         29047 => 29028,
-        // Blood moon tassets#New
+        // Blood Moon tassets#New
         29045 => 29025,
         // Blue d'hide body
         7374 | 7376 => 2499,
         // Blue d'hide chaps
         7382 | 7384 => 2493,
-        // Blue moon chestplate#New
+        // Blue Moon chestplate#New
         29037 => 29013,
-        // Blue moon helm#New
+        // Blue Moon helm#New
         29041 => 29019,
-        // Blue moon tassets#New
+        // Blue Moon tassets#New
         29039 => 29016,
         // Blue skirt
         7386 | 7388 => 1011,
@@ -300,11 +300,11 @@ pub const fn canonical_item_id(id: i32) -> i32 {
         28029 => 21009,
         // Dragon warhammer
         28035 | 26710 => 13576,
-        // Eclipse moon chestplate#New
+        // Eclipse Moon chestplate#New
         29031 => 29004,
-        // Eclipse moon helm#New
+        // Eclipse Moon helm#New
         29035 => 29010,
-        // Eclipse moon tassets#New
+        // Eclipse Moon tassets#New
         29033 => 29007,
         // Elder chaos hood
         27119 => 20595,

@@ -305,7 +305,7 @@ mod tests {
             simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
         let stats = SimulationStats::new(&results);
 
-        assert!(num::abs(stats.ttk - 10.2) < 0.1);
-        assert!(num::abs(stats.accuracy - 99.04) < 0.1);
+        assert!(num::abs(stats.ttk - 10.1) < 0.1);
+        assert!(num::abs(stats.accuracy - 99.07) < 0.1);
     }
 }

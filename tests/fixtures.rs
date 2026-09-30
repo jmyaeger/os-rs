@@ -578,9 +578,9 @@ pub fn max_ranged_webweaver_player() -> Player {
 pub fn full_eclipse_atlatl_ranged_gear_player() -> Player {
     let mut player = max_ranged_zcb_player();
     player.equip("Eclipse atlatl", None).unwrap();
-    player.equip("Eclipse moon helm", None).unwrap();
-    player.equip("Eclipse moon chestplate", None).unwrap();
-    player.equip("Eclipse moon tassets", None).unwrap();
+    player.equip("Eclipse Moon helm", None).unwrap();
+    player.equip("Eclipse Moon chestplate", None).unwrap();
+    player.equip("Eclipse Moon tassets", None).unwrap();
     player.equip("Atlatl dart", None).unwrap();
     player.update_set_effects();
     player.update_bonuses();
@@ -600,9 +600,9 @@ pub fn eclipse_atlatl_ranged_gear_player() -> Player {
 pub fn full_eclipse_atlatl_melee_gear_rigour_all_pots() -> Player {
     let mut player = max_melee_player();
     player.equip("Eclipse atlatl", None).unwrap();
-    player.equip("Eclipse moon helm", None).unwrap();
-    player.equip("Eclipse moon chestplate", None).unwrap();
-    player.equip("Eclipse moon tassets", None).unwrap();
+    player.equip("Eclipse Moon helm", None).unwrap();
+    player.equip("Eclipse Moon chestplate", None).unwrap();
+    player.equip("Eclipse Moon tassets", None).unwrap();
     player.equip("Atlatl dart", None).unwrap();
     player.update_bonuses();
     player.update_set_effects();
@@ -1038,9 +1038,9 @@ pub fn max_range_comp_ogre_bow_player() -> Player {
 #[fixture]
 pub fn full_blood_moon_player() -> Player {
     let mut player = max_melee_macuahuitl_player();
-    player.equip("Blood moon helm", None).unwrap();
-    player.equip("Blood moon chestplate", None).unwrap();
-    player.equip("Blood moon tassets", None).unwrap();
+    player.equip("Blood Moon helm", None).unwrap();
+    player.equip("Blood Moon chestplate", None).unwrap();
+    player.equip("Blood Moon tassets", None).unwrap();
     player.update_bonuses();
     player.update_set_effects();
     player
