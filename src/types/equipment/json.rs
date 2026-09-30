@@ -101,29 +101,8 @@ impl EquipmentJson {
             version: self.version,
             id: self.id,
             bonuses: self.bonuses,
-            slot: parse_gear_slot(self.slot)?,
+            slot: self.slot.parse::<GearSlot>()?,
             image: self.image,
         })
-    }
-}
-
-fn parse_gear_slot(slot: String) -> Result<GearSlot, GearError> {
-    // Translate a gear slot string into an enum
-
-    let trimmed = slot.replace('\"', "");
-
-    match trimmed.as_str() {
-        "head" => Ok(GearSlot::Head),
-        "neck" => Ok(GearSlot::Neck),
-        "cape" => Ok(GearSlot::Cape),
-        "body" => Ok(GearSlot::Body),
-        "legs" => Ok(GearSlot::Legs),
-        "shield" => Ok(GearSlot::Shield),
-        "feet" => Ok(GearSlot::Feet),
-        "hands" => Ok(GearSlot::Hands),
-        "ring" => Ok(GearSlot::Ring),
-        "ammo" => Ok(GearSlot::Ammo),
-        "weapon" => unreachable!(),
-        _ => Err(GearError::UnknownSlot(slot)),
     }
 }

@@ -6,7 +6,7 @@ use crate::types::equipment::Equipment;
 use crate::types::equipment::armor::Armor;
 use crate::types::equipment::weapon::Weapon;
 use serde::{Deserialize, Serialize};
-use std::string::ToString;
+use std::{str::FromStr, string::ToString};
 use strum_macros::Display;
 
 #[derive(Default, PartialEq, Debug, Clone)]
@@ -330,4 +330,26 @@ pub enum GearSlot {
     Weapon,
     Shield,
     Cape,
+}
+
+impl FromStr for GearSlot {
+    type Err = GearError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.replace('\"', "").to_ascii_lowercase().as_str() {
+            "head" => Ok(GearSlot::Head),
+            "neck" => Ok(GearSlot::Neck),
+            "cape" => Ok(GearSlot::Cape),
+            "body" => Ok(GearSlot::Body),
+            "legs" => Ok(GearSlot::Legs),
+            "shield" => Ok(GearSlot::Shield),
+            "feet" => Ok(GearSlot::Feet),
+            "hands" => Ok(GearSlot::Hands),
+            "ring" => Ok(GearSlot::Ring),
+            "ammo" => Ok(GearSlot::Ammo),
+            "second_ammo" | "second ammo" => Ok(GearSlot::SecondAmmo),
+            "weapon" => Ok(GearSlot::Weapon),
+            _ => Err(GearError::UnknownSlot(s.to_string())),
+        }
+    }
 }
