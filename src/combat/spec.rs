@@ -4,6 +4,7 @@ use crate::types::monster::Monster;
 use crate::types::player::{GearSwitch, Player, SwitchType};
 use crate::types::timers::Timer;
 use crate::utils::logging::{EventType, FightRecorder};
+use serde::{Deserialize, Serialize};
 
 pub trait SpecCondition: Clone + PartialEq {
     type BossState;
@@ -14,7 +15,7 @@ pub trait SpecCondition: Clone + PartialEq {
     fn from_core(core: CoreCondition) -> Self;
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CoreCondition {
     MonsterHpBelow(u32),
     MonsterHpAbove(u32),
@@ -111,7 +112,7 @@ impl SpecCondition for CoreCondition {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Copy)]
+#[derive(Debug, Clone, PartialEq, Eq, Copy, Deserialize, Serialize)]
 pub enum DeathCharge {
     Single,
     Double,
@@ -214,7 +215,7 @@ impl<C: SpecCondition> SpecConfig<C> {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy, Eq, Deserialize, Serialize)]
 pub enum SpecRestorePolicy {
     RestoreEveryKill,
     RestoreAfter(u32),

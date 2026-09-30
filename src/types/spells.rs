@@ -1,8 +1,10 @@
 use crate::types::player::Player;
+use serde::{Deserialize, Serialize};
 use std::cmp::min;
-use strum_macros::Display;
+use strum::IntoEnumIterator;
+use strum_macros::{Display, EnumIter};
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Deserialize, Serialize)]
 pub enum Spell {
     Standard(StandardSpell),
     Ancient(AncientSpell),
@@ -39,9 +41,19 @@ impl Spell {
             Spell::Special(_) => 1,
         }
     }
+
+    pub fn iter() -> impl Iterator<Item = Spell> {
+        StandardSpell::iter()
+            .filter(|spell| *spell != StandardSpell::None)
+            .map(Spell::Standard)
+            .chain(AncientSpell::iter().map(Spell::Ancient))
+            .chain(ArceuusSpell::iter().map(Spell::Arceuus))
+    }
 }
 
-#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Copy, Display)]
+#[derive(
+    Debug, Default, PartialEq, Eq, Hash, Clone, Copy, Display, Deserialize, Serialize, EnumIter,
+)]
 pub enum StandardSpell {
     #[default]
     None,
@@ -168,7 +180,7 @@ impl StandardSpell {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Display)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Display, Deserialize, Serialize, EnumIter)]
 pub enum AncientSpell {
     #[strum(to_string = "Smoke Rush")]
     SmokeRush,
@@ -248,7 +260,7 @@ impl AncientSpell {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Display)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Display, Deserialize, Serialize, EnumIter)]
 pub enum ArceuusSpell {
     #[strum(to_string = "Ghostly Grasp")]
     GhostlyGrasp,
@@ -288,7 +300,7 @@ impl ArceuusSpell {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Display)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Display, Deserialize, Serialize, EnumIter)]
 pub enum SpecialSpell {
     Invocate,
     Immolate,

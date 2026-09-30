@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use strum_macros::Display;
+use strum_macros::{Display, EnumIter};
 
 // Most combat-related prayers (excluding protection prayers)
-#[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Display, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Display, Serialize, Deserialize, EnumIter)]
 pub enum Prayer {
     #[default]
     None,
@@ -51,6 +51,34 @@ pub enum Prayer {
     Augury,
     #[strum(to_string = "Rapid Heal")]
     RapidHeal,
+}
+
+impl Prayer {
+    /// All prayers that boost offensive stats (basically, everything except the defence-only
+    /// prayers and Rapid Heal)
+    pub fn is_offensive(&self) -> bool {
+        matches!(
+            *self,
+            Self::ClarityOfThought
+                | Self::ImprovedReflexes
+                | Self::IncredibleReflexes
+                | Self::Chivalry
+                | Self::Piety
+                | Self::BurstOfStrength
+                | Self::SuperhumanStrength
+                | Self::UltimateStrength
+                | Self::SharpEye
+                | Self::HawkEye
+                | Self::EagleEye
+                | Self::Deadeye
+                | Self::Rigour
+                | Self::MysticWill
+                | Self::MysticLore
+                | Self::MysticMight
+                | Self::MysticVigour
+                | Self::Augury
+        )
+    }
 }
 
 macro_rules! prayer_boost {

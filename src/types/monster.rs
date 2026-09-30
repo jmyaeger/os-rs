@@ -11,6 +11,7 @@ use crate::types::stats::MonsterStats;
 use crate::utils::logging::MonsterFightId;
 use crate::utils::math::Fraction;
 use rand::Rng;
+use serde::Serialize;
 use serde::{Deserialize, de::Error};
 use std::cmp::{max, min};
 use std::str::FromStr;
@@ -111,6 +112,15 @@ impl<'de> Deserialize<'de> for Attribute {
     {
         let s = String::deserialize(deserializer)?;
         s.parse().map_err(D::Error::custom)
+    }
+}
+
+impl Serialize for Attribute {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.collect_str(self)
     }
 }
 

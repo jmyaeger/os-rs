@@ -1,8 +1,9 @@
 use crate::types::stats::Stat;
+use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter};
 
 // All types of potions or combat level boosting items
-#[derive(Debug, Default, PartialEq, Copy, Clone, Display, EnumIter)]
+#[derive(Debug, Default, PartialEq, Copy, Clone, Display, EnumIter, Serialize, Deserialize)]
 pub enum Potion {
     #[default]
     #[strum(to_string = "None")]

@@ -1,6 +1,7 @@
 use crate::types::monster::AttackType;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Copy)]
+#[derive(Debug, Clone, PartialEq, Eq, Copy, Deserialize, Serialize)]
 pub enum Thrall {
     LesserMelee,
     LesserRanged,

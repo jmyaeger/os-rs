@@ -5,7 +5,7 @@ use crate::error::GearError;
 use crate::types::equipment::Equipment;
 use crate::types::equipment::armor::Armor;
 use crate::types::equipment::weapon::Weapon;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::string::ToString;
 use strum_macros::Display;
 
@@ -314,7 +314,7 @@ fn validate_slot(item: &dyn Equipment, slot: GearSlot) -> Result<(), GearError> 
 }
 
 // Slots in which a player can equip gear
-#[derive(Debug, PartialEq, Eq, Hash, Default, Deserialize, Clone, Display, Copy)]
+#[derive(Debug, PartialEq, Eq, Hash, Default, Deserialize, Serialize, Clone, Display, Copy)]
 pub enum GearSlot {
     #[default]
     None,
