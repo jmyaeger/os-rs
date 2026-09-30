@@ -1,4 +1,4 @@
-use crate::calc::monster_scaling::{build_vard_scaling_table, scale_monster_hp_only};
+use crate::calc::monster_scaling::scale_monster_hp_only;
 use crate::calc::rolls::calc_active_player_rolls;
 use crate::combat::limiters::Limiter;
 use crate::combat::mechanics::{Mechanics, handle_recoil};
@@ -10,7 +10,6 @@ use crate::error::SimulationError;
 use crate::types::monster::{AttackType, Monster, MonsterMaxHit};
 use crate::types::player::Player;
 use crate::types::prayers::Prayer;
-use crate::types::stats::Stat;
 use crate::utils::logging::{EventType, FightRecorder, MonsterSnapshot, PlayerSnapshot};
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
@@ -151,24 +150,6 @@ impl VardorvisFight {
             .map_err(|_| SimulationError::MonsterCreationError("Vardorvis".to_string()))?;
         vard.max_hits = Some(vec![MonsterMaxHit::new(0, AttackType::Slash)]);
 
-        // Build precomputed scaling table
-        vard.hp_scaling_table = Some(build_vard_scaling_table(&vard));
-        vard.stats.defence = Stat::new(
-            vard.hp_scaling_table
-                .as_ref()
-                .unwrap()
-                .get(vard.stats.hitpoints.max() as usize)
-                .defence,
-            None,
-        );
-        vard.stats.strength = Stat::new(
-            vard.hp_scaling_table
-                .as_ref()
-                .unwrap()
-                .get(vard.stats.hitpoints.max() as usize)
-                .strength,
-            None,
-        );
         vard.reset(None, None);
 
         let limiter = assign_limiter(&player, &vard);

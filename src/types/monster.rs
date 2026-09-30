@@ -1,4 +1,4 @@
-use crate::calc::monster_scaling::scale_monster_hp_only;
+use crate::calc::monster_scaling::{build_vard_scaling_table, scale_monster_hp_only};
 use crate::calc::rolls;
 use crate::combat::attacks::effects::{BurnType, CombatEffect};
 use crate::combat::attacks::standard::Hit;
@@ -7,7 +7,7 @@ use crate::constants;
 use crate::error::MonsterError;
 use crate::types::equipment::{CombatStyle, CombatType};
 use crate::types::player::Player;
-use crate::types::stats::MonsterStats;
+use crate::types::stats::{MonsterStats, Stat};
 use crate::utils::logging::MonsterFightId;
 use crate::utils::math::Fraction;
 use rand::Rng;
@@ -571,63 +571,34 @@ pub struct Monster {
 }
 
 impl Monster {
-    pub fn from_json_str(
-        name: &str,
-        version: Option<&str>,
-        json_str: &str,
-    ) -> Result<Monster, MonsterError> {
-        // Create a monster by name and version (optional)
-
-        let string_version = version.map(ToString::to_string);
-        let all_monsters: Vec<Monster> = serde_json::from_str(json_str)?;
-
-        // Find the monster matching the given name and version
-        let mut monster = all_monsters
-            .into_iter()
-            .find(|m| m.info.name == name && m.info.version == string_version)
-            .ok_or(MonsterError::MonsterNotFound(name.to_string()))?;
-
-        // Set defence level floor
-        monster.set_defence_floor();
-
-        // Set base magic def bonus (to allow it to be drained by the eye of ayak)
-        monster.bonuses.defence.magic_base = monster.bonuses.defence.magic;
-
-        // Calculate base defence rolls
-        monster.def_rolls = rolls::monster_def_rolls(&monster);
-
-        // Calculate base attack rolls
-        monster.att_rolls = rolls::monster_att_rolls(&monster);
-
-        if let (Some(max_hits), Some(attack_styles)) =
-            (&mut monster.max_hits, &monster.info.attack_styles)
-        {
-            if max_hits.len() == 1 && attack_styles.len() == 1 {
-                max_hits[0].style = attack_styles[0];
-            } else {
-                for hit in max_hits.iter_mut() {
-                    if hit.style == AttackType::Melee
-                        && let Some(&melee_style) = attack_styles.iter().find(|&x| {
-                            matches!(x, AttackType::Stab | AttackType::Slash | AttackType::Crush)
-                        })
-                    {
-                        hit.style = melee_style;
-                    }
-                }
-            }
-        }
-
-        Ok(monster)
-    }
-
-    /// Do the post-init processing that `from_json_str` does (for cases where the Monster is
-    /// loaded from a cached Vec<Monster> instead of a JSON string)
+    /// Apply post-init processing to a `Monster` that has been loaded directly
+    /// from the JSON file
     fn finish_loading(&mut self) {
         // Set defence level floor
         self.set_defence_floor();
 
         // Set base magic def bonus (to allow it to be drained by the eye of ayak)
         self.bonuses.defence.magic_base = self.bonuses.defence.magic;
+
+        if self.info.name == "Vardorvis" {
+            self.hp_scaling_table = Some(build_vard_scaling_table(self));
+            self.stats.defence = Stat::new(
+                self.hp_scaling_table
+                    .as_ref()
+                    .unwrap()
+                    .get(self.stats.hitpoints.max() as usize)
+                    .defence,
+                None,
+            );
+            self.stats.strength = Stat::new(
+                self.hp_scaling_table
+                    .as_ref()
+                    .unwrap()
+                    .get(self.stats.hitpoints.max() as usize)
+                    .strength,
+                None,
+            );
+        }
 
         // Calculate base defence rolls
         self.def_rolls = rolls::monster_def_rolls(self);

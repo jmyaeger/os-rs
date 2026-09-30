@@ -64,12 +64,8 @@ pub enum MonsterError {
     UnknownMonsterAttribute(String),
     #[error("Invalid burn type: {0}")]
     InvalidBurnType(String),
-    #[error("Error reading monster JSON: {0}")]
-    JsonError(#[from] serde_json::Error),
     #[error("Monster {0} not found.")]
     MonsterNotFound(String),
-    #[error("Could not find monster JSON: {0}")]
-    JsonFileNotFound(#[from] std::io::Error),
     #[error("Attack type must be specified for monster {0}.")]
     AttackTypeNotSpecified(String),
     #[error("No max hits found for {monster_name} for {attack_type} attack type.")]
