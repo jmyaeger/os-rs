@@ -67,10 +67,15 @@ pub enum CombatStyle {
     Accurate,
     Rapid,
     Longrange,
+    #[strum(to_string = "Short Fuse")]
     ShortFuse,
+    #[strum(to_string = "Medium Fuse")]
     MediumFuse,
+    #[strum(to_string = "Long Fuse")]
     LongFuse,
+    #[strum(to_string = "Defensive Spell")]
     DefensiveSpell,
+    #[strum(to_string = "Manual Cast")]
     ManualCast,
     Spell,
     Scorch,
@@ -80,6 +85,7 @@ pub enum CombatStyle {
     Ranged,
     Magic,
     Poke,
+    #[strum(to_string = "Aim and Fire")]
     AimAndFire,
     Explosive,
     Flamer,
