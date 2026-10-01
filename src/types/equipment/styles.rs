@@ -21,7 +21,7 @@ pub enum CombatType {
 }
 
 // Combat stance (determines stance bonus)
-#[derive(Debug, PartialEq, Eq, Hash, Default, Copy, Clone, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Default, Copy, Clone, Deserialize, Display)]
 pub enum CombatStance {
     None,
     #[default]
@@ -31,11 +31,16 @@ pub enum CombatStance {
     Controlled,
     Rapid,
     Longrange,
+    #[strum(to_string = "Short Fuse")]
     ShortFuse,
+    #[strum(to_string = "Medium Fuse")]
     MediumFuse,
+    #[strum(to_string = "Long Fuse")]
     LongFuse,
+    #[strum(to_string = "Defensive Autocast")]
     DefensiveAutocast,
     Autocast,
+    #[strum(to_string = "Manual Cast")]
     ManualCast,
 }
 
