@@ -5,9 +5,9 @@ use crate::types::equipment::bonuses::EquipmentBonuses;
 use crate::types::equipment::gear::GearSlot;
 use crate::types::equipment::json::EquipmentJson;
 use crate::types::equipment::styles::{CombatOption, CombatStance, CombatStyle, CombatType};
+use indexmap::IndexMap;
 use serde::Deserialize;
 use std::any::Any;
-use std::collections::HashMap;
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -64,7 +64,7 @@ pub struct Weapon {
     pub is_two_handed: bool,
     pub spec_cost: Option<u8>,
     pub poison_severity: u8, // May be restructured to use Poison/Venom struct, or removed
-    pub combat_styles: HashMap<CombatStyle, CombatOption>,
+    pub combat_styles: IndexMap<CombatStyle, CombatOption>,
     pub is_staff: bool,
     pub image: String,
     pub category: WeaponCategory,
@@ -137,7 +137,7 @@ macro_rules! weapon_styles {
     ) => {
         match $weapon_category {
             $(
-                $pat => HashMap::from([
+                $pat => IndexMap::from([
                     $((CombatStyle::$style, CombatOption::new(CombatType::$combat_type, CombatStance::$stance)),)*
                 ]),
             )*
@@ -158,7 +158,7 @@ impl Weapon {
 
     pub fn get_styles_from_weapon_category(
         weapon_category: WeaponCategory,
-    ) -> HashMap<CombatStyle, CombatOption> {
+    ) -> IndexMap<CombatStyle, CombatOption> {
         weapon_styles!(weapon_category;
             WeaponCategory::TwoHandedSword => [
                 (Chop, Slash, Accurate),
