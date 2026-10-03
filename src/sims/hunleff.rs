@@ -870,29 +870,27 @@ impl Simulation for HunllefFight {
 }
 
 fn armor_tier(player: &Player) -> u32 {
-    if let (Some(head), Some(body), Some(legs)) =
-        (&player.gear.head, &player.gear.body, &player.gear.legs)
-    {
-        let all_armour: [&String; 3] = [&head.name, &body.name, &legs.name];
-        let total_tier = all_armour
-            .iter()
-            .map(|s| {
-                if s.contains("basic") {
+    let total_tier = [&player.gear.head, &player.gear.body, &player.gear.legs]
+        .iter()
+        .map(|slot| {
+            if let Some(armor) = slot {
+                let name = &armor.name;
+                if name.contains("basic") {
                     1
-                } else if s.contains("attuned") {
+                } else if name.contains("attuned") {
                     2
-                } else if s.contains("perfected") {
+                } else if name.contains("perfected") {
                     3
                 } else {
                     0
                 }
-            })
-            .sum::<u32>();
+            } else {
+                0
+            }
+        })
+        .sum::<u32>();
 
-        total_tier / 3
-    } else {
-        0
-    }
+    total_tier / 3
 }
 
 fn has_valid_gear(player: &Player) -> bool {
@@ -922,7 +920,7 @@ fn has_valid_gear(player: &Player) -> bool {
 mod tests {
     use super::*;
     use crate::calc::rolls::calc_active_player_rolls;
-    use crate::types::equipment::{CombatStyle, Weapon};
+    use crate::types::equipment::{CombatStyle, GearSlot, Weapon};
     use crate::types::monster::Monster;
     use crate::types::player::{GearSwitch, Player};
     use crate::types::prayers::Prayer;
@@ -1077,5 +1075,10 @@ mod tests {
         player.equip("Crystal body (attuned)", None).unwrap();
         player.equip("Crystal legs (basic)", None).unwrap();
         assert_eq!(armor_tier(&player), 2);
+
+        player.unequip_slot(&GearSlot::Head);
+        player.equip("Crystal body (basic)", None).unwrap();
+        player.equip("Crystal legs (attuned)", None).unwrap();
+        assert_eq!(armor_tier(&player), 1);
     }
 }

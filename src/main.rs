@@ -24,9 +24,9 @@ fn main() {
     let start_time = std::time::Instant::now();
     // simulate_door_altar_graardor();
 
-    simulate_single_way();
+    // simulate_single_way();
 
-    // simulate_hunllef();
+    simulate_hunllef();
 
     // simulate_normal_gauntlet();
 
@@ -203,9 +203,9 @@ fn simulate_hunllef() {
     // player.stats.strength = Stat::new(85, None);
     // player.reset_current_stats(false);
     player.equip("Corrupted staff (perfected)", None).unwrap();
-    player.equip("Corrupted helm (basic)", None).unwrap();
-    player.equip("Corrupted body (basic)", None).unwrap();
-    player.equip("Corrupted legs (basic)", None).unwrap();
+    player.equip("Corrupted helm (attuned)", None).unwrap();
+    player.equip("Corrupted body (attuned)", None).unwrap();
+    player.equip("Corrupted legs (attuned)", None).unwrap();
     player.update_bonuses();
     player.set_active_style(CombatStyle::Accurate);
     player.add_prayer(Prayer::Augury);
@@ -217,8 +217,8 @@ fn simulate_hunllef() {
     let mage_switch =
         GearSwitch::new(SwitchType::Magic, &player, &hunllef).expect("valid gear switch");
 
-    // player.equip("Corrupted bow (perfected)", None).unwrap();
-    player.equip("Corrupted bow (attuned)", None).unwrap();
+    player.equip("Corrupted bow (perfected)", None).unwrap();
+    // player.equip("Corrupted bow (attuned)", None).unwrap();
     player.update_bonuses();
     player.set_active_style(CombatStyle::Rapid);
     player.add_prayer(Prayer::Rigour);
@@ -247,32 +247,33 @@ fn simulate_hunllef() {
 
     player.switch(&SwitchType::Ranged);
 
-    // let fight_config = HunllefConfig {
-    //     food_count: 20,
-    //     eat_strategy: HunllefEatStrategy::EatAtHp(50),
-    //     redemption_strategy: None,
-    //     attack_strategy: AttackStrategy::TwoT3Weapons {
-    //         style1: SwitchType::Ranged,
-    //         style2: SwitchType::Magic,
-    //     },
-    //     lost_ticks: 0,
-    //     logger: FightLogger::new(false, "hunllef").expect("Error initializing logger."),
-    //     armor_tier: 0,
-    // };
     let fight_config = HunllefConfig {
-        food_count: 20,
-        eat_strategy: HunllefEatStrategy::EatAtHp(50),
+        food_count: 27,
+        eat_strategy: HunllefEatStrategy::EatAtHp(78),
         redemption_strategy: None,
-        attack_strategy: AttackStrategy::FiveToOne {
-            main_style: SwitchType::Magic,
-            other_style1: SwitchType::Ranged,
-            other_style2: SwitchType::Melee,
+        attack_strategy: AttackStrategy::TwoT3Weapons {
+            style1: SwitchType::Ranged,
+            style2: SwitchType::Magic,
         },
         lost_ticks: 0,
         armor_tier: 0,
         only_success_stats: true,
         crystalline: false,
     };
+    // let fight_config = HunllefConfig {
+    //     food_count: 20,
+    //     eat_strategy: HunllefEatStrategy::EatAtHp(50),
+    //     redemption_strategy: None,
+    //     attack_strategy: AttackStrategy::FiveToOne {
+    //         main_style: SwitchType::Magic,
+    //         other_style1: SwitchType::Ranged,
+    //         other_style2: SwitchType::Melee,
+    //     },
+    //     lost_ticks: 0,
+    //     armor_tier: 0,
+    //     only_success_stats: true,
+    //     crystalline: false,
+    // };
 
     let fight = HunllefFight::new(player, fight_config).expect("Error setting up Hunllef fight.");
     let results = simulate_n_fights(Box::new(fight), 1_000_000, true).expect("Simulation failed.");
