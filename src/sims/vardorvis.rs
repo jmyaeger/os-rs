@@ -11,6 +11,7 @@ use crate::types::monster::{AttackType, Monster, MonsterMaxHit};
 use crate::types::player::Player;
 use crate::types::prayers::Prayer;
 use crate::utils::logging::{EventType, FightRecorder, MonsterSnapshot, PlayerSnapshot};
+use num::Integer;
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
 
@@ -50,12 +51,16 @@ pub enum VardorvisEatStrategy {
 #[derive(Debug, Clone)]
 struct VardorvisState {
     vardorvis_attack_tick: i32,
+    attack_count: i32,
+    is_dashing: bool,
 }
 
 impl Default for VardorvisState {
     fn default() -> Self {
         Self {
             vardorvis_attack_tick: 2,
+            attack_count: 0,
+            is_dashing: false,
         }
     }
 }
@@ -110,6 +115,7 @@ impl VardorvisMechanics {
         }
 
         state.vardorvis_attack_tick += VARDORVIS_ATTACK_SPEED;
+        state.attack_count += 1;
 
         Ok(())
     }
@@ -289,14 +295,45 @@ impl VardorvisFight {
             }
 
             if vars.tick_counter == state.vardorvis_attack_tick {
-                self.mechanics.vardorvis_attack(
-                    &mut self.vard,
-                    &mut self.player,
-                    &mut state,
-                    &mut vars,
-                    &mut self.rng,
-                    log,
-                )?;
+                // Every 6 attacks, Vardorvis dashes 1-3 times back and forth, with each
+                // dash delaying his next attack by 1 tick. The number of dashes is definitely
+                // based on his current HP, starting with 1 and increasing to 3 toward the end of the
+                // kill, but I don't know the exact thresholds. The below is my best guess from VOD
+                // review: 1 dash above ~450 HP, 2 dashes between ~150 and ~450 HP, and 3 dashes below
+                // ~150 HP.
+                if state.attack_count.is_multiple_of(&6)
+                    && state.attack_count > 0
+                    && !state.is_dashing
+                {
+                    let dashes = match self.vard.stats.hitpoints.current {
+                        0..150 => 3,
+                        150..450 => 2,
+                        _ => 1,
+                    };
+                    state.vardorvis_attack_tick += dashes;
+                    state.is_dashing = true;
+
+                    for i in 0..dashes {
+                        log.record(
+                            vars.tick_counter + i,
+                            EventType::Custom {
+                                message: "Vardorvis dashed once".to_string(),
+                            },
+                            &[&self.player],
+                            &[&self.vard],
+                        )
+                    }
+                } else {
+                    state.is_dashing = false;
+                    self.mechanics.vardorvis_attack(
+                        &mut self.vard,
+                        &mut self.player,
+                        &mut state,
+                        &mut vars,
+                        &mut self.rng,
+                        log,
+                    )?;
+                }
             }
 
             // Increment tick counter
