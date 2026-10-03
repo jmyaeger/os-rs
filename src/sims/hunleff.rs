@@ -143,6 +143,7 @@ struct HunllefState {
     hunllef_attack_count: u32,
     queued_damage: Option<u32>,
     food_count: u32,
+    max_food: u32,
 }
 
 impl Default for HunllefState {
@@ -156,7 +157,22 @@ impl Default for HunllefState {
             hunllef_attack_count: 0,
             queued_damage: None,
             food_count: 20,
+            max_food: 20,
         }
+    }
+}
+
+impl HunllefState {
+    fn default_with_food(max_food: u32) -> Self {
+        Self {
+            max_food,
+            food_count: max_food,
+            ..Default::default()
+        }
+    }
+
+    fn reset(&mut self) {
+        *self = Self::default_with_food(self.max_food);
     }
 }
 
@@ -377,6 +393,7 @@ pub struct HunllefFight {
     rng: SmallRng,
     config: HunllefConfig,
     mechanics: HunllefMechanics,
+    state: HunllefState,
 }
 
 impl HunllefFight {
@@ -399,6 +416,7 @@ impl HunllefFight {
         let limiter = crate::combat::simulation::assign_limiter(&player, &hunllef);
         let rng = SmallRng::from_os_rng();
         config.armor_tier = armor_tier(&player);
+        let max_food = config.food_count;
         Ok(HunllefFight {
             player,
             hunllef,
@@ -406,6 +424,7 @@ impl HunllefFight {
             rng,
             config,
             mechanics: HunllefMechanics,
+            state: HunllefState::default_with_food(max_food),
         })
     }
 
@@ -414,11 +433,6 @@ impl HunllefFight {
         log: &mut FightRecorder,
     ) -> Result<FightResult, SimulationError> {
         let mut vars = FightVars::new();
-        let mut state = HunllefState {
-            food_count: self.config.food_count,
-            ..HunllefState::default()
-        };
-        state.food_count = self.config.food_count;
         vars.attack_tick += self.config.lost_ticks;
 
         let attack_strategy = self.config.attack_strategy.clone();
@@ -483,7 +497,7 @@ impl HunllefFight {
                     }
 
                     // Decrement the tornado timer if active
-                    state.tornado_timer = state.tornado_timer.saturating_sub(1);
+                    self.state.tornado_timer = self.state.tornado_timer.saturating_sub(1);
 
                     // Decrement eat delay timer if there is one active
                     self.mechanics.decrement_eat_delay(&mut vars);
@@ -496,7 +510,7 @@ impl HunllefFight {
                         _ => {
                             // Handle eating based on set strategy
                             self.mechanics.handle_eating(
-                                &mut state,
+                                &mut self.state,
                                 &mut vars,
                                 &mut self.player,
                                 &self.hunllef,
@@ -509,7 +523,7 @@ impl HunllefFight {
 
                     // Apply any queued damage to the player
                     self.mechanics.apply_queued_damage(
-                        &mut state,
+                        &mut self.state,
                         &mut self.player,
                         &self.hunllef,
                         log,
@@ -534,7 +548,8 @@ impl HunllefFight {
                                 );
                             }
                             Some(HunllefRedemptionStrat::NoFoodLeft(max_procs))
-                                if vars.redemption_procs < max_procs && state.food_count == 0 =>
+                                if vars.redemption_procs < max_procs
+                                    && self.state.food_count == 0 =>
                             {
                                 vars.redemption_procs += 1;
                                 self.mechanics.process_redemption(
@@ -559,9 +574,9 @@ impl HunllefFight {
                         );
 
                         // Increment attack count and switch styles every six attacks
-                        state.player_attack_count += 1;
-                        if state.player_attack_count == 6 {
-                            state.player_attack_count = 0;
+                        self.state.player_attack_count += 1;
+                        if self.state.player_attack_count == 6 {
+                            self.state.player_attack_count = 0;
                             std::mem::swap(&mut current_style, &mut other_style);
                             self.player.switch(current_style)?;
 
@@ -580,12 +595,12 @@ impl HunllefFight {
                     // No combat effects are possible here, so that section is omitted
 
                     // Process Hunllef's attack
-                    if vars.tick_counter == state.hunllef_attack_tick {
+                    if vars.tick_counter == self.state.hunllef_attack_tick {
                         // Roll for tornado spawn if off cooldown and not about to switch styles
                         let tornado_proc = self.mechanics.process_tornadoes(
                             &self.player,
                             &self.hunllef,
-                            &mut state,
+                            &mut self.state,
                             &mut vars,
                             &mut self.rng,
                             log,
@@ -594,7 +609,7 @@ impl HunllefFight {
                             self.mechanics.hunllef_attack(
                                 &mut self.hunllef,
                                 &mut self.player,
-                                &mut state,
+                                &mut self.state,
                                 &mut self.config,
                                 &mut vars,
                                 &mut self.rng,
@@ -660,7 +675,7 @@ impl HunllefFight {
                     }
 
                     // Decrement the tornado timer if active
-                    state.tornado_timer = state.tornado_timer.saturating_sub(1);
+                    self.state.tornado_timer = self.state.tornado_timer.saturating_sub(1);
 
                     // Decrement eat delay timer if there is one active
                     self.mechanics.decrement_eat_delay(&mut vars);
@@ -673,7 +688,7 @@ impl HunllefFight {
                         _ => {
                             // Handle eating based on set strategy
                             self.mechanics.handle_eating(
-                                &mut state,
+                                &mut self.state,
                                 &mut vars,
                                 &mut self.player,
                                 &self.hunllef,
@@ -686,7 +701,7 @@ impl HunllefFight {
 
                     // Apply any queued damage to the player
                     self.mechanics.apply_queued_damage(
-                        &mut state,
+                        &mut self.state,
                         &mut self.player,
                         &self.hunllef,
                         log,
@@ -711,7 +726,8 @@ impl HunllefFight {
                                 );
                             }
                             Some(HunllefRedemptionStrat::NoFoodLeft(max_procs))
-                                if vars.redemption_procs < max_procs && state.food_count == 0 =>
+                                if vars.redemption_procs < max_procs
+                                    && self.state.food_count == 0 =>
                             {
                                 vars.redemption_procs += 1;
                                 self.mechanics.process_redemption(
@@ -736,8 +752,8 @@ impl HunllefFight {
                         );
 
                         // Increment attack count and switch to melee every 5 attacks
-                        state.player_attack_count += 1;
-                        if state.player_attack_count == 5 {
+                        self.state.player_attack_count += 1;
+                        if self.state.player_attack_count == 5 {
                             std::mem::swap(&mut current_style, &mut next_style);
                             self.player.switch(current_style)?;
 
@@ -751,8 +767,8 @@ impl HunllefFight {
                                 &[&self.hunllef],
                             );
                         }
-                        if state.player_attack_count == 6 {
-                            state.player_attack_count = 0;
+                        if self.state.player_attack_count == 6 {
+                            self.state.player_attack_count = 0;
                             std::mem::swap(&mut current_style, &mut next_style);
                             std::mem::swap(&mut next_style, &mut other_style);
                             self.player.switch(current_style)?;
@@ -772,12 +788,12 @@ impl HunllefFight {
                     // No combat effects are possible here, so that section is omitted
 
                     // Process Hunllef's attack
-                    if vars.tick_counter == state.hunllef_attack_tick {
+                    if vars.tick_counter == self.state.hunllef_attack_tick {
                         // Roll for tornado spawn if off cooldown and not about to switch styles
                         let tornado_proc = self.mechanics.process_tornadoes(
                             &self.player,
                             &self.hunllef,
-                            &mut state,
+                            &mut self.state,
                             &mut vars,
                             &mut self.rng,
                             log,
@@ -786,7 +802,7 @@ impl HunllefFight {
                             self.mechanics.hunllef_attack(
                                 &mut self.hunllef,
                                 &mut self.player,
-                                &mut state,
+                                &mut self.state,
                                 &mut self.config,
                                 &mut vars,
                                 &mut self.rng,
@@ -847,6 +863,7 @@ impl Simulation for HunllefFight {
         self.player.state.last_attack_hit = true;
         self.player.reset_current_stats(true);
         self.hunllef.reset(None, None);
+        self.state.reset();
 
         Ok(())
     }

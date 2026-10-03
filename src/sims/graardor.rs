@@ -61,6 +61,12 @@ impl Default for GraardorState {
     }
 }
 
+impl GraardorState {
+    fn reset(&mut self) {
+        *self = Self::default();
+    }
+}
+
 pub struct GraardorFight {
     player: Player,
     graardor: Monster,
@@ -71,6 +77,7 @@ pub struct GraardorFight {
     rng: SmallRng,
     config: GraardorConfig,
     mechanics: GraardorMechanics,
+    state: GraardorState,
 }
 
 impl GraardorFight {
@@ -97,6 +104,7 @@ impl GraardorFight {
             rng,
             config,
             mechanics: GraardorMechanics,
+            state: GraardorState::default(),
         })
     }
 
@@ -113,7 +121,6 @@ impl GraardorFight {
         }
 
         let mut vars = FightVars::new();
-        let mut state = GraardorState::default();
 
         if let FightRecorder::Enabled(log) = log {
             log.initial_player_states
@@ -134,8 +141,8 @@ impl GraardorFight {
         while self.graardor.stats.hitpoints.current > 0 {
             // Player attack
             if vars.tick_counter == vars.attack_tick {
-                if state.skip_next_attack {
-                    state.skip_next_attack = false;
+                if self.state.skip_next_attack {
+                    self.state.skip_next_attack = false;
                     vars.attack_tick += 4;
                 } else {
                     self.mechanics.player_attack(
@@ -154,7 +161,7 @@ impl GraardorFight {
                 .process_monster_effects(&self.player, &mut self.graardor, &vars, log);
 
             // Mage minion attack
-            if vars.tick_counter == state.mage_attack_tick {
+            if vars.tick_counter == self.state.mage_attack_tick {
                 self.mechanics.monster_attack(
                     &mut self.mage_minion,
                     &mut self.player,
@@ -164,14 +171,14 @@ impl GraardorFight {
                     log,
                 )?;
                 if vars.tick_counter == 6 {
-                    state.mage_attack_tick += 7;
+                    self.state.mage_attack_tick += 7;
                 } else {
-                    state.mage_attack_tick += 5;
+                    self.state.mage_attack_tick += 5;
                 }
             }
 
             // Melee minion attack
-            if vars.tick_counter == state.melee_attack_tick {
+            if vars.tick_counter == self.state.melee_attack_tick {
                 self.mechanics.monster_attack(
                     &mut self.melee_minion,
                     &mut self.player,
@@ -181,9 +188,9 @@ impl GraardorFight {
                     log,
                 )?;
                 if vars.tick_counter == 5 {
-                    state.melee_attack_tick += 22;
+                    self.state.melee_attack_tick += 22;
                 } else {
-                    state.melee_attack_tick += 12;
+                    self.state.melee_attack_tick += 12;
                 }
             }
 
@@ -202,7 +209,7 @@ impl GraardorFight {
 
             // Eat if below the provided threshold and force the player to skip the next attack
             if self.player.stats.hitpoints.current < self.config.eat_hp
-                && VALID_EAT_TICKS.contains(&state.cycle_tick)
+                && VALID_EAT_TICKS.contains(&self.state.cycle_tick)
                 && vars.eat_delay == 0
             {
                 self.mechanics.eat_food(
@@ -213,7 +220,7 @@ impl GraardorFight {
                     &mut vars,
                     log,
                 );
-                state.skip_next_attack = true;
+                self.state.skip_next_attack = true;
             }
 
             // Regen all stats by 1 for Graardor every 10 ticks
@@ -234,10 +241,10 @@ impl GraardorFight {
             vars.tick_counter += 1;
 
             // Update tile position and reset if it's at the end of a cycle
-            if state.cycle_tick == CYCLE_LENGTH - 1 {
-                state.cycle_tick = 0;
+            if self.state.cycle_tick == CYCLE_LENGTH - 1 {
+                self.state.cycle_tick = 0;
             } else {
-                state.cycle_tick += 1;
+                self.state.cycle_tick += 1;
             }
         }
 
@@ -285,6 +292,7 @@ impl Simulation for GraardorFight {
         self.melee_minion.reset(None, None);
         self.ranged_minion.reset(None, None);
         self.mage_minion.reset(None, None);
+        self.state.reset();
 
         Ok(())
     }

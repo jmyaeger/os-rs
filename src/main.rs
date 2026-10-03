@@ -78,12 +78,6 @@ fn simulate_single_way() {
 
     calc_active_player_rolls(&mut player, &monster);
 
-    let config = SingleWayConfig {
-        thralls: Some(Thrall::GreaterMagic),
-        remove_final_attack_delay: false,
-        reset_soulreaper_stacks: None,
-    };
-
     let mut main_hand =
         GearSwitch::new(SwitchType::Melee, &player, &monster).expect("valid gear switch");
     player.switches.push(main_hand.clone());
@@ -180,8 +174,15 @@ fn simulate_single_way() {
         false,
     );
 
-    let simulation = SingleWayFight::new(player, monster, config, Some(spec_config))
-        .expect("Error setting up single way fight.");
+    let config = SingleWayConfig {
+        thralls: Some(Thrall::GreaterMagic),
+        remove_final_attack_delay: false,
+        reset_soulreaper_stacks: None,
+        spec_config: Some(spec_config),
+    };
+
+    let simulation =
+        SingleWayFight::new(player, monster, config).expect("Error setting up single way fight.");
     let results =
         simulate_n_fights(Box::new(simulation), 1_000_000, true).expect("Simulation failed.");
     let stats = SimulationStats::new(&results);
@@ -540,7 +541,6 @@ fn simulate_vardorvis() {
         eat_strategy: VardorvisEatStrategy::EatAtHp(10),
         thralls: Some(Thrall::GreaterMagic),
         spec_config: Some(spec_config),
-        spec_state: SpecState::default(),
     };
 
     let mut fight =

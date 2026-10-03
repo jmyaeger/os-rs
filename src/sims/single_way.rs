@@ -27,8 +27,7 @@ pub struct SingleWayFight {
     pub rng: SmallRng,
     pub mechanics: SingleWayMechanics,
     pub config: SingleWayConfig,
-    pub spec_config: Option<SpecConfig<CoreCondition>>,
-    pub spec_state: SpecState,
+    state: SingleWayState,
 }
 
 impl SingleWayFight {
@@ -36,7 +35,6 @@ impl SingleWayFight {
         player: Player,
         monster: Monster,
         config: SingleWayConfig,
-        spec_config: Option<SpecConfig<CoreCondition>>,
     ) -> Result<SingleWayFight, SimulationError> {
         let limiter = crate::combat::simulation::assign_limiter(&player, &monster);
         let rng = SmallRng::from_os_rng();
@@ -48,8 +46,7 @@ impl SingleWayFight {
             rng,
             mechanics: SingleWayMechanics,
             config,
-            spec_config,
-            spec_state: SpecState::default(),
+            state: SingleWayState::default(),
         })
     }
 }
@@ -89,8 +86,8 @@ impl Simulation for SingleWayFight {
         self.player.state.first_attack = true;
         self.player.state.last_attack_hit = true;
 
-        if let Some(ref mut spec_config) = self.spec_config {
-            let restore_spec = self.spec_state.on_kill(&mut self.player, spec_config);
+        if let Some(ref mut spec_config) = self.config.spec_config {
+            let restore_spec = self.state.spec_state.on_kill(&mut self.player, spec_config);
             self.player.reset_current_stats(restore_spec);
         } else {
             self.player.reset_current_stats(false);
@@ -98,6 +95,7 @@ impl Simulation for SingleWayFight {
         calc_active_player_rolls(&mut self.player, &self.monster)?;
 
         self.monster.reset(None, None);
+        self.state.reset();
 
         Ok(())
     }
@@ -108,6 +106,7 @@ pub struct SingleWayConfig {
     pub thralls: Option<Thrall>,
     pub remove_final_attack_delay: bool,
     pub reset_soulreaper_stacks: Option<u32>,
+    pub spec_config: Option<SpecConfig<CoreCondition>>,
 }
 
 impl Default for SingleWayConfig {
@@ -116,6 +115,20 @@ impl Default for SingleWayConfig {
             thralls: None,
             remove_final_attack_delay: false,
             reset_soulreaper_stacks: Some(0),
+            spec_config: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
+struct SingleWayState {
+    spec_state: SpecState,
+}
+
+impl SingleWayState {
+    fn reset(&mut self) {
+        *self = Self {
+            spec_state: std::mem::take(&mut self.spec_state),
         }
     }
 }
@@ -129,7 +142,7 @@ impl SingleWayMechanics {
         fight_vars: &mut FightVars,
         log: &mut FightRecorder,
     ) -> Result<bool, SimulationError> {
-        if let Some(ref mut spec_config) = fight.spec_config {
+        if let Some(ref mut spec_config) = fight.config.spec_config {
             for strategy in &mut spec_config.strategies {
                 if !strategy.can_execute(&fight.player, &fight.monster, &()) {
                     continue;
@@ -216,8 +229,8 @@ impl SingleWayMechanics {
                 fight_vars.attack_tick += fight.player.gear.weapon.speed.as_delay();
 
                 fight.player.stats.spec.drain(strategy.spec_cost);
-                if !fight.spec_state.spec_regen_timer.is_active() {
-                    fight.spec_state.spec_regen_timer.activate();
+                if !fight.state.spec_state.spec_regen_timer.is_active() {
+                    fight.state.spec_state.spec_regen_timer.activate();
                 }
 
                 // Switch back to the previous set of gear
@@ -246,7 +259,7 @@ fn simulate_fight(
     fight: &mut SingleWayFight,
     log: &mut FightRecorder,
 ) -> Result<FightResult, SimulationError> {
-    if let Some(ref spec_config) = fight.spec_config
+    if let Some(ref spec_config) = fight.config.spec_config
         && let Err(e) = spec_config.validate()
     {
         return Err(SimulationError::ConfigError(e));
@@ -265,7 +278,7 @@ fn simulate_fight(
 
     while fight.monster.stats.hitpoints.current > 0 {
         if vars.tick_counter == vars.attack_tick {
-            let did_spec = if let Some(ref spec_config) = fight.spec_config {
+            let did_spec = if let Some(ref spec_config) = fight.config.spec_config {
                 if let Some(lowest) = spec_config.lowest_cost() {
                     if fight.player.stats.spec.value() >= lowest {
                         SingleWayMechanics::player_special_attack(fight, &mut vars, log)?
@@ -310,12 +323,15 @@ fn simulate_fight(
         fight
             .mechanics
             .process_freeze(&fight.player, &mut fight.monster, &mut vars, log);
-        fight
-            .spec_state
-            .increment_spec(&mut fight.player, &fight.monster, vars.tick_counter, log);
-        fight.spec_state.increment_timers();
-        if let Some(ref spec_config) = fight.spec_config {
-            fight.spec_state.process_surge_potion(
+        fight.state.spec_state.increment_spec(
+            &mut fight.player,
+            &fight.monster,
+            vars.tick_counter,
+            log,
+        );
+        fight.state.spec_state.increment_timers();
+        if let Some(ref spec_config) = fight.config.spec_config {
+            fight.state.spec_state.process_surge_potion(
                 &mut fight.player,
                 &fight.monster,
                 spec_config,
@@ -376,7 +392,7 @@ mod tests {
         calc_active_player_rolls(&mut player, &monster).expect("valid setup");
 
         let config = SingleWayConfig::default();
-        let mut fight = SingleWayFight::new(player, monster, config, None)
+        let mut fight = SingleWayFight::new(player, monster, config)
             .expect("Error setting up single way fight.");
         let result =
             simulate_fight(&mut fight, &mut FightRecorder::Disabled).expect("Simulation failed.");

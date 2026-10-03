@@ -299,7 +299,7 @@ mod tests {
         player.set_active_style(CombatStyle::Lunge);
         let monster = Monster::new("Ammonite Crab", None).expect("Error creating monster.");
         calc_active_player_rolls(&mut player, &monster).expect("valid setup");
-        let simulation = SingleWayFight::new(player, monster, SingleWayConfig::default(), None)
+        let simulation = SingleWayFight::new(player, monster, SingleWayConfig::default())
             .expect("Error setting up single way fight.");
         let results =
             simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");

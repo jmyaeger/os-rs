@@ -23,13 +23,9 @@ const FLOAT_TOLERANCE: f64 = 1e-9;
 /// Simulate `n_fights` fights and assert that the mean TTK is statistically
 /// consistent with the calculated TTK.
 fn assert_sim_matches_calc_ttk(player: &Player, monster: &Monster, n_fights: u32) {
-    let simulation = SingleWayFight::new(
-        player.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
+    let simulation =
+        SingleWayFight::new(player.clone(), monster.clone(), SingleWayConfig::default())
+            .expect("Error setting up single way fight.");
     let results =
         simulate_n_fights(Box::new(simulation), n_fights, true).expect("Simulation failed.");
 
@@ -368,24 +364,16 @@ fn test_blood_moon_set(full_blood_moon_player: Player, baba_300: Monster) {
     calc_active_player_rolls(&mut player1, &monster).expect("valid setup");
     calc_active_player_rolls(&mut player2, &monster).expect("valid setup");
 
-    let simulation1 = SingleWayFight::new(
-        player1.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
+    let simulation1 =
+        SingleWayFight::new(player1.clone(), monster.clone(), SingleWayConfig::default())
+            .expect("Error setting up single way fight.");
     let results1 =
         simulate_n_fights(Box::new(simulation1), 100000, true).expect("Simulation failed.");
     let stats1 = SimulationStats::new(&results1);
 
-    let simulation2 = SingleWayFight::new(
-        player2.clone(),
-        monster.clone(),
-        SingleWayConfig::default(),
-        None,
-    )
-    .expect("Error setting up single way fight.");
+    let simulation2 =
+        SingleWayFight::new(player2.clone(), monster.clone(), SingleWayConfig::default())
+            .expect("Error setting up single way fight.");
     let results2 =
         simulate_n_fights(Box::new(simulation2), 100000, true).expect("Simulation failed.");
     let stats2 = SimulationStats::new(&results2);

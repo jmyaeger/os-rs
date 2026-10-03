@@ -27,7 +27,6 @@ pub struct VardorvisConfig {
     pub eat_strategy: VardorvisEatStrategy,
     pub thralls: Option<Thrall>,
     pub spec_config: Option<SpecConfig<CoreCondition>>,
-    pub spec_state: SpecState,
 }
 
 impl Default for VardorvisConfig {
@@ -38,7 +37,6 @@ impl Default for VardorvisConfig {
             eat_strategy: VardorvisEatStrategy::EatAtHp(20),
             thralls: None,
             spec_config: None,
-            spec_state: SpecState::default(),
         }
     }
 }
@@ -53,6 +51,7 @@ struct VardorvisState {
     vardorvis_attack_tick: i32,
     attack_count: i32,
     is_dashing: bool,
+    spec_state: SpecState,
 }
 
 impl Default for VardorvisState {
@@ -61,6 +60,16 @@ impl Default for VardorvisState {
             vardorvis_attack_tick: 2,
             attack_count: 0,
             is_dashing: false,
+            spec_state: SpecState::default(),
+        }
+    }
+}
+
+impl VardorvisState {
+    fn reset(&mut self) {
+        *self = Self {
+            spec_state: std::mem::take(&mut self.spec_state),
+            ..Default::default()
         }
     }
 }
@@ -148,6 +157,7 @@ pub struct VardorvisFight {
     rng: SmallRng,
     config: VardorvisConfig,
     mechanics: VardorvisMechanics,
+    state: VardorvisState,
 }
 
 impl VardorvisFight {
@@ -168,6 +178,7 @@ impl VardorvisFight {
             rng,
             config,
             mechanics: VardorvisMechanics,
+            state: VardorvisState::default(),
         })
     }
 
@@ -176,7 +187,6 @@ impl VardorvisFight {
         log: &mut FightRecorder,
     ) -> Result<FightResult, SimulationError> {
         let mut vars = FightVars::new();
-        let mut state = VardorvisState::default();
         let player_regen_ticks = if self.player.prayers.contains_prayer(Prayer::RapidHeal) {
             constants::PLAYER_REGEN_TICKS / 2
         } else {
@@ -222,7 +232,7 @@ impl VardorvisFight {
                                 &mut self.rng,
                                 &self.limiter,
                                 spec_config,
-                                &mut self.config.spec_state,
+                                &mut self.state.spec_state,
                                 &(),
                                 &mut vars,
                                 log,
@@ -277,15 +287,15 @@ impl VardorvisFight {
                 break;
             }
 
-            self.config.spec_state.increment_spec(
+            self.state.spec_state.increment_spec(
                 &mut self.player,
                 &self.vard,
                 vars.tick_counter,
                 log,
             );
-            self.config.spec_state.increment_timers();
+            self.state.spec_state.increment_timers();
             if let Some(ref spec_config) = self.config.spec_config {
-                self.config.spec_state.process_surge_potion(
+                self.state.spec_state.process_surge_potion(
                     &mut self.player,
                     &self.vard,
                     spec_config,
@@ -294,24 +304,24 @@ impl VardorvisFight {
                 );
             }
 
-            if vars.tick_counter == state.vardorvis_attack_tick {
+            if vars.tick_counter == self.state.vardorvis_attack_tick {
                 // Every 6 attacks, Vardorvis dashes 1-3 times back and forth, with each
                 // dash delaying his next attack by 1 tick. The number of dashes is definitely
                 // based on his current HP, starting with 1 and increasing to 3 toward the end of the
                 // kill, but I don't know the exact thresholds. The below is my best guess from VOD
                 // review: 1 dash above ~450 HP, 2 dashes between ~150 and ~450 HP, and 3 dashes below
                 // ~150 HP.
-                if state.attack_count.is_multiple_of(&6)
-                    && state.attack_count > 0
-                    && !state.is_dashing
+                if self.state.attack_count.is_multiple_of(&6)
+                    && self.state.attack_count > 0
+                    && !self.state.is_dashing
                 {
                     let dashes = match self.vard.stats.hitpoints.current {
                         0..150 => 3,
                         150..450 => 2,
                         _ => 1,
                     };
-                    state.vardorvis_attack_tick += dashes;
-                    state.is_dashing = true;
+                    self.state.vardorvis_attack_tick += dashes;
+                    self.state.is_dashing = true;
 
                     for i in 0..dashes {
                         log.record(
@@ -324,11 +334,11 @@ impl VardorvisFight {
                         )
                     }
                 } else {
-                    state.is_dashing = false;
+                    self.state.is_dashing = false;
                     self.mechanics.vardorvis_attack(
                         &mut self.vard,
                         &mut self.player,
-                        &mut state,
+                        &mut self.state,
                         &mut vars,
                         &mut self.rng,
                         log,
@@ -382,12 +392,9 @@ impl Simulation for VardorvisFight {
         self.player.state.last_attack_hit = true;
 
         if let Some(ref mut spec_config) = self.config.spec_config {
-            let restore_spec = self
-                .config
-                .spec_state
-                .on_kill(&mut self.player, spec_config);
+            let restore_spec = self.state.spec_state.on_kill(&mut self.player, spec_config);
             self.player.reset_current_stats(restore_spec);
-            self.config.spec_state.advance_ticks(
+            self.state.spec_state.advance_ticks(
                 &mut self.player,
                 &self.vard,
                 VARDORVIS_RESPAWN_TICKS,
@@ -405,6 +412,7 @@ impl Simulation for VardorvisFight {
         calc_active_player_rolls(&mut self.player, &self.vard)?;
 
         self.vard.reset(None, None);
+        self.state.reset();
 
         Ok(())
     }

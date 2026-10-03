@@ -204,13 +204,8 @@ mod spec_tests {
 
         // Test with immune monster
         let immune_monster = Monster::new("Dawn", None).expect("Error creating monster.");
-        let fight = SingleWayFight::new(
-            player.clone(),
-            immune_monster,
-            SingleWayConfig::default(),
-            None,
-        )
-        .expect("Error setting up single way fight.");
+        let fight = SingleWayFight::new(player.clone(), immune_monster, SingleWayConfig::default())
+            .expect("Error setting up single way fight.");
         assert!(fight.is_immune());
     }
 
