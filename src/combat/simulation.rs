@@ -1,11 +1,16 @@
+use std::collections::HashMap;
+
 use crate::combat::limiters;
+use crate::combat::thralls::Thrall;
 use crate::constants::HUEYCOATL_TAIL_ID;
 use crate::error::SimulationError;
 use crate::types::equipment::CombatType;
+use crate::types::food::Food;
 use crate::types::monster::Monster;
 use crate::types::player::Player;
+use crate::types::potions::Potion;
 use crate::types::spells::{Spell, StandardSpell};
-use crate::utils::logging::{FightLog, FightLogs, FightRecorder};
+// use crate::utils::logging::{FightLog, FightLogs, FightRecorder};
 
 #[derive(Debug, PartialEq, Clone, Default)]
 pub struct FightResult {
@@ -92,13 +97,165 @@ impl FightVars {
     }
 }
 
-pub trait Simulation {
-    fn simulate(&mut self, log: &mut FightRecorder) -> Result<FightResult, SimulationError>;
-    fn is_immune(&self) -> bool;
-    fn player(&self) -> &Player;
-    fn monster(&self) -> &Monster;
-    fn set_attack_function(&mut self);
-    fn reset(&mut self) -> Result<(), SimulationError>;
+pub struct Simulation<F: Fight> {
+    plan: SimPlan,
+    world: World,
+    fight: F,
+}
+
+impl<F: Fight> Simulation<F> {
+    fn new(plan: SimPlan, fight: F) -> Self {
+        let world = fight.initialize_world();
+        Self { plan, world, fight }
+    }
+
+    fn run(&mut self) -> Result<CumulativeResults, SimulationError> {
+        // The body of this would depend on the `SimPlan`, but it
+        // would determine whether to run individual kills or trips
+        // and then loop through the number of trials, calling
+        // `self.fight.run(&mut self.world)`, collecting the results.
+        todo!()
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct PlayerId(u16);
+
+#[derive(Debug, Clone, Copy)]
+pub struct NpcId(u16);
+
+#[derive(Debug, Clone)]
+pub enum Npc {
+    Monster(Monster),
+    Thrall(Thrall),
+}
+
+struct World {
+    players: HashMap<PlayerId, Player>,
+    npcs: HashMap<NpcId, Npc>,
+    state: WorldState,
+}
+
+struct WorldState;
+
+struct SimPlan {
+    end_condition: SimEndCondition,
+    trip_setup: TripSetup,
+    restore_between_kills: Vec<RestoreAction>,
+    include_respawn_time: bool,
+    success_stats_only: bool,
+}
+
+enum SimEndCondition {
+    Kills(u32),
+    Trips(u32),
+}
+
+enum TripEndCondition {
+    FoodBelow(u32),
+    PrayerDosesBelow(u32),
+    HpBelow(u32),
+}
+
+type TripEndConditionSet = Vec<TripEndCondition>;
+
+struct TripSetup {
+    max_kills: Option<u32>,
+    // The inner `Vec<TripEndCondition>` entries represent sets of
+    // conditions that must all be satisfied for the trip to end.
+    // Any of the sets in the outer Vec can be satisfied for the trip
+    // to end.
+    // For example, if the trip can end if (condition1 AND condition2)
+    // OR condition3, `end_conditions` would be
+    // vec![vec![condition1, condition2], vec![condition3]]
+    end_conditions: Vec<TripEndConditionSet>,
+    restore_between: Vec<RestoreAction>,
+    time_between: u32, // in ticks
+}
+
+enum RestoreAction {
+    FeroxPool,
+    ElidinisStatuette,
+    HousePool,
+    EatToFull {
+        food: Food,
+        // Stop eating if the next piece of food would not
+        // get its full healing potential
+        avoid_overeating: bool,
+    },
+    // This would always eat the specified number of pieces
+    // of food, regardless of overhealing or starting HP
+    EatNFood {
+        food: Food,
+        n: u8,
+    },
+    Overheal {
+        food: Food,
+    },
+    DrinkRestore {
+        max_doses: u8,
+    },
+    DrinkPotion(Potion),
+}
+
+trait Fight {
+    type FightState;
+
+    fn initialize_world(&self) -> World;
+
+    fn tick(&mut self, world: &mut World, state: &mut Self::FightState) {
+        self.player_input(world, state);
+        self.npc_turn(world, state);
+        self.player_turn(world, state);
+    }
+
+    fn player_input(&mut self, world: &mut World, state: &mut Self::FightState) {
+        // This function would be specific to each fight but would
+        // contain things like eating food, drinking potions, and
+        // switching gear. The default implementation would be for
+        // a single-way fight.
+    }
+
+    fn npc_turn(&mut self, world: &mut World, state: &mut Self::FightState) {
+        for npc_id in world.npcs.keys() {
+            // These parts can be implemented here, since they are
+            // generic (I just don't know how exactly I want to handle
+            // them yet):
+            // 1. Process stat regen
+            // 2. Process NPC timer if active
+            // 3. Process queue
+
+            // I think this might run into some borrowing issues. but
+            // the idea is that this needs to be a separate function
+            // implemented for a specific fight.
+            self.process_npc_interactions(&npc_id, world, state);
+        }
+    }
+
+    fn player_turn(&mut self, world: &mut World, state: &mut Self::FightState) {
+        for player_id in world.players.keys() {
+            // These parts are generic and can be implemented here:
+            // 1. Process queue
+            // 2. Process timers
+            // 3. Process engine/area queue, if applicable
+
+            self.process_player_interactions(&player_id, world, state);
+        }
+    }
+
+    fn process_npc_interactions(
+        &mut self,
+        npc: &NpcId,
+        world: &mut World,
+        state: &mut Self::FightState,
+    );
+
+    fn process_player_interactions(
+        &mut self,
+        player: &PlayerId,
+        world: &mut World,
+        state: &mut Self::FightState,
+    );
 }
 
 pub fn assign_limiter(player: &Player, monster: &Monster) -> Option<Box<dyn limiters::Limiter>> {
@@ -179,133 +336,133 @@ pub fn assign_limiter(player: &Player, monster: &Monster) -> Option<Box<dyn limi
     None
 }
 
-pub fn simulate_n_fights(
-    mut simulation: Box<dyn Simulation>,
-    n: u32,
-    only_success_stats: bool,
-) -> Result<CumulativeResults, SimulationError> {
-    // Check if the monster is immune before running simulations
-    if simulation.is_immune() {
-        return Err(SimulationError::MonsterImmune(
-            simulation.monster().info.name.clone(),
-        ));
-    }
+// pub fn simulate_n_fights(
+//     mut simulation: Box<dyn Simulation>,
+//     n: u32,
+//     only_success_stats: bool,
+// ) -> Result<CumulativeResults, SimulationError> {
+//     // Check if the monster is immune before running simulations
+//     if simulation.is_immune() {
+//         return Err(SimulationError::MonsterImmune(
+//             simulation.monster().info.name.clone(),
+//         ));
+//     }
 
-    // Check if the player's attacks are invalid
-    simulation.player().validate_all_attacks()?;
+//     // Check if the player's attacks are invalid
+//     simulation.player().validate_all_attacks()?;
 
-    // Set up result variables
-    let mut results = CumulativeResults::new(n as usize);
+//     // Set up result variables
+//     let mut results = CumulativeResults::new(n as usize);
 
-    // Retrieve attack function and limiter
-    simulation.set_attack_function();
+//     // Retrieve attack function and limiter
+//     simulation.set_attack_function();
 
-    for _ in 0..n {
-        // Run a single fight simulation and update the result variables
-        let result = simulation.simulate(&mut FightRecorder::Disabled);
-        match result {
-            Ok(result) => {
-                results.push(&result);
-            }
-            Err(e) => match e {
-                SimulationError::PlayerDeathError(result) => {
-                    if !only_success_stats {
-                        results.hit_amounts.extend(&result.hit_amounts);
-                        results.hit_attempt_counts.push(result.hit_attempts);
-                        results.hit_counts.push(result.hit_count);
-                        results.food_eaten.push(result.food_eaten);
-                        results.damage_taken.push(result.damage_taken);
-                        results.leftover_burn.push(result.leftover_burn);
-                        results.thrall_damage.push(result.thrall_damage);
-                    }
-                    results.player_deaths += 1;
-                }
-                _ => return Err(e),
-            },
-        }
-        simulation.reset()?;
-    }
+//     for _ in 0..n {
+//         // Run a single fight simulation and update the result variables
+//         let result = simulation.simulate(&mut FightRecorder::Disabled);
+//         match result {
+//             Ok(result) => {
+//                 results.push(&result);
+//             }
+//             Err(e) => match e {
+//                 SimulationError::PlayerDeathError(result) => {
+//                     if !only_success_stats {
+//                         results.hit_amounts.extend(&result.hit_amounts);
+//                         results.hit_attempt_counts.push(result.hit_attempts);
+//                         results.hit_counts.push(result.hit_count);
+//                         results.food_eaten.push(result.food_eaten);
+//                         results.damage_taken.push(result.damage_taken);
+//                         results.leftover_burn.push(result.leftover_burn);
+//                         results.thrall_damage.push(result.thrall_damage);
+//                     }
+//                     results.player_deaths += 1;
+//                 }
+//                 _ => return Err(e),
+//             },
+//         }
+//         simulation.reset()?;
+//     }
 
-    Ok(results)
-}
+//     Ok(results)
+// }
 
-pub fn simulate_log_fights(
-    mut simulation: Box<dyn Simulation>,
-    n: u32,
-) -> Result<FightLogs, SimulationError> {
-    // Check if the monster is immune before running simulations
-    if simulation.is_immune() {
-        return Err(SimulationError::MonsterImmune(
-            simulation.monster().info.name.clone(),
-        ));
-    }
+// pub fn simulate_log_fights(
+//     mut simulation: Box<dyn Simulation>,
+//     n: u32,
+// ) -> Result<FightLogs, SimulationError> {
+//     // Check if the monster is immune before running simulations
+//     if simulation.is_immune() {
+//         return Err(SimulationError::MonsterImmune(
+//             simulation.monster().info.name.clone(),
+//         ));
+//     }
 
-    // Check if the player's attacks are invalid
-    simulation.player().validate_all_attacks()?;
+//     // Check if the player's attacks are invalid
+//     simulation.player().validate_all_attacks()?;
 
-    // Retrieve attack function and limiter
-    simulation.set_attack_function();
+//     // Retrieve attack function and limiter
+//     simulation.set_attack_function();
 
-    // Set up fight logger
-    let mut logger = FightLogs::default();
+//     // Set up fight logger
+//     let mut logger = FightLogs::default();
 
-    for _ in 0..n {
-        let mut fight_log = FightLog::empty();
-        let result = simulation.simulate(&mut FightRecorder::Enabled(&mut fight_log));
-        match result {
-            Ok(_) | Err(SimulationError::PlayerDeathError(_)) => logger.logs.push(fight_log),
-            Err(e) => return Err(e),
-        }
+//     for _ in 0..n {
+//         let mut fight_log = FightLog::empty();
+//         let result = simulation.simulate(&mut FightRecorder::Enabled(&mut fight_log));
+//         match result {
+//             Ok(_) | Err(SimulationError::PlayerDeathError(_)) => logger.logs.push(fight_log),
+//             Err(e) => return Err(e),
+//         }
 
-        simulation.reset()?;
-    }
+//         simulation.reset()?;
+//     }
 
-    Ok(logger)
-}
+//     Ok(logger)
+// }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::calc::analysis::SimulationStats;
-    use crate::calc::rolls::calc_active_player_rolls;
-    use crate::sims::single_way::{SingleWayConfig, SingleWayFight};
-    use crate::types::equipment::CombatStyle;
-    use crate::types::monster::Monster;
-    use crate::types::player::Player;
-    use crate::types::potions::Potion;
-    use crate::types::prayers::Prayer;
-    use crate::types::stats::PlayerStats;
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use crate::calc::analysis::SimulationStats;
+//     use crate::calc::rolls::calc_active_player_rolls;
+//     use crate::sims::single_way::{SingleWayConfig, SingleWayFight};
+//     use crate::types::equipment::CombatStyle;
+//     use crate::types::monster::Monster;
+//     use crate::types::player::Player;
+//     use crate::types::potions::Potion;
+//     use crate::types::prayers::Prayer;
+//     use crate::types::stats::PlayerStats;
 
-    #[test]
-    fn test_simulate_n_fights() {
-        let mut player = Player::new();
-        player.stats = PlayerStats::default();
-        player.add_prayer(Prayer::Piety);
-        player.add_potion(Potion::SuperCombat);
+//     #[test]
+//     fn test_simulate_n_fights() {
+//         let mut player = Player::new();
+//         player.stats = PlayerStats::default();
+//         player.add_prayer(Prayer::Piety);
+//         player.add_potion(Potion::SuperCombat);
 
-        player.equip("Torva full helm", None).unwrap();
-        player.equip("Amulet of torture", None).unwrap();
-        player.equip("Infernal cape", None).unwrap();
-        player.equip("Rada's blessing 4", None).unwrap();
-        player.equip("Ghrazi rapier", None).unwrap();
-        player.equip("Avernic defender", None).unwrap();
-        player.equip("Torva platebody", None).unwrap();
-        player.equip("Torva platelegs", None).unwrap();
-        player.equip("Ferocious gloves", None).unwrap();
-        player.equip("Primordial boots", None).unwrap();
-        player.equip("Ultor ring", None).unwrap();
+//         player.equip("Torva full helm", None).unwrap();
+//         player.equip("Amulet of torture", None).unwrap();
+//         player.equip("Infernal cape", None).unwrap();
+//         player.equip("Rada's blessing 4", None).unwrap();
+//         player.equip("Ghrazi rapier", None).unwrap();
+//         player.equip("Avernic defender", None).unwrap();
+//         player.equip("Torva platebody", None).unwrap();
+//         player.equip("Torva platelegs", None).unwrap();
+//         player.equip("Ferocious gloves", None).unwrap();
+//         player.equip("Primordial boots", None).unwrap();
+//         player.equip("Ultor ring", None).unwrap();
 
-        player.update_bonuses();
-        player.set_active_style(CombatStyle::Lunge);
-        let monster = Monster::new("Ammonite Crab", None).expect("Error creating monster.");
-        calc_active_player_rolls(&mut player, &monster).expect("valid setup");
-        let simulation = SingleWayFight::new(player, monster, SingleWayConfig::default())
-            .expect("Error setting up single way fight.");
-        let results =
-            simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
-        let stats = SimulationStats::new(&results);
+//         player.update_bonuses();
+//         player.set_active_style(CombatStyle::Lunge);
+//         let monster = Monster::new("Ammonite Crab", None).expect("Error creating monster.");
+//         calc_active_player_rolls(&mut player, &monster).expect("valid setup");
+//         let simulation = SingleWayFight::new(player, monster, SingleWayConfig::default())
+//             .expect("Error setting up single way fight.");
+//         let results =
+//             simulate_n_fights(Box::new(simulation), 100000, true).expect("Simulation failed.");
+//         let stats = SimulationStats::new(&results);
 
-        assert!(num::abs(stats.ttk - 10.1) < 0.1);
-        assert!(num::abs(stats.accuracy - 99.07) < 0.1);
-    }
-}
+//         assert!(num::abs(stats.ttk - 10.1) < 0.1);
+//         assert!(num::abs(stats.accuracy - 99.07) < 0.1);
+//     }
+// }
