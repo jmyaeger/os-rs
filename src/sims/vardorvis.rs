@@ -90,7 +90,18 @@ impl VardorvisMechanics {
     ) -> Result<(), SimulationError> {
         let mut hit = vard.attack(player, Some(VARDORVIS_ATTACK_STYLE), rng, false)?;
         hit.damage /= 4; // Assumes Protect from Melee is active
-        hit.damage = player.apply_damage_reductions(hit.damage, AttackType::Slash, rng);
+        let reduced = player.apply_damage_reductions(hit.damage, AttackType::Slash, rng);
+        log.record(
+            vars.tick_counter,
+            EventType::PlayerDamageReduction {
+                player_id: player.fight_id(),
+                original: hit.damage,
+                reduced,
+            },
+            &[player],
+            &[vard],
+        );
+        hit.damage = reduced;
         hit.damage = hit.damage.min(player.stats.hitpoints.current);
 
         log.record(

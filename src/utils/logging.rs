@@ -99,6 +99,11 @@ pub enum EventType {
         monster_id: MonsterFightId,
         amount: u32,
     },
+    PlayerDamageReduction {
+        player_id: PlayerFightId,
+        original: u32,
+        reduced: u32,
+    },
     Custom {
         message: String,
     },

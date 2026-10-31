@@ -26,11 +26,11 @@ fn main() {
 
     // simulate_single_way();
 
-    simulate_hunllef();
+    // simulate_hunllef();
 
     // simulate_normal_gauntlet();
 
-    // simulate_vardorvis();
+    simulate_vardorvis();
 
     let end_time = std::time::Instant::now();
 
@@ -422,10 +422,11 @@ fn simulate_vardorvis() {
     // player.stats.strength = Stat::new(98, None);
     // player.stats.defence = Stat::new(91, None);
     // player.reset_current_stats(false);
-    player.equip("Noxious halberd", None).unwrap();
-    player.set_active_style(CombatStyle::Swipe);
-    // player.equip("Blade of Saeldor (c)", None).unwrap();
-    // player.equip("Dragon defender", None).unwrap();
+    // player.equip("Noxious halberd", None).unwrap();
+    // player.set_active_style(CombatStyle::Swipe);
+    player.equip("Blade of Saeldor (c)", None).unwrap();
+    player.set_active_style(CombatStyle::Slash);
+    player.equip("Dragon defender", None).unwrap();
     // player.equip("Bandos chestplate", None).unwrap();
     // player.equip("Bandos tassets", None).unwrap();
     // player.equip("Neitiznot faceguard", None).unwrap();
@@ -448,7 +449,7 @@ fn simulate_vardorvis() {
     player.switches.push(main_hand);
 
     player.equip("Voidwaker", None).unwrap();
-    player.equip("Avernic defender", None).unwrap();
+    // player.equip("Avernic defender", None).unwrap();
     player.set_active_style(CombatStyle::Slash);
     let vw_switch = GearSwitch::new(SwitchType::Spec("Voidwaker spec".into()), &player, &vard)
         .expect("valid gear switch");
@@ -530,15 +531,15 @@ fn simulate_vardorvis() {
 
     player.switch(&SwitchType::Melee);
     let spec_config = SpecConfig::new(
-        vec![bclaws_spec_strategy],
+        vec![vw_spec_strategy],
         SpecRestorePolicy::RestoreAfter(10),
         Some(osrs::combat::spec::DeathCharge::Double),
         false,
     );
 
     let fight_config = VardorvisConfig {
-        food_heal_amount: 18,
-        food_eat_delay: 2,
+        food_heal_amount: 22,
+        food_eat_delay: 3,
         eat_strategy: VardorvisEatStrategy::EatAtHp(10),
         thralls: Some(Thrall::GreaterMagic),
         spec_config: Some(spec_config),
@@ -546,7 +547,7 @@ fn simulate_vardorvis() {
 
     let mut fight =
         VardorvisFight::new(player, fight_config).expect("Error creating the Vardorvis fight.");
-    let results = simulate_n_fights(Box::new(fight), 100_000, true).expect("Simulation failed.");
+    let results = simulate_n_fights(Box::new(fight), 1_000_000, true).expect("Simulation failed.");
     let stats = SimulationStats::new(&results);
 
     let mut odds_of_gm = 0.0;
