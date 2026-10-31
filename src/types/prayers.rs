@@ -17,6 +17,8 @@ pub enum Prayer {
     Chivalry,
     #[strum(to_string = "Piety")]
     Piety,
+    #[strum(to_string = "Zeal")]
+    Zeal,
     #[strum(to_string = "Burst of Strength")]
     BurstOfStrength,
     #[strum(to_string = "Superhuman Strength")]
@@ -64,6 +66,7 @@ impl Prayer {
                 | Self::IncredibleReflexes
                 | Self::Chivalry
                 | Self::Piety
+                | Self::Zeal
                 | Self::BurstOfStrength
                 | Self::SuperhumanStrength
                 | Self::UltimateStrength
@@ -132,6 +135,7 @@ impl PrayerBoost {
             IncredibleReflexes => { attack: 15 },
             Chivalry => { attack: 15, strength: 18, defence: 20 },
             Piety => { attack: 20, strength: 23, defence: 25 },
+            Zeal => { attack: 25, strength: 28, defence: 25},
             BurstOfStrength => { strength: 5 },
             SuperhumanStrength => { strength: 10 },
             UltimateStrength => { strength: 15 },

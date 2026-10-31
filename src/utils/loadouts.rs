@@ -9,7 +9,7 @@ use std::rc::Rc;
 pub fn max_melee_player() -> Player {
     let mut player = Player::new();
     player.stats = PlayerStats::default();
-    player.add_prayer(Prayer::Piety);
+    player.add_prayer(Prayer::Zeal);
     player.add_potion(Potion::SuperCombat);
 
     player.equip("Torva full helm", None).unwrap();
@@ -45,7 +45,7 @@ pub fn max_ranged_zcb_player() -> Player {
     player.equip("Masori body (f)", None).unwrap();
     player.equip("Masori chaps (f)", None).unwrap();
     player.equip("Zaryte vambraces", None).unwrap();
-    player.equip("Pegasian boots", None).unwrap();
+    player.equip("Avernic treads (max)", None).unwrap();
     player.equip("Venator ring", None).unwrap();
 
     player.update_bonuses();
@@ -68,8 +68,8 @@ pub fn max_mage_sang_staff_player() -> Player {
     player.equip("Elidinis' ward (f)", None).unwrap();
     player.equip("Ancestral robe top", None).unwrap();
     player.equip("Ancestral robe bottom", None).unwrap();
-    player.equip("Tormented bracelet", None).unwrap();
-    player.equip("Eternal boots", None).unwrap();
+    player.equip("Confliction gauntlets", None).unwrap();
+    player.equip("Avernic treads (max)", None).unwrap();
     player.equip("Magus ring", None).unwrap();
 
     player.update_bonuses();
