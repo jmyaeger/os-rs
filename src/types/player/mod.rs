@@ -117,6 +117,7 @@ pub struct PlayerState {
     pub last_attack_hit: bool,
     pub current_hp: Option<u32>,
     pub rondache: RondacheState,
+    pub zoryas_speedups: u32,
 }
 
 impl Default for PlayerState {
@@ -126,6 +127,7 @@ impl Default for PlayerState {
             last_attack_hit: true,
             current_hp: None,
             rondache: RondacheState::default(),
+            zoryas_speedups: 0,
         }
     }
 }

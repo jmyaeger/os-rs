@@ -10,6 +10,7 @@ use crate::types::equipment::CombatType;
 use crate::types::monster::{CombatStat, Monster, StatDrain};
 use crate::types::player::Player;
 use crate::types::spells::{SpecialSpell, Spell};
+use crate::utils::math::Fraction;
 use num::clamp;
 use rand::Rng;
 use rand::rngs::SmallRng;
@@ -1902,6 +1903,49 @@ pub fn rondache_spec(
 
     hit
 }
+
+pub fn zoryas_tome_spec(
+    player: &mut Player,
+    monster: &mut Monster,
+    rng: &mut SmallRng,
+    limiter: &Option<Box<dyn Limiter>>,
+) -> Hit {
+    let boosted = player.state.zoryas_speedups > 0;
+    let weapon = &mut Rc::make_mut(&mut player.gear).weapon;
+    if boosted {
+        weapon.speed.set(2);
+    } else {
+        weapon.speed.reset();
+    }
+
+    let mut info = AttackInfo::new(player, monster);
+
+    // Boosts accuracy by 150% and damage by 60%
+    let mut acc_factor = Fraction::new(5, 2).expect("valid fraction");
+    let mut damage_factor = Fraction::new(8, 5).expect("valid fraction");
+
+    // Applies additional boosts additively if under the effect of a previous spec
+    if boosted {
+        acc_factor += Fraction::new(3, 2).expect("valid fraction");
+        damage_factor += Fraction::new(3, 5).expect("valid fraction");
+    }
+
+    info.max_att_roll = acc_factor.multiply_to_int(info.max_att_roll);
+    info.max_hit = damage_factor.multiply_to_int(info.max_hit);
+
+    // Decrement the remaining sped-up attacks if there are any
+    player.state.zoryas_speedups = player.state.zoryas_speedups.saturating_sub(1);
+
+    let mut hit = base_attack(&info, rng, false);
+    if hit.success {
+        hit.apply_transforms(player, monster, rng, limiter);
+
+        // Hitting the spec speeds up the next 3 attacks to 2 ticks each (not including this attack)
+        player.state.zoryas_speedups += 3;
+    }
+
+    hit
+}
 // TODO: implement purging staff spec
 
 pub fn get_spec_attack_function(player: &Player) -> Option<AttackFn> {
@@ -1961,6 +2005,7 @@ pub fn get_spec_attack_function(player: &Player) -> Option<AttackFn> {
         "Rosewood blowpipe" => rosewood_bp_spec,
         "Arkan blade" => arkan_blade_spec,
         "Sunspear" => sunspear_spec,
+        "Zorya's tome" => zoryas_tome_spec,
         _ => return None,
     };
     Some(spec_fn)

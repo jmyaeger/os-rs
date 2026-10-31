@@ -408,6 +408,7 @@ impl Simulation for VardorvisFight {
     fn reset(&mut self) -> Result<(), SimulationError> {
         self.player.state.first_attack = true;
         self.player.state.last_attack_hit = true;
+        self.player.state.zoryas_speedups = 0;
 
         if let Some(ref mut spec_config) = self.config.spec_config {
             let restore_spec = self.state.spec_state.on_kill(&mut self.player, spec_config);

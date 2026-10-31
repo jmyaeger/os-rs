@@ -1095,11 +1095,16 @@ pub fn obligator_attack(
     let thrust = [CombatStyle::ThrustAccurate, CombatStyle::ThrustAggressive]
         .contains(&player.attrs.active_style);
 
+    // Passives are only applied if the obligator is both charged and on one of the Thrust styles
     if charged && thrust {
         let mut info = AttackInfo::new(player, monster);
+
+        // Boost damage by 20% against 2x2 monsters and 40% against 3x3 or larger monsters
         let damage_boost = (min(3, monster.info.size) - 1) * 20;
         info.max_hit = info.max_hit * (100 + damage_boost) / 100;
 
+        // Defaults to 2 damage rolls, and each melee defence bonus higher than the crush bonus
+        // adds an additional damage roll
         let mut extra_damage_rolls = 1;
         if monster.bonuses.defence.stab > monster.bonuses.defence.crush {
             extra_damage_rolls += 1;
@@ -1123,6 +1128,31 @@ pub fn obligator_attack(
     } else {
         standard_attack(player, monster, rng, limiter)
     }
+}
+
+pub fn zoryas_tome_attack(
+    player: &mut Player,
+    monster: &mut Monster,
+    rng: &mut SmallRng,
+    limiter: &Option<Box<dyn Limiter>>,
+) -> Hit {
+    let mut info = AttackInfo::new(player, monster);
+    if player.state.zoryas_speedups > 0 {
+        Rc::make_mut(&mut player.gear).weapon.speed.set(2);
+        player.state.zoryas_speedups -= 1;
+        info.max_att_roll = info.max_att_roll * 5 / 2;
+        info.max_hit = info.max_hit * 8 / 5;
+    } else if player.state.zoryas_speedups == 0 {
+        Rc::make_mut(&mut player.gear).weapon.speed.reset();
+    }
+
+    let mut hit = base_attack(&info, rng, false);
+
+    if hit.success {
+        hit.apply_transforms(player, monster, rng, limiter);
+    }
+
+    hit
 }
 
 pub type AttackFn = fn(&mut Player, &mut Monster, &mut SmallRng, &Option<Box<dyn Limiter>>) -> Hit;
@@ -1192,6 +1222,7 @@ pub fn get_attack_functions(player: &Player) -> AttackFn {
         "Eclipse atlatl" => atlatl_attack as AttackFn,
         "Blue Moon spear" => blue_moon_spear_attack as AttackFn,
         "Obligator" => obligator_attack as AttackFn,
+        "Zorya's tome" => zoryas_tome_attack as AttackFn,
         _ => standard_attack as AttackFn,
     }
 }
