@@ -711,9 +711,10 @@ pub const EMERALD_BOLTS: [(&str, Option<&str>); 2] = [
     ("Emerald dragon bolts (e)", None),
 ];
 
-pub const DIAMOND_BOLTS: [(&str, Option<&str>); 2] = [
+pub const DIAMOND_BOLTS: [(&str, Option<&str>); 3] = [
     ("Diamond bolts (e)", None),
     ("Diamond dragon bolts (e)", None),
+    ("Diamond ascension bolts (e)", None),
 ];
 
 pub const DRAGONSTONE_BOLTS: [(&str, Option<&str>); 2] = [
@@ -724,8 +725,11 @@ pub const DRAGONSTONE_BOLTS: [(&str, Option<&str>); 2] = [
 pub const JADE_BOLTS: [(&str, Option<&str>); 2] =
     [("Jade bolts (e)", None), ("Jade dragon bolts (e)", None)];
 
-pub const ONYX_BOLTS: [(&str, Option<&str>); 2] =
-    [("Onyx bolts (e)", None), ("Onyx dragon bolts (e)", None)];
+pub const ONYX_BOLTS: [(&str, Option<&str>); 3] = [
+    ("Onyx bolts (e)", None),
+    ("Onyx dragon bolts (e)", None),
+    ("Onyx ascension bolts (e)", None),
+];
 
 pub const RUBY_BOLTS: [(&str, Option<&str>); 2] =
     [("Ruby bolts (e)", None), ("Ruby dragon bolts (e)", None)];

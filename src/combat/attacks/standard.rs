@@ -1188,10 +1188,12 @@ pub fn get_attack_functions(player: &Player) -> AttackFn {
                 return emerald_bolt_attack as AttackFn;
             }
             "Ruby bolts (e)" | "Ruby dragon bolts (e)" => return ruby_bolt_attack as AttackFn,
-            "Diamond bolts (e)" | "Diamond dragon bolts (e)" => {
+            "Diamond bolts (e)" | "Diamond dragon bolts (e)" | "Diamond ascension bolts (e)" => {
                 return diamond_bolt_attack as AttackFn;
             }
-            "Onyx bolts (e)" | "Onyx dragon bolts (e)" => return onyx_bolt_attack as AttackFn,
+            "Onyx bolts (e)" | "Onyx dragon bolts (e)" | "Onyx ascension bolts (e)" => {
+                return onyx_bolt_attack as AttackFn;
+            }
             "Dragonstone bolts (e)" | "Dragonstone dragon bolts (e)" => {
                 return dragonstone_bolt_attack as AttackFn;
             }

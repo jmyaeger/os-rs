@@ -122,6 +122,10 @@ impl Player {
             proc_chance += base_chance;
         }
 
+        if self.is_wearing("Ascension crossbows", None) {
+            proc_chance *= 0.5;
+        }
+
         proc_chance
     }
 
