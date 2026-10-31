@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct Timer {
     duration: Option<u32>,
     counter: u32,
@@ -42,5 +42,10 @@ impl Timer {
 
     pub fn counter(&self) -> u32 {
         self.counter
+    }
+
+    pub fn set_duration(&mut self, duration: u32) {
+        self.duration = Some(duration);
+        self.reset();
     }
 }

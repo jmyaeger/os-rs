@@ -8,7 +8,7 @@ use crate::combat::thralls::Thrall;
 use crate::constants;
 use crate::error::SimulationError;
 use crate::types::monster::{AttackType, Monster, MonsterMaxHit};
-use crate::types::player::Player;
+use crate::types::player::{Player, RondacheState};
 use crate::types::prayers::Prayer;
 use crate::utils::logging::{EventType, FightRecorder, MonsterSnapshot, PlayerSnapshot};
 use num::Integer;
@@ -90,6 +90,7 @@ impl VardorvisMechanics {
     ) -> Result<(), SimulationError> {
         let mut hit = vard.attack(player, Some(VARDORVIS_ATTACK_STYLE), rng, false)?;
         hit.damage /= 4; // Assumes Protect from Melee is active
+        hit.damage = player.apply_damage_reductions(hit.damage, AttackType::Slash, rng);
         hit.damage = hit.damage.min(player.stats.hitpoints.current);
 
         log.record(
@@ -346,6 +347,23 @@ impl VardorvisFight {
                 }
             }
 
+            // For now, we'll just assume the player is only using the Rondache spec when its charges are capped
+            if self.player.state.rondache.is_capped() {
+                self.mechanics.player_rondache_attack(
+                    &mut self.player,
+                    &mut self.vard,
+                    &mut self.rng,
+                    &self.limiter,
+                    &mut vars,
+                    log,
+                );
+
+                if self.vard.stats.hitpoints.current == 0 {
+                    break;
+                }
+            }
+            self.player.state.rondache.advance_tick();
+
             // Increment tick counter
             vars.tick_counter += 1;
 
@@ -402,12 +420,15 @@ impl Simulation for VardorvisFight {
             if restore_spec {
                 // Assume that the player is not losing stacks between successive kills in a trip
                 // but does lose all stacks when resetting spec energy
+                // Similarly, maintain Rondache charges unless fully resetting
                 // TODO: Make this a bit more flexible if it turns out that the new stack mechanics
-                // allow players to maintain any stacks when banking/resettin
+                // allow players to maintain any stacks when banking/resetting
                 self.player.boosts.soulreaper_stacks = 0;
+                self.player.state.rondache = RondacheState::default();
             }
         } else {
-            self.player.reset_current_stats(false);
+            self.player.reset_current_stats(true);
+            self.player.state.rondache = RondacheState::default();
         }
         calc_active_player_rolls(&mut self.player, &self.vard)?;
 

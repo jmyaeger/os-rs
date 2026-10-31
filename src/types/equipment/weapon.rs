@@ -211,6 +211,12 @@ impl Weapon {
                 (Block, Crush, Defensive),
                 (ManualCast, Magic, ManualCast),
             ],
+            WeaponCategory::ExtendingChainMace => [
+                (ThrustAccurate, Crush, Accurate),
+                (ThrustAggressive, Crush, Aggressive),
+                (Smash, Crush, Aggressive),
+                (ManualCast, Magic, ManualCast),
+            ],
             WeaponCategory::Flail => [
                 (Chop, Slash, Accurate),
                 (Slash, Slash, Aggressive),
@@ -337,6 +343,11 @@ impl Weapon {
                 (Longrange, Magic, Longrange),
                 (ManualCast, Magic, ManualCast),
             ],
+            WeaponCategory::PoweredBook => [
+                (Accurate, Magic, Accurate),
+                (Longrange, Magic, Longrange),
+                (ManualCast, Magic, ManualCast),
+            ],
             WeaponCategory::Staff => [
                 (Bash, Crush, Accurate),
                 (Pound, Crush, Aggressive),
@@ -390,6 +401,8 @@ pub enum WeaponCategory {
     Bulwark,
     Claw,
     Egg,
+    #[serde(alias = "Extending Chain Mace")]
+    ExtendingChainMace,
     Flail,
     Partisan,
     Pickaxe,
@@ -419,6 +432,8 @@ pub enum WeaponCategory {
     BladedStaff,
     #[serde(alias = "Powered Staff")]
     PoweredStaff,
+    #[serde(alias = "Powered Book")]
+    PoweredBook,
     Staff,
 
     // Other
@@ -460,9 +475,10 @@ impl WeaponCategory {
             }
             WeaponCategory::Chinchompas => CombatStyle::MediumFuse,
             WeaponCategory::Gun => CombatStyle::AimAndFire,
-            WeaponCategory::PoweredStaff => CombatStyle::Accurate,
+            WeaponCategory::PoweredStaff | WeaponCategory::PoweredBook => CombatStyle::Accurate,
             WeaponCategory::Salamander => CombatStyle::Scorch,
             WeaponCategory::MultiStyle => CombatStyle::Melee,
+            WeaponCategory::ExtendingChainMace => CombatStyle::ThrustAggressive,
         }
     }
 }

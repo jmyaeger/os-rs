@@ -22,12 +22,16 @@ pub use switches::{GearSwitch, SwitchType};
 use crate::combat::attacks::effects::CombatEffect;
 use crate::combat::attacks::specs::SpecialAttackFn;
 use crate::combat::attacks::standard::{AttackFn, standard_attack};
+use crate::constants;
 use crate::types::equipment::{CombatStyle, CombatType, EquipmentBonuses, Gear};
 use crate::types::potions::PotionBoosts;
 use crate::types::prayers::PrayerBoosts;
 use crate::types::spells;
 use crate::types::stats::PlayerStats;
+use crate::types::timers::Timer;
 use crate::utils::logging::PlayerFightId;
+use crate::utils::math::Fraction;
+use std::cmp::min;
 use std::rc::Rc;
 
 // Misc other player info - may restructure if there's a better place for these
@@ -40,18 +44,88 @@ pub struct PlayerAttrs {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct RondacheState {
+    charges: u32,
+    cd: Timer,
+    decay_timer: Timer,
+}
+
+impl Default for RondacheState {
+    fn default() -> Self {
+        Self {
+            charges: 0,
+            cd: Timer::new(None),
+            decay_timer: Timer::new(Some(constants::RONDACHE_DECAY_TICKS)),
+        }
+    }
+}
+
+impl RondacheState {
+    pub fn charge(&mut self, damage: u32) {
+        if !self.cd.is_active() {
+            let charges_to_add = min(damage, 2);
+            self.charges = min(20, self.charges + charges_to_add);
+            self.cd.set_duration(constants::RONDACHE_CD_SHORT);
+            self.cd.activate();
+        }
+        if !self.decay_timer.is_active() {
+            self.decay_timer.activate();
+        }
+    }
+
+    pub fn get_charges(&self) -> u32 {
+        self.charges
+    }
+
+    pub fn advance_tick(&mut self) {
+        self.cd.increment();
+        self.decay_timer.increment();
+        if !self.decay_timer.is_active() {
+            self.charges = self.charges.saturating_sub(1);
+            self.decay_timer.activate();
+        }
+    }
+
+    pub fn is_capped(&self) -> bool {
+        self.charges == 20
+    }
+
+    pub fn off_cooldown(&self) -> bool {
+        !self.cd.is_active()
+    }
+
+    pub fn can_spec(&self) -> bool {
+        self.charges >= constants::RONDACHE_MIN_SPEC_CHARGES
+    }
+
+    pub fn spec(&mut self) -> u32 {
+        let factor = Fraction::new(100 + self.charges as i32, 100).expect("valid fraction");
+        let damage = factor.multiply_to_int(self.charges);
+        self.charges = 0;
+        // TODO: wiki says 8 second cooldown after spec, but is it 13 or 14 ticks?
+        self.cd.set_duration(constants::RONDACHE_CD_LONG);
+        self.cd.activate();
+        self.decay_timer.reset();
+
+        damage
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct PlayerState {
     pub first_attack: bool,
     pub last_attack_hit: bool,
     pub current_hp: Option<u32>,
+    pub rondache: RondacheState,
 }
 
 impl Default for PlayerState {
     fn default() -> Self {
         Self {
             first_attack: true,
-            last_attack_hit: false,
+            last_attack_hit: true,
             current_hp: None,
+            rondache: RondacheState::default(),
         }
     }
 }

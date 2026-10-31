@@ -1,8 +1,12 @@
 //! Combat-related methods for `Player`.
+use rand::Rng;
+use rand::rngs::SmallRng;
+
 use super::Player;
 use crate::constants;
 use crate::error::{AttackValidationError, PlayerError};
 use crate::types::equipment::{CombatStance, CombatStyle, CombatType, Gear};
+use crate::types::monster::AttackType;
 use crate::types::spells;
 use std::cmp::max;
 use std::rc::Rc;
@@ -152,6 +156,55 @@ impl Player {
         }
 
         Ok(())
+    }
+
+    pub fn apply_damage_reductions(
+        &mut self,
+        damage: u32,
+        attack_type: AttackType,
+        rng: &mut SmallRng,
+    ) -> u32 {
+        let mut reduced = damage;
+        if self.is_wearing("Elysian spirit shield", None) && rng.random::<f64>() <= 0.7 {
+            let reduction = max(1, damage / 4);
+            reduced = reduced.saturating_sub(reduction);
+        } else if self.is_wearing("Dinh's bulwark", None)
+            && self.attrs.active_style == CombatStyle::Block
+        {
+            reduced = reduced * 8 / 10;
+        }
+
+        if self.set_effects.full_justiciar {
+            let defensive_bonus = match attack_type {
+                AttackType::Stab => self.bonuses.defence.stab,
+                AttackType::Slash => self.bonuses.defence.slash,
+                AttackType::Crush => self.bonuses.defence.crush,
+                AttackType::Ranged => self.bonuses.defence.ranged,
+                AttackType::Magic => self.bonuses.defence.magic,
+                AttackType::Melee => {
+                    (self.bonuses.defence.stab
+                        + self.bonuses.defence.slash
+                        + self.bonuses.defence.crush)
+                        / 3
+                }
+                _ => 0,
+            };
+
+            reduced = reduced.saturating_sub(reduced * defensive_bonus as u32 / 3000);
+        }
+
+        // TODO: confirm placement
+        if self.is_wearing("Rondache", None) {
+            if reduced == 1 {
+                reduced -= 1;
+                self.state.rondache.charge(1);
+            } else if reduced > 1 {
+                reduced -= 2;
+                self.state.rondache.charge(2);
+            }
+        }
+
+        reduced
     }
 }
 

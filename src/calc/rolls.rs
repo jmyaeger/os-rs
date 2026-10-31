@@ -120,7 +120,7 @@ pub fn calc_player_def_rolls(player: &mut Player) {
     );
 }
 
-fn calc_roll(eff_lvl: u32, bonus: i32) -> i32 {
+pub fn calc_roll(eff_lvl: u32, bonus: i32) -> i32 {
     max(0, eff_lvl as i32 * (bonus + 64))
 }
 
@@ -395,7 +395,7 @@ fn calc_player_magic_rolls(player: &mut Player, monster: &Monster) -> Result<(),
     Ok(())
 }
 
-fn calc_eff_melee_lvls(player: &Player) -> (u32, u32) {
+pub fn calc_eff_melee_lvls(player: &Player) -> (u32, u32) {
     let att_stance_bonus = match player.combat_stance() {
         CombatStance::Accurate => 11,
         CombatStance::Controlled => 9,

@@ -1,4 +1,4 @@
-use crate::calc::rolls::calc_active_player_rolls;
+use crate::calc::rolls::{calc_active_player_rolls, calc_eff_melee_lvls, calc_roll};
 use crate::combat::attacks::effects::CombatEffect;
 use crate::combat::attacks::standard::{
     AttackFn, AttackInfo, Hit, accuracy_roll, base_attack, damage_roll, defence_roll,
@@ -1859,6 +1859,45 @@ pub fn sunspear_spec(
 
     if hit.success {
         hit.apply_transforms(player, monster, rng, limiter);
+    }
+
+    hit
+}
+
+pub fn rondache_spec(
+    player: &mut Player,
+    monster: &mut Monster,
+    rng: &mut SmallRng,
+    limiter: &Option<Box<dyn Limiter>>,
+) -> Hit {
+    // Crush attack bonus is increased by 6 per charge consumed
+    let charges = player.state.rondache.get_charges();
+    let crush_att_bonus =
+        player.bonuses.attack.crush - player.gear.weapon.bonuses.attack.crush + charges as i32 * 6;
+
+    // TODO: find out if the rondache spec damage is boosted by anything, e.g.,
+    // slayer helm; if so, it probably boosts attack rolls as well and should go through
+    // calc_player_melee_rolls()
+    let (eff_att, _) = calc_eff_melee_lvls(player);
+    let crush_att_roll = calc_roll(eff_att, crush_att_bonus);
+    let crush_def_roll = monster.def_rolls.get(CombatType::Crush);
+
+    let att_roll = accuracy_roll(crush_att_roll, rng);
+    let def_roll = defence_roll(crush_def_roll, rng);
+
+    let damage = player.state.rondache.spec();
+    let mut hit = if att_roll > def_roll {
+        Hit::accurate(damage)
+    } else {
+        Hit::inaccurate()
+    };
+
+    if hit.success {
+        // TODO: test if Rondache specs are affected by post-roll effects like the
+        // berserker necklace and efaritay's aid (can it damage any vampyres?)
+        hit.damage = max(hit.damage, 1);
+        hit.apply_flat_armour(monster);
+        hit.apply_limiters(rng, limiter);
     }
 
     hit

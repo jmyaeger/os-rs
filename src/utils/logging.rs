@@ -16,6 +16,11 @@ pub enum EventType {
         damage: u32,
         switch_type: SwitchType,
     },
+    PlayerRondacheAttack {
+        player_id: PlayerFightId,
+        success: bool,
+        damage: u32,
+    },
     PlayerDamaged {
         player_id: PlayerFightId,
         damage: u32,

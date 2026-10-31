@@ -890,3 +890,8 @@ pub const QUIVER_VARIANTS: [(&str, Option<&str>); 4] = [
     ("Dizana's quiver", Some("Uncharged")),
     ("Dizana's quiver", Some("Charged")),
 ];
+
+pub const RONDACHE_DECAY_TICKS: u32 = 50;
+pub const RONDACHE_CD_SHORT: u32 = 2;
+pub const RONDACHE_CD_LONG: u32 = 14;
+pub const RONDACHE_MIN_SPEC_CHARGES: u32 = 10;

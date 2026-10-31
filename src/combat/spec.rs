@@ -402,6 +402,7 @@ impl SpecState {
     pub fn advance_ticks(&mut self, player: &mut Player, monster: &Monster, ticks: u32) {
         for _ in 0..ticks {
             self.increment_spec(player, monster, 0, &mut FightRecorder::Disabled);
+            player.state.rondache.advance_tick();
             self.increment_timers();
         }
     }

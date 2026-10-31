@@ -90,7 +90,8 @@ impl Simulation for SingleWayFight {
             let restore_spec = self.state.spec_state.on_kill(&mut self.player, spec_config);
             self.player.reset_current_stats(restore_spec);
         } else {
-            self.player.reset_current_stats(false);
+            // If there's no spec config, we'll assume the player is resetting between each kill
+            self.player.reset_current_stats(true);
         }
         calc_active_player_rolls(&mut self.player, &self.monster)?;
 
