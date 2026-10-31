@@ -172,8 +172,7 @@ impl Player {
     ) -> u32 {
         let mut reduced = damage;
         if self.is_wearing("Elysian spirit shield", None) && rng.random::<f64>() <= 0.7 {
-            let reduction = max(1, damage / 4);
-            reduced = reduced.saturating_sub(reduction);
+            reduced = reduced * 3 / 4;
         } else if self.is_wearing("Dinh's bulwark", None)
             && self.attrs.active_style == CombatStyle::Block
         {
@@ -196,7 +195,7 @@ impl Player {
                 _ => 0,
             };
 
-            reduced = reduced.saturating_sub(reduced * defensive_bonus as u32 / 3000);
+            reduced = reduced * (3000 - defensive_bonus as u32) / 3000;
         }
 
         // TODO: confirm placement
