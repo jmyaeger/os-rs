@@ -37,7 +37,7 @@ pub fn max_ranged_zcb_player() -> Player {
     player.add_potion(Potion::Ranging);
 
     player.equip("Masori mask (f)", None).unwrap();
-    player.equip("Necklace of anguish", None).unwrap();
+    player.equip("Necklace of rupture", None).unwrap();
     player.equip("Dizana's quiver", Some("Charged")).unwrap();
     player.equip("Dragon bolts", Some("Unpoisoned")).unwrap();
     player.equip("Zaryte crossbow", None).unwrap();
