@@ -64,6 +64,8 @@ impl Player {
             } else {
                 gear.weapon.speed.set(5);
             }
+        } else if style == CombatStyle::Smash && gear.weapon.name == "Obligator".to_string() {
+            gear.weapon.speed.set(3);
         } else {
             gear.weapon.speed.reset();
         }

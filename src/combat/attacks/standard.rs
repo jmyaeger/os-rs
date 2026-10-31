@@ -9,7 +9,7 @@ use crate::types::spells::{AncientSpell, Spell};
 use crate::utils::math;
 use rand::Rng;
 use rand::rngs::SmallRng;
-use std::cmp::max;
+use std::cmp::{max, min};
 use std::rc::Rc;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
@@ -1085,6 +1085,46 @@ pub fn wardens_p2_attack(
     Hit::accurate(damage)
 }
 
+pub fn obligator_attack(
+    player: &mut Player,
+    monster: &mut Monster,
+    rng: &mut SmallRng,
+    limiter: &Option<Box<dyn Limiter>>,
+) -> Hit {
+    let charged = player.gear.weapon.version == Some("Charged".to_string());
+    let thrust = [CombatStyle::ThrustAccurate, CombatStyle::ThrustAggressive]
+        .contains(&player.attrs.active_style);
+
+    if charged && thrust {
+        let mut info = AttackInfo::new(player, monster);
+        let damage_boost = (min(3, monster.info.size) - 1) * 20;
+        info.max_hit = info.max_hit * (100 + damage_boost) / 100;
+
+        let mut extra_damage_rolls = 1;
+        if monster.bonuses.defence.stab > monster.bonuses.defence.crush {
+            extra_damage_rolls += 1;
+        }
+        if monster.bonuses.defence.slash > monster.bonuses.defence.crush {
+            extra_damage_rolls += 1;
+        }
+
+        let mut hit = base_attack(&info, rng, false);
+
+        if hit.success {
+            for _ in 0..extra_damage_rolls {
+                let damage = damage_roll(info.min_hit, info.max_hit, rng);
+                hit.damage = max(damage, hit.damage);
+            }
+
+            hit.apply_transforms(player, monster, rng, limiter);
+        }
+
+        hit
+    } else {
+        standard_attack(player, monster, rng, limiter)
+    }
+}
+
 pub type AttackFn = fn(&mut Player, &mut Monster, &mut SmallRng, &Option<Box<dyn Limiter>>) -> Hit;
 
 pub fn get_attack_functions(player: &Player) -> AttackFn {
@@ -1151,6 +1191,7 @@ pub fn get_attack_functions(player: &Player) -> AttackFn {
         "Dual macuahuitl" => dual_macuahuitl_attack as AttackFn,
         "Eclipse atlatl" => atlatl_attack as AttackFn,
         "Blue Moon spear" => blue_moon_spear_attack as AttackFn,
+        "Obligator" => obligator_attack as AttackFn,
         _ => standard_attack as AttackFn,
     }
 }
