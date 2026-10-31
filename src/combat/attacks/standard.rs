@@ -114,6 +114,15 @@ impl Hit {
         }
     }
 
+    pub fn apply_leaf_bladed_battleaxe(&mut self, player: &Player, monster: &Monster) {
+        if player.is_using_melee()
+            && player.is_wearing("Leaf-bladed battleaxe", None)
+            && monster.is_leafy()
+        {
+            self.damage = self.damage * 47 / 40;
+        }
+    }
+
     pub fn apply_vampyrebane(&mut self, player: &Player, monster: &Monster) {
         if let Some(tier) = monster.vampyre_tier() {
             let efaritay = player.is_wearing("Efaritay's aid", None);

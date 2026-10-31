@@ -621,9 +621,6 @@ fn apply_melee_weapon_boosts(
             Fraction::new(1, 1).unwrap() + get_demonbane_factor(5, monster),
             Fraction::new(1, 1).unwrap() + get_demonbane_factor(5, monster),
         ),
-        "Leaf-bladed battleaxe" if monster.is_leafy() => {
-            (Fraction::new(1, 1).unwrap(), Fraction::new(47, 40).unwrap())
-        }
         _ => (Fraction::new(1, 1).unwrap(), Fraction::new(1, 1).unwrap()),
     };
 

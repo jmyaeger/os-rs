@@ -1894,11 +1894,9 @@ pub fn rondache_spec(
     };
 
     if hit.success {
-        // TODO: test if Rondache specs are affected by post-roll effects like the
-        // berserker necklace and efaritay's aid (can it damage any vampyres?)
-        hit.damage = max(hit.damage, 1);
-        hit.apply_flat_armour(monster);
-        hit.apply_limiters(rng, limiter);
+        // I tested this in-game, and it looks like the game's just checking your equipped items
+        // rather than the source of the damage for post-roll effects
+        hit.apply_transforms(player, monster, rng, limiter);
     }
 
     hit
