@@ -67,9 +67,9 @@ impl RondacheState {
             self.charges = min(20, self.charges + charges_to_add);
             self.cd.set_duration(constants::RONDACHE_CD_SHORT);
             self.cd.activate();
-        }
-        if !self.decay_timer.is_active() {
-            self.decay_timer.activate();
+            if !self.decay_timer.is_active() {
+                self.decay_timer.activate();
+            }
         }
     }
 
@@ -80,9 +80,12 @@ impl RondacheState {
     pub fn advance_tick(&mut self) {
         self.cd.increment();
         self.decay_timer.increment();
+
         if !self.decay_timer.is_active() {
             self.charges = self.charges.saturating_sub(1);
-            self.decay_timer.activate();
+            if self.charges > 0 {
+                self.decay_timer.activate();
+            }
         }
     }
 
