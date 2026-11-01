@@ -118,6 +118,15 @@ impl VardorvisMechanics {
 
         if hit.success {
             player.take_damage(hit.damage);
+            log.record(
+                vars.tick_counter,
+                EventType::PlayerDamaged {
+                    player_id: player.fight_id(),
+                    damage: hit.damage,
+                },
+                &[player],
+                &[vard],
+            );
             vars.damage_taken += hit.damage;
             let heal_amount = hit.damage / 2;
             vard.heal(heal_amount);
