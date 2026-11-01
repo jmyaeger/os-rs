@@ -426,7 +426,7 @@ fn simulate_vardorvis() {
     // player.set_active_style(CombatStyle::Swipe);
     player.equip("Blade of Saeldor (c)", None).unwrap();
     player.set_active_style(CombatStyle::Slash);
-    player.equip("Dragon defender", None).unwrap();
+    player.equip("Rondache", None).unwrap();
     // player.equip("Bandos chestplate", None).unwrap();
     // player.equip("Bandos tassets", None).unwrap();
     // player.equip("Neitiznot faceguard", None).unwrap();
@@ -531,7 +531,7 @@ fn simulate_vardorvis() {
 
     player.switch(&SwitchType::Melee);
     let spec_config = SpecConfig::new(
-        vec![vw_spec_strategy],
+        vec![bclaws_spec_strategy],
         SpecRestorePolicy::RestoreAfter(10),
         Some(osrs::combat::spec::DeathCharge::Double),
         false,

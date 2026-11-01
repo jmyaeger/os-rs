@@ -909,11 +909,11 @@ impl Monster {
     }
 
     pub fn regen_stats(&mut self) {
-        self.stats.attack.restore(1, None);
-        self.stats.strength.restore(1, None);
-        self.stats.defence.restore(1, None);
-        self.stats.ranged.restore(1, None);
-        self.stats.magic.restore(1, None);
+        self.stats.attack.regen();
+        self.stats.strength.regen();
+        self.stats.defence.regen();
+        self.stats.ranged.regen();
+        self.stats.magic.regen();
         self.recalculate_def_rolls();
     }
 
