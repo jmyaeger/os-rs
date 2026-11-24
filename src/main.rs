@@ -426,18 +426,22 @@ fn simulate_vardorvis() {
     // player.set_active_style(CombatStyle::Swipe);
     player.equip("Blade of Saeldor (c)", None).unwrap();
     player.set_active_style(CombatStyle::Slash);
-    player.equip("Rondache", None).unwrap();
+    player.equip("Avernic defender", None).unwrap();
     // player.equip("Bandos chestplate", None).unwrap();
     // player.equip("Bandos tassets", None).unwrap();
     // player.equip("Neitiznot faceguard", None).unwrap();
     player.equip("Oathplate chest", None).unwrap();
     player.equip("Oathplate legs", None).unwrap();
     player.equip("Oathplate helm", None).unwrap();
+    // player.equip("Justiciar faceguard", None).unwrap();
+    // player.equip("Justiciar chestguard", None).unwrap();
+    // player.equip("Justiciar legguards", None).unwrap();
     player.equip("Berserker ring (i)", None).unwrap();
     // player.equip("Barrows gloves", None).unwrap();
     // player.equip("Dragon boots", None).unwrap();
     // player.equip("Bellator ring", None);
     // player.equip("Soulreaper axe", None).unwrap();
+    player.add_prayer(Prayer::Piety);
     player.update_bonuses();
     player.update_set_effects();
 

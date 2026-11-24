@@ -975,11 +975,11 @@ fn apply_charge_boost(max_hit: u32, player: &Player) -> u32 {
 
 fn get_elemental_weakness_boost(player: &Player, monster: &Monster) -> u32 {
     if let Some(weakness) = &monster.info.weakness {
-        let element = weakness.element.as_str();
-        if (element == "Fire" && player.is_using_fire_spell())
-            || (element == "Water" && player.is_using_water_spell())
-            || (element == "Earth" && player.is_using_earth_spell())
-            || (element == "Air" && player.is_using_air_spell())
+        let element = weakness.element.to_ascii_lowercase();
+        if (element == "fire" && player.is_using_fire_spell())
+            || (element == "water" && player.is_using_water_spell())
+            || (element == "earth" && player.is_using_earth_spell())
+            || (element == "air" && player.is_using_air_spell())
         {
             weakness.severity as u32
         } else {
