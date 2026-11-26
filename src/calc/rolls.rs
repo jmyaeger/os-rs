@@ -120,7 +120,7 @@ pub fn calc_player_def_rolls(player: &mut Player) {
     );
 }
 
-fn calc_roll(eff_lvl: u32, bonus: i32) -> i32 {
+pub fn calc_roll(eff_lvl: u32, bonus: i32) -> i32 {
     max(0, eff_lvl as i32 * (bonus + 64))
 }
 
@@ -395,7 +395,7 @@ fn calc_player_magic_rolls(player: &mut Player, monster: &Monster) -> Result<(),
     Ok(())
 }
 
-fn calc_eff_melee_lvls(player: &Player) -> (u32, u32) {
+pub fn calc_eff_melee_lvls(player: &Player) -> (u32, u32) {
     let att_stance_bonus = match player.combat_stance() {
         CombatStance::Accurate => 11,
         CombatStance::Controlled => 9,
@@ -621,9 +621,6 @@ fn apply_melee_weapon_boosts(
             Fraction::new(1, 1).unwrap() + get_demonbane_factor(5, monster),
             Fraction::new(1, 1).unwrap() + get_demonbane_factor(5, monster),
         ),
-        "Leaf-bladed battleaxe" if monster.is_leafy() => {
-            (Fraction::new(1, 1).unwrap(), Fraction::new(47, 40).unwrap())
-        }
         _ => (Fraction::new(1, 1).unwrap(), Fraction::new(1, 1).unwrap()),
     };
 
@@ -830,6 +827,7 @@ fn charged_staff_max_hit(player: &Player) -> Result<u32, RollError> {
         "Crystal staff (attuned)" | "Corrupted staff (attuned)" => 31,
         "Crystal staff (perfected)" | "Corrupted staff (perfected)" => 39,
         "Eye of Ayak" => max(1, (visible_magic / 3).saturating_sub(6)),
+        "Zorya's tome" => max(1, (visible_magic / 3).saturating_sub(10)),
         _ => {
             return Err(RollError::MissingMagicMaxHit {
                 weapon_name: player.gear.weapon.name.clone(),
@@ -977,11 +975,11 @@ fn apply_charge_boost(max_hit: u32, player: &Player) -> u32 {
 
 fn get_elemental_weakness_boost(player: &Player, monster: &Monster) -> u32 {
     if let Some(weakness) = &monster.info.weakness {
-        let element = weakness.element.as_str();
-        if (element == "Fire" && player.is_using_fire_spell())
-            || (element == "Water" && player.is_using_water_spell())
-            || (element == "Earth" && player.is_using_earth_spell())
-            || (element == "Air" && player.is_using_air_spell())
+        let element = weakness.element.to_ascii_lowercase();
+        if (element == "fire" && player.is_using_fire_spell())
+            || (element == "water" && player.is_using_water_spell())
+            || (element == "earth" && player.is_using_earth_spell())
+            || (element == "air" && player.is_using_air_spell())
         {
             weakness.severity as u32
         } else {

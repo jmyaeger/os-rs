@@ -16,6 +16,11 @@ pub enum EventType {
         damage: u32,
         switch_type: SwitchType,
     },
+    PlayerRondacheAttack {
+        player_id: PlayerFightId,
+        success: bool,
+        damage: u32,
+    },
     PlayerDamaged {
         player_id: PlayerFightId,
         damage: u32,
@@ -93,6 +98,11 @@ pub enum EventType {
     MonsterHeal {
         monster_id: MonsterFightId,
         amount: u32,
+    },
+    PlayerDamageReduction {
+        player_id: PlayerFightId,
+        original: u32,
+        reduced: u32,
     },
     Custom {
         message: String,

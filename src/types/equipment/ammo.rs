@@ -31,6 +31,7 @@ pub enum AmmoType {
     BoneBolt,
     BoltRack,
     KebbitBolt,
+    AscensionBolts,
     NotAmmo,
     Unsupported,
 }
@@ -250,6 +251,9 @@ impl Armor {
             // Atlatl darts
             28991 => AmmoType::AtlatlDart,
 
+            // Ascension bolts
+            34684 | 34690 | 34696 | 34702 | 34708 => AmmoType::AscensionBolts,
+
             // Blessings
             20220 | 20223 | 20226 | 20229 | 20232 | 20235 | 22941 | 22943 | 22945 | 22947 => {
                 AmmoType::NotAmmo
@@ -282,6 +286,7 @@ impl Armor {
                 | Some(AmmoType::BoneBolt)
                 | Some(AmmoType::SilverBolt)
                 | Some(AmmoType::BoltRack)
+                | Some(AmmoType::AscensionBolts)
         )
     }
 
@@ -336,6 +341,7 @@ impl Weapon {
             28834 => AmmoRequirement::Exact(AmmoType::HerbTar(TarType::Irit)),
             28869 => AmmoRequirement::Exact(AmmoType::AntlerBolt),
             29000 => AmmoRequirement::Exact(AmmoType::AtlatlDart),
+            34681 => AmmoRequirement::Exact(AmmoType::AscensionBolts),
             _ if matches!(
                 self.category,
                 WeaponCategory::Thrown | WeaponCategory::Chinchompas | WeaponCategory::Blaster

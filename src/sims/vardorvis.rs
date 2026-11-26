@@ -8,7 +8,7 @@ use crate::combat::thralls::Thrall;
 use crate::constants;
 use crate::error::SimulationError;
 use crate::types::monster::{AttackType, Monster, MonsterMaxHit};
-use crate::types::player::Player;
+use crate::types::player::{Player, RondacheState};
 use crate::types::prayers::Prayer;
 use crate::utils::logging::{EventType, FightRecorder, MonsterSnapshot, PlayerSnapshot};
 use num::Integer;
@@ -90,6 +90,18 @@ impl VardorvisMechanics {
     ) -> Result<(), SimulationError> {
         let mut hit = vard.attack(player, Some(VARDORVIS_ATTACK_STYLE), rng, false)?;
         hit.damage /= 4; // Assumes Protect from Melee is active
+        let reduced = player.apply_damage_reductions(hit.damage, AttackType::Slash, rng);
+        log.record(
+            vars.tick_counter,
+            EventType::PlayerDamageReduction {
+                player_id: player.fight_id(),
+                original: hit.damage,
+                reduced,
+            },
+            &[player],
+            &[vard],
+        );
+        hit.damage = reduced;
         hit.damage = hit.damage.min(player.stats.hitpoints.current);
 
         log.record(
@@ -106,6 +118,15 @@ impl VardorvisMechanics {
 
         if hit.success {
             player.take_damage(hit.damage);
+            log.record(
+                vars.tick_counter,
+                EventType::PlayerDamaged {
+                    player_id: player.fight_id(),
+                    damage: hit.damage,
+                },
+                &[player],
+                &[vard],
+            );
             vars.damage_taken += hit.damage;
             let heal_amount = hit.damage / 2;
             vard.heal(heal_amount);
@@ -346,6 +367,23 @@ impl VardorvisFight {
                 }
             }
 
+            // For now, we'll just assume the player is only using the Rondache spec when its charges are capped
+            if self.player.state.rondache.is_capped() {
+                self.mechanics.player_rondache_attack(
+                    &mut self.player,
+                    &mut self.vard,
+                    &mut self.rng,
+                    &self.limiter,
+                    &mut vars,
+                    log,
+                );
+
+                if self.vard.stats.hitpoints.current == 0 {
+                    break;
+                }
+            }
+            self.player.state.rondache.advance_tick();
+
             // Increment tick counter
             vars.tick_counter += 1;
 
@@ -390,6 +428,7 @@ impl Simulation for VardorvisFight {
     fn reset(&mut self) -> Result<(), SimulationError> {
         self.player.state.first_attack = true;
         self.player.state.last_attack_hit = true;
+        self.player.state.zoryas_speedups = 0;
 
         if let Some(ref mut spec_config) = self.config.spec_config {
             let restore_spec = self.state.spec_state.on_kill(&mut self.player, spec_config);
@@ -402,12 +441,15 @@ impl Simulation for VardorvisFight {
             if restore_spec {
                 // Assume that the player is not losing stacks between successive kills in a trip
                 // but does lose all stacks when resetting spec energy
+                // Similarly, maintain Rondache charges unless fully resetting
                 // TODO: Make this a bit more flexible if it turns out that the new stack mechanics
-                // allow players to maintain any stacks when banking/resettin
+                // allow players to maintain any stacks when banking/resetting
                 self.player.boosts.soulreaper_stacks = 0;
+                self.player.state.rondache = RondacheState::default();
             }
         } else {
-            self.player.reset_current_stats(false);
+            self.player.reset_current_stats(true);
+            self.player.state.rondache = RondacheState::default();
         }
         calc_active_player_rolls(&mut self.player, &self.vard)?;
 

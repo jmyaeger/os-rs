@@ -1,4 +1,4 @@
-use crate::calc::rolls::calc_active_player_rolls;
+use crate::calc::rolls::{calc_active_player_rolls, calc_eff_melee_lvls, calc_roll};
 use crate::combat::attacks::effects::CombatEffect;
 use crate::combat::attacks::standard::{
     AttackFn, AttackInfo, Hit, accuracy_roll, base_attack, damage_roll, defence_roll,
@@ -10,6 +10,7 @@ use crate::types::equipment::CombatType;
 use crate::types::monster::{CombatStat, Monster, StatDrain};
 use crate::types::player::Player;
 use crate::types::spells::{SpecialSpell, Spell};
+use crate::utils::math::Fraction;
 use num::clamp;
 use rand::Rng;
 use rand::rngs::SmallRng;
@@ -1863,6 +1864,86 @@ pub fn sunspear_spec(
 
     hit
 }
+
+pub fn rondache_spec(
+    player: &mut Player,
+    monster: &mut Monster,
+    rng: &mut SmallRng,
+    limiter: &Option<Box<dyn Limiter>>,
+) -> Hit {
+    // Crush attack bonus is increased by 6 per charge consumed
+    let charges = player.state.rondache.get_charges();
+    let crush_att_bonus =
+        player.bonuses.attack.crush - player.gear.weapon.bonuses.attack.crush + charges as i32 * 6;
+
+    // TODO: find out if the rondache spec damage is boosted by anything, e.g.,
+    // slayer helm; if so, it probably boosts attack rolls as well and should go through
+    // calc_player_melee_rolls()
+    let (eff_att, _) = calc_eff_melee_lvls(player);
+    let crush_att_roll = calc_roll(eff_att, crush_att_bonus);
+    let crush_def_roll = monster.def_rolls.get(CombatType::Crush);
+
+    let att_roll = accuracy_roll(crush_att_roll, rng);
+    let def_roll = defence_roll(crush_def_roll, rng);
+
+    let damage = player.state.rondache.spec();
+    let mut hit = if att_roll > def_roll {
+        Hit::accurate(damage)
+    } else {
+        Hit::inaccurate()
+    };
+
+    if hit.success {
+        // I tested this in-game, and it looks like the game's just checking your equipped items
+        // rather than the source of the damage for post-roll effects
+        hit.apply_transforms(player, monster, rng, limiter);
+    }
+
+    hit
+}
+
+pub fn zoryas_tome_spec(
+    player: &mut Player,
+    monster: &mut Monster,
+    rng: &mut SmallRng,
+    limiter: &Option<Box<dyn Limiter>>,
+) -> Hit {
+    let boosted = player.state.zoryas_speedups > 0;
+    let weapon = &mut Rc::make_mut(&mut player.gear).weapon;
+    if boosted {
+        weapon.speed.set(2);
+    } else {
+        weapon.speed.reset();
+    }
+
+    let mut info = AttackInfo::new(player, monster);
+
+    // Boosts accuracy by 150% and damage by 60%
+    let mut acc_factor = Fraction::new(5, 2).expect("valid fraction");
+    let mut damage_factor = Fraction::new(8, 5).expect("valid fraction");
+
+    // Applies additional boosts additively if under the effect of a previous spec
+    if boosted {
+        acc_factor += Fraction::new(3, 2).expect("valid fraction");
+        damage_factor += Fraction::new(3, 5).expect("valid fraction");
+    }
+
+    info.max_att_roll = acc_factor.multiply_to_int(info.max_att_roll);
+    info.max_hit = damage_factor.multiply_to_int(info.max_hit);
+
+    // Decrement the remaining sped-up attacks if there are any
+    player.state.zoryas_speedups = player.state.zoryas_speedups.saturating_sub(1);
+
+    let mut hit = base_attack(&info, rng, false);
+    if hit.success {
+        hit.apply_transforms(player, monster, rng, limiter);
+
+        // Hitting the spec speeds up the next 3 attacks to 2 ticks each (not including this attack)
+        player.state.zoryas_speedups += 3;
+    }
+
+    hit
+}
 // TODO: implement purging staff spec
 
 pub fn get_spec_attack_function(player: &Player) -> Option<AttackFn> {
@@ -1922,6 +2003,7 @@ pub fn get_spec_attack_function(player: &Player) -> Option<AttackFn> {
         "Rosewood blowpipe" => rosewood_bp_spec,
         "Arkan blade" => arkan_blade_spec,
         "Sunspear" => sunspear_spec,
+        "Zorya's tome" => zoryas_tome_spec,
         _ => return None,
     };
     Some(spec_fn)

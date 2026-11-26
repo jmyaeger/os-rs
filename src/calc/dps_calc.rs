@@ -831,6 +831,14 @@ pub fn get_distribution(
         dist = dist.scale_damage(Fraction::new(6, 5).unwrap());
     }
 
+    // Leaf-bladed battleaxe distribution (tested, confirmed post-roll)
+    if player.is_using_melee()
+        && player.is_wearing("Leaf-bladed battleaxe", None)
+        && monster.is_leafy()
+    {
+        dist = dist.scale_damage(Fraction::new(47, 40).unwrap())
+    }
+
     // Dharok's set effect distribution
     if player.is_using_melee() && player.set_effects.full_dharoks {
         let full_hp = player.stats.hitpoints.max();

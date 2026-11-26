@@ -5,7 +5,7 @@ use crate::combat::attacks::standard::Hit;
 use crate::combat::thralls::Thrall;
 use crate::constants;
 use crate::error::MonsterError;
-use crate::types::equipment::{CombatStyle, CombatType};
+use crate::types::equipment::CombatType;
 use crate::types::player::Player;
 use crate::types::stats::{MonsterStats, Stat};
 use crate::utils::logging::MonsterFightId;
@@ -718,37 +718,6 @@ impl Monster {
             0
         };
 
-        if success {
-            if player.is_wearing("Elysian spirit shield", None) && rng.random::<f64>() <= 0.7 {
-                let reduction = max(1, damage / 4);
-                damage -= reduction;
-            } else if player.is_wearing("Dinh's bulwark", None)
-                && player.attrs.active_style == CombatStyle::Block
-            {
-                damage = damage * 8 / 10;
-            }
-
-            if player.set_effects.full_justiciar {
-                let defensive_bonus = match attack_type {
-                    AttackType::Stab => Ok(player.bonuses.defence.stab),
-                    AttackType::Slash => Ok(player.bonuses.defence.slash),
-                    AttackType::Crush => Ok(player.bonuses.defence.crush),
-                    AttackType::Ranged => Ok(player.bonuses.defence.ranged),
-                    AttackType::Magic => Ok(player.bonuses.defence.magic),
-                    AttackType::Melee => Ok({
-                        (player.bonuses.defence.stab
-                            + player.bonuses.defence.slash
-                            + player.bonuses.defence.crush)
-                            / 3
-                    }),
-                    AttackType::Special => Err(MonsterError::SpecialAttackNotSupported),
-                    AttackType::None => Err(MonsterError::NoneAttackNotSupported),
-                }?;
-
-                damage -= damage * defensive_bonus as u32 / 3000;
-            }
-        }
-
         if cap_hit {
             damage = min(damage, player.stats.hitpoints.current);
         }
@@ -940,11 +909,11 @@ impl Monster {
     }
 
     pub fn regen_stats(&mut self) {
-        self.stats.attack.restore(1, None);
-        self.stats.strength.restore(1, None);
-        self.stats.defence.restore(1, None);
-        self.stats.ranged.restore(1, None);
-        self.stats.magic.restore(1, None);
+        self.stats.attack.regen();
+        self.stats.strength.regen();
+        self.stats.defence.regen();
+        self.stats.ranged.regen();
+        self.stats.magic.regen();
         self.recalculate_def_rolls();
     }
 

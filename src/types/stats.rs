@@ -164,7 +164,7 @@ impl Stat {
             Some(over) => self.max() + over,
             None => self.max(),
         };
-        self.current = min(level_cap, self.current + amount);
+        self.current = max(self.current, min(level_cap, self.current + amount));
     }
 
     pub fn drain(&mut self, amount: u32) {
@@ -177,6 +177,14 @@ impl Stat {
 
     pub fn max(&self) -> u32 {
         self.scaled.unwrap_or(self.base)
+    }
+
+    pub fn regen(&mut self) {
+        if self.current < self.max() {
+            self.current += 1;
+        } else if self.current > self.max() {
+            self.current -= 1;
+        }
     }
 
     /// Scale the base value of the stat

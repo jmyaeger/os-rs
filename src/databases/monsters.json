@@ -6093,6 +6093,126 @@
   },
   {
     "info": {
+      "id": 16659,
+      "name": "Archive Guardian",
+      "version": "Flying",
+      "combat_level": 984,
+      "attack_speed": 5,
+      "attack_styles": [
+        "Crush"
+      ],
+      "size": 5,
+      "attributes": [
+        "flying"
+      ],
+      "weakness": {
+        "element": "fire",
+        "severity": 80
+      }
+    },
+    "stats": {
+      "attack": 250,
+      "defence": 260,
+      "hitpoints": 550,
+      "magic": 250,
+      "ranged": 280,
+      "strength": 240
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 350,
+        "magic": 350
+      },
+      "defence": {
+        "crush": 20,
+        "magic": 130,
+        "heavy": 50,
+        "standard": 120,
+        "light": 75,
+        "slash": 110,
+        "stab": 120
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 55,
+        "magic": 55
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "25",
+      "99+ (laser beam)"
+    ],
+    "image": "Archive Guardian.png"
+  },
+  {
+    "info": {
+      "id": 16659,
+      "name": "Archive Guardian",
+      "version": "Grounded",
+      "combat_level": 984,
+      "attack_speed": 5,
+      "attack_styles": [
+        "Crush"
+      ],
+      "size": 5,
+      "attributes": null,
+      "weakness": {
+        "element": "fire",
+        "severity": 40
+      }
+    },
+    "stats": {
+      "attack": 250,
+      "defence": 260,
+      "hitpoints": 1100,
+      "magic": 250,
+      "ranged": 280,
+      "strength": 240
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 350,
+        "magic": 350
+      },
+      "defence": {
+        "crush": 20,
+        "magic": 130,
+        "heavy": 50,
+        "standard": 115,
+        "light": 50,
+        "slash": 90,
+        "stab": 120
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 55,
+        "magic": 55
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "25",
+      "99+ (laser beam)"
+    ],
+    "image": "Archive Guardian.png"
+  },
+  {
+    "info": {
       "id": 9246,
       "name": "Arianwyn (Nightmare Zone)",
       "version": "Hard Mode",
@@ -18160,6 +18280,108 @@
   },
   {
     "info": {
+      "id": 16598,
+      "name": "Blink",
+      "version": "Combo Eating",
+      "combat_level": 126,
+      "attack_speed": 6,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 99,
+      "defence": 99,
+      "hitpoints": 99,
+      "magic": 0,
+      "ranged": 0,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Blink.png"
+  },
+  {
+    "info": {
+      "id": 16625,
+      "name": "Blink",
+      "version": "Special Attacks",
+      "combat_level": 126,
+      "attack_speed": 6,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 99,
+      "defence": 1,
+      "hitpoints": 99,
+      "magic": 0,
+      "ranged": 0,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Blink (2).png"
+  },
+  {
+    "info": {
       "id": 2650,
       "name": "Blood Blamish Snail",
       "version": "Pointed",
@@ -20120,6 +20342,62 @@
   },
   {
     "info": {
+      "id": 16640,
+      "name": "Bork",
+      "version": null,
+      "combat_level": 871,
+      "attack_speed": 7,
+      "attack_styles": [
+        "Crush"
+      ],
+      "size": 4,
+      "attributes": null,
+      "weakness": {
+        "element": "earth",
+        "severity": 40
+      }
+    },
+    "stats": {
+      "attack": 200,
+      "defence": 300,
+      "hitpoints": 1500,
+      "magic": 90,
+      "ranged": 200,
+      "strength": 200
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 100,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 10,
+        "magic": 300,
+        "heavy": 5,
+        "standard": 50,
+        "light": 80,
+        "slash": 130,
+        "stab": 140
+      },
+      "strength": {
+        "melee": 40,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Bork.png"
+  },
+  {
+    "info": {
       "id": 3939,
       "name": "Borrokar",
       "version": null,
@@ -21744,9 +22022,127 @@
   },
   {
     "info": {
+      "id": 15627,
+      "name": "Brutus",
+      "version": "Charging",
+      "combat_level": 30,
+      "attack_speed": 5,
+      "attack_styles": [
+        "Crush"
+      ],
+      "size": 3,
+      "attributes": null,
+      "weakness": {
+        "element": "earth",
+        "severity": 25
+      }
+    },
+    "stats": {
+      "attack": 15,
+      "defence": 10,
+      "hitpoints": 60,
+      "magic": 0,
+      "ranged": 1,
+      "strength": 30
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": -7,
+        "magic": -3,
+        "heavy": -7,
+        "standard": -7,
+        "light": -7,
+        "slash": -7,
+        "stab": -7
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "3 (melee)",
+      "19 (special)"
+    ],
+    "image": "Brutus.png"
+  },
+  {
+    "info": {
       "id": 15626,
       "name": "Brutus",
-      "version": null,
+      "version": "Post-quest",
+      "combat_level": 30,
+      "attack_speed": 5,
+      "attack_styles": [
+        "Crush"
+      ],
+      "size": 3,
+      "attributes": null,
+      "weakness": {
+        "element": "earth",
+        "severity": 25
+      }
+    },
+    "stats": {
+      "attack": 12,
+      "defence": 10,
+      "hitpoints": 58,
+      "magic": 8,
+      "ranged": 1,
+      "strength": 25
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": -7,
+        "magic": -3,
+        "heavy": -7,
+        "standard": -7,
+        "light": -7,
+        "slash": -7,
+        "stab": -7
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "3 (melee)",
+      "19 (special)"
+    ],
+    "image": "Brutus.png"
+  },
+  {
+    "info": {
+      "id": 15625,
+      "name": "Brutus",
+      "version": "Quest",
       "combat_level": 30,
       "attack_speed": 5,
       "attack_styles": [
@@ -27915,6 +28311,122 @@
       "51 (Stomp)"
     ],
     "image": "Corporeal Beast.png"
+  },
+  {
+    "info": {
+      "id": 16688,
+      "name": "Corpse (Xarth)",
+      "version": "Doused",
+      "combat_level": 89,
+      "attack_speed": 0,
+      "attack_styles": [
+        "n/a"
+      ],
+      "size": 1,
+      "attributes": null,
+      "weakness": {
+        "element": "fire",
+        "severity": 100
+      }
+    },
+    "stats": {
+      "attack": 50,
+      "defence": 100,
+      "hitpoints": 62,
+      "magic": 100,
+      "ranged": 1,
+      "strength": 40
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": -20,
+        "magic": 0,
+        "heavy": 80,
+        "standard": 80,
+        "light": -20,
+        "slash": -20,
+        "stab": -20
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "0"
+    ],
+    "image": "Corpse (Xarth).png"
+  },
+  {
+    "info": {
+      "id": 16687,
+      "name": "Corpse (Xarth)",
+      "version": "Normal",
+      "combat_level": 89,
+      "attack_speed": 0,
+      "attack_styles": [
+        "n/a"
+      ],
+      "size": 1,
+      "attributes": null,
+      "weakness": {
+        "element": "water",
+        "severity": 40
+      }
+    },
+    "stats": {
+      "attack": 50,
+      "defence": 100,
+      "hitpoints": 62,
+      "magic": 100,
+      "ranged": 1,
+      "strength": 40
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 100,
+        "magic": 0,
+        "heavy": 80,
+        "standard": 80,
+        "light": -20,
+        "slash": 100,
+        "stab": 100
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "0"
+    ],
+    "image": "Corpse (Xarth).png"
   },
   {
     "info": {
@@ -35158,6 +35670,162 @@
   },
   {
     "info": {
+      "id": 16643,
+      "name": "Dagon'hai Elder",
+      "version": null,
+      "combat_level": 427,
+      "attack_speed": 6,
+      "attack_styles": [
+        "Magic",
+        "Ranged"
+      ],
+      "size": 2,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 1,
+      "defence": 100,
+      "hitpoints": 640,
+      "magic": 290,
+      "ranged": 260,
+      "strength": 1
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 180,
+        "magic": 250
+      },
+      "defence": {
+        "crush": 50,
+        "magic": 100,
+        "heavy": 80,
+        "standard": 80,
+        "light": 80,
+        "slash": 50,
+        "stab": 50
+      },
+      "strength": {
+        "melee": 1,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Dagon'hai Elder.png"
+  },
+  {
+    "info": {
+      "id": 16647,
+      "name": "Dagon'hai Monk",
+      "version": "Book",
+      "combat_level": 427,
+      "attack_speed": 6,
+      "attack_styles": null,
+      "size": 2,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 1,
+      "defence": 100,
+      "hitpoints": 640,
+      "magic": 290,
+      "ranged": 260,
+      "strength": 1
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 180,
+        "magic": 250
+      },
+      "defence": {
+        "crush": 50,
+        "magic": 100,
+        "heavy": 80,
+        "standard": 80,
+        "light": 80,
+        "slash": 50,
+        "stab": 50
+      },
+      "strength": {
+        "melee": 1,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Dagon'hai Monk (book).png"
+  },
+  {
+    "info": {
+      "id": 16645,
+      "name": "Dagon'hai Monk",
+      "version": "Staff",
+      "combat_level": 427,
+      "attack_speed": 6,
+      "attack_styles": null,
+      "size": 2,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 1,
+      "defence": 100,
+      "hitpoints": 640,
+      "magic": 290,
+      "ranged": 260,
+      "strength": 1
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 180,
+        "magic": 250
+      },
+      "defence": {
+        "crush": 50,
+        "magic": 100,
+        "heavy": 80,
+        "standard": 80,
+        "light": 80,
+        "slash": 50,
+        "stab": 50
+      },
+      "strength": {
+        "melee": 1,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Dagon'hai Monk (staff).png"
+  },
+  {
+    "info": {
       "id": 9561,
       "name": "Damien Leucurte",
       "version": null,
@@ -38096,8 +38764,7 @@
       "attack_speed": 3,
       "attack_styles": [
         "Crush",
-        "Magic",
-        ""
+        "Magic"
       ],
       "size": 1,
       "attributes": null,
@@ -40293,7 +40960,7 @@
     },
     "max_hit": [
       "15 (Ranged)",
-      "15 (Ranged_melee|Ranged melee)",
+      "15 (Ranged melee)",
       "32 (Dragonfire)"
     ],
     "image": "Drake.png"
@@ -40356,6 +41023,67 @@
       "50 (special attack)"
     ],
     "image": "Dreadborn Araxyte.png"
+  },
+  {
+    "info": {
+      "id": 16665,
+      "name": "Dreadnoth the Jellied",
+      "version": null,
+      "combat_level": 888,
+      "attack_speed": 4,
+      "attack_styles": [
+        "Melee",
+        "Ranged"
+      ],
+      "size": 5,
+      "attributes": [
+        "demon"
+      ],
+      "weakness": {
+        "element": "fire",
+        "severity": 85
+      }
+    },
+    "stats": {
+      "attack": 280,
+      "defence": 125,
+      "hitpoints": 2100,
+      "magic": 220,
+      "ranged": 250,
+      "strength": 285
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 185,
+        "ranged": 180,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 5,
+        "magic": 20,
+        "heavy": 80,
+        "standard": 80,
+        "light": 100,
+        "slash": 20,
+        "stab": 15
+      },
+      "strength": {
+        "melee": 35,
+        "ranged": 20,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "45"
+    ],
+    "image": "Dreadnoth the Jellied.png"
   },
   {
     "info": {
@@ -48343,6 +49071,65 @@
       "6"
     ],
     "image": "Experiment (level 51).png"
+  },
+  {
+    "info": {
+      "id": 16652,
+      "name": "Ezekiel",
+      "version": null,
+      "combat_level": 984,
+      "attack_speed": 5,
+      "attack_styles": [
+        "Magic",
+        "Melee"
+      ],
+      "size": 3,
+      "attributes": null,
+      "weakness": {
+        "element": "earth",
+        "severity": 25
+      }
+    },
+    "stats": {
+      "attack": 250,
+      "defence": 200,
+      "hitpoints": 3000,
+      "magic": 200,
+      "ranged": 80,
+      "strength": 150
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 250
+      },
+      "defence": {
+        "crush": 35,
+        "magic": 200,
+        "heavy": 320,
+        "standard": 370,
+        "light": 445,
+        "slash": 90,
+        "stab": 150
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "77"
+    ],
+    "image": "Ezekiel.png"
   },
   {
     "info": {
@@ -57433,6 +58220,64 @@
   },
   {
     "info": {
+      "id": 14424,
+      "name": "Giant Rock Crab",
+      "version": "Tonali Cavern",
+      "combat_level": 137,
+      "attack_speed": 4,
+      "attack_styles": [
+        "Crush"
+      ],
+      "size": 2,
+      "attributes": null,
+      "weakness": {
+        "element": "earth",
+        "severity": 20
+      }
+    },
+    "stats": {
+      "attack": 50,
+      "defence": 200,
+      "hitpoints": 180,
+      "magic": 1,
+      "ranged": 1,
+      "strength": 80
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 175,
+        "magic": -10,
+        "heavy": 250,
+        "standard": 250,
+        "light": 250,
+        "slash": 200,
+        "stab": 225
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "9"
+    ],
+    "image": "Giant Rock Crab.png"
+  },
+  {
+    "info": {
       "id": 7392,
       "name": "Giant rockslug",
       "version": null,
@@ -63362,64 +64207,6 @@
   },
   {
     "info": {
-      "id": 15009,
-      "name": "Gryphon (Troubled Tortugans)",
-      "version": null,
-      "combat_level": 95,
-      "attack_speed": 5,
-      "attack_styles": [
-        "Crush"
-      ],
-      "size": 2,
-      "attributes": null,
-      "weakness": {
-        "element": "air",
-        "severity": 50
-      }
-    },
-    "stats": {
-      "attack": 65,
-      "defence": 50,
-      "hitpoints": 110,
-      "magic": 50,
-      "ranged": 0,
-      "strength": 75
-    },
-    "bonuses": {
-      "attack": {
-        "melee": 0,
-        "ranged": 0,
-        "magic": 0
-      },
-      "defence": {
-        "crush": 40,
-        "magic": 100,
-        "heavy": 60,
-        "standard": 60,
-        "light": 60,
-        "slash": 20,
-        "stab": 10
-      },
-      "strength": {
-        "melee": 0,
-        "ranged": 0,
-        "magic": 0
-      },
-      "flat_armour": 0
-    },
-    "immunities": {
-      "poison": 0,
-      "venom": 0,
-      "freeze": 0,
-      "burn": null
-    },
-    "max_hit": [
-      "8 (standard attacks)"
-    ],
-    "image": "Gryphon (Troubled Tortugans).png"
-  },
-  {
-    "info": {
       "id": 13986,
       "name": "Guard (Aldarin)",
       "version": "1",
@@ -67106,7 +67893,9 @@
       "version": "1",
       "combat_level": 21,
       "attack_speed": 4,
-      "attack_styles": null,
+      "attack_styles": [
+        "Stab"
+      ],
       "size": 1,
       "attributes": null,
       "weakness": null
@@ -67115,22 +67904,22 @@
       "attack": 19,
       "defence": 14,
       "hitpoints": 22,
-      "magic": 0,
-      "ranged": 0,
-      "strength": 0
+      "magic": 1,
+      "ranged": 1,
+      "strength": 18
     },
     "bonuses": {
       "attack": {
-        "melee": 0,
-        "ranged": 0,
+        "melee": 4,
+        "ranged": 1,
         "magic": 0
       },
       "defence": {
         "crush": 19,
         "magic": -4,
-        "heavy": 0,
-        "standard": 0,
-        "light": 0,
+        "heavy": 20,
+        "standard": 20,
+        "light": 20,
         "slash": 25,
         "stab": 18
       },
@@ -67147,7 +67936,9 @@
       "freeze": 0,
       "burn": null
     },
-    "max_hit": null,
+    "max_hit": [
+      "3"
+    ],
     "image": "Guard (Port Roberts, 1).png"
   },
   {
@@ -67157,7 +67948,9 @@
       "version": "2",
       "combat_level": 21,
       "attack_speed": 4,
-      "attack_styles": null,
+      "attack_styles": [
+        "Stab"
+      ],
       "size": 1,
       "attributes": null,
       "weakness": null
@@ -67166,22 +67959,22 @@
       "attack": 19,
       "defence": 14,
       "hitpoints": 22,
-      "magic": 0,
-      "ranged": 0,
-      "strength": 0
+      "magic": 1,
+      "ranged": 1,
+      "strength": 18
     },
     "bonuses": {
       "attack": {
-        "melee": 0,
-        "ranged": 0,
+        "melee": 4,
+        "ranged": 1,
         "magic": 0
       },
       "defence": {
         "crush": 19,
         "magic": -4,
-        "heavy": 0,
-        "standard": 0,
-        "light": 0,
+        "heavy": 20,
+        "standard": 20,
+        "light": 20,
         "slash": 25,
         "stab": 18
       },
@@ -67198,7 +67991,9 @@
       "freeze": 0,
       "burn": null
     },
-    "max_hit": null,
+    "max_hit": [
+      "3"
+    ],
     "image": "Guard (Port Roberts, 2).png"
   },
   {
@@ -67208,7 +68003,9 @@
       "version": "3",
       "combat_level": 21,
       "attack_speed": 4,
-      "attack_styles": null,
+      "attack_styles": [
+        "Stab"
+      ],
       "size": 1,
       "attributes": null,
       "weakness": null
@@ -67217,22 +68014,22 @@
       "attack": 19,
       "defence": 14,
       "hitpoints": 22,
-      "magic": 0,
-      "ranged": 0,
-      "strength": 0
+      "magic": 1,
+      "ranged": 1,
+      "strength": 18
     },
     "bonuses": {
       "attack": {
-        "melee": 0,
-        "ranged": 0,
+        "melee": 4,
+        "ranged": 1,
         "magic": 0
       },
       "defence": {
         "crush": 19,
         "magic": -4,
-        "heavy": 0,
-        "standard": 0,
-        "light": 0,
+        "heavy": 20,
+        "standard": 20,
+        "light": 20,
         "slash": 25,
         "stab": 18
       },
@@ -67249,7 +68046,9 @@
       "freeze": 0,
       "burn": null
     },
-    "max_hit": null,
+    "max_hit": [
+      "3"
+    ],
     "image": "Guard (Port Roberts, 3).png"
   },
   {
@@ -67259,7 +68058,9 @@
       "version": "4",
       "combat_level": 21,
       "attack_speed": 4,
-      "attack_styles": null,
+      "attack_styles": [
+        "Stab"
+      ],
       "size": 1,
       "attributes": null,
       "weakness": null
@@ -67268,22 +68069,22 @@
       "attack": 19,
       "defence": 14,
       "hitpoints": 22,
-      "magic": 0,
-      "ranged": 0,
-      "strength": 0
+      "magic": 1,
+      "ranged": 1,
+      "strength": 18
     },
     "bonuses": {
       "attack": {
-        "melee": 0,
-        "ranged": 0,
+        "melee": 4,
+        "ranged": 1,
         "magic": 0
       },
       "defence": {
         "crush": 19,
         "magic": -4,
-        "heavy": 0,
-        "standard": 0,
-        "light": 0,
+        "heavy": 20,
+        "standard": 20,
+        "light": 20,
         "slash": 25,
         "stab": 18
       },
@@ -67300,7 +68101,9 @@
       "freeze": 0,
       "burn": null
     },
-    "max_hit": null,
+    "max_hit": [
+      "3"
+    ],
     "image": "Guard (Port Roberts, 4).png"
   },
   {
@@ -77469,6 +78272,59 @@
   },
   {
     "info": {
+      "id": 16650,
+      "name": "Imp (Dagon'hai Trio)",
+      "version": null,
+      "combat_level": 168,
+      "attack_speed": 0,
+      "attack_styles": [
+        "Melee"
+      ],
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 0,
+      "defence": 0,
+      "hitpoints": 44,
+      "magic": 0,
+      "ranged": 0,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Imp (Dagon'hai Trio).png"
+  },
+  {
+    "info": {
       "id": 3355,
       "name": "Imp Champion",
       "version": null,
@@ -80262,6 +81118,66 @@
       "1"
     ],
     "image": "Jeff.png"
+  },
+  {
+    "info": {
+      "id": 16666,
+      "name": "Jelly (Dreadnoth)",
+      "version": null,
+      "combat_level": 101,
+      "attack_speed": 5,
+      "attack_styles": [
+        "Crush"
+      ],
+      "size": 1,
+      "attributes": [
+        "demon"
+      ],
+      "weakness": {
+        "element": "fire",
+        "severity": 60
+      }
+    },
+    "stats": {
+      "attack": 200,
+      "defence": 100,
+      "hitpoints": 61,
+      "magic": 100,
+      "ranged": 1,
+      "strength": 160
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 15,
+        "heavy": -50,
+        "standard": 18,
+        "light": -45,
+        "slash": 5,
+        "stab": 4
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "17"
+    ],
+    "image": "Jelly (Dreadnoth).png"
   },
   {
     "info": {
@@ -95109,6 +96025,63 @@
   },
   {
     "info": {
+      "id": 16667,
+      "name": "Moia",
+      "version": null,
+      "combat_level": 1064,
+      "attack_speed": 5,
+      "attack_styles": [
+        "Ranged",
+        "Magic"
+      ],
+      "size": 3,
+      "attributes": null,
+      "weakness": {
+        "element": "air",
+        "severity": 80
+      }
+    },
+    "stats": {
+      "attack": 1,
+      "defence": 195,
+      "hitpoints": 1900,
+      "magic": 350,
+      "ranged": 200,
+      "strength": 1
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 350,
+        "magic": 300
+      },
+      "defence": {
+        "crush": 15,
+        "magic": 30,
+        "heavy": 140,
+        "standard": 120,
+        "light": 60,
+        "slash": 110,
+        "stab": 20
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 35,
+        "magic": 15
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Moia.png"
+  },
+  {
+    "info": {
       "id": 1,
       "name": "Molanisk",
       "version": null,
@@ -96819,7 +97792,7 @@
       "attack_speed": 6,
       "attack_styles": [
         "Crush",
-        "Magic melee"
+        "Magical melee"
       ],
       "size": 2,
       "attributes": null,
@@ -96878,7 +97851,7 @@
       "attack_speed": 6,
       "attack_styles": [
         "Crush",
-        "Magic melee"
+        "Magical melee"
       ],
       "size": 2,
       "attributes": null,
@@ -100625,7 +101598,7 @@
     "info": {
       "id": 11,
       "name": "Nechryael",
-      "version": "Slayer task",
+      "version": "Slayer Tower basement",
       "combat_level": 115,
       "attack_speed": 4,
       "attack_styles": [
@@ -100932,7 +101905,7 @@
         "magic": 100
       },
       "defence": {
-        "crush": 60,
+        "crush": 35,
         "magic": 300,
         "heavy": 150,
         "standard": 190,
@@ -101832,7 +102805,7 @@
     "info": {
       "id": 10779,
       "name": "Nylocas Hagios",
-      "version": "Big (Entry mode)",
+      "version": "Big (Entry Mode)",
       "combat_level": 82,
       "attack_speed": 3,
       "attack_styles": [
@@ -101948,7 +102921,7 @@
     "info": {
       "id": 10776,
       "name": "Nylocas Hagios",
-      "version": "Small (Entry mode)",
+      "version": "Small (Entry Mode)",
       "combat_level": 46,
       "attack_speed": 3,
       "attack_styles": [
@@ -102000,6 +102973,118 @@
     "max_hit": [
       "5"
     ],
+    "image": "Nylocas Hagios.png"
+  },
+  {
+    "info": {
+      "id": 8383,
+      "name": "Nylocas Hagios",
+      "version": "Verzik",
+      "combat_level": 162,
+      "attack_speed": 3,
+      "attack_styles": [
+        "Magic"
+      ],
+      "size": 2,
+      "attributes": null,
+      "weakness": {
+        "element": "fire",
+        "severity": 15
+      }
+    },
+    "stats": {
+      "attack": 0,
+      "defence": 0,
+      "hitpoints": 25,
+      "magic": 0,
+      "ranged": 0,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Nylocas Hagios.png"
+  },
+  {
+    "info": {
+      "id": 10843,
+      "name": "Nylocas Hagios",
+      "version": "Verzik (Entry Mode)",
+      "combat_level": 46,
+      "attack_speed": 3,
+      "attack_styles": [
+        "Magic"
+      ],
+      "size": 2,
+      "attributes": null,
+      "weakness": {
+        "element": "fire",
+        "severity": 15
+      }
+    },
+    "stats": {
+      "attack": 0,
+      "defence": 0,
+      "hitpoints": 3,
+      "magic": 0,
+      "ranged": 0,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
     "image": "Nylocas Hagios.png"
   },
   {
@@ -102064,7 +103149,7 @@
     "info": {
       "id": 10777,
       "name": "Nylocas Ischyros",
-      "version": "Big (Entry mode)",
+      "version": "Big (Entry Mode)",
       "combat_level": 82,
       "attack_speed": 3,
       "attack_styles": [
@@ -102180,7 +103265,7 @@
     "info": {
       "id": 10774,
       "name": "Nylocas Ischyros",
-      "version": "Small (Entry mode)",
+      "version": "Small (Entry Mode)",
       "combat_level": 46,
       "attack_speed": 3,
       "attack_styles": [
@@ -102232,6 +103317,118 @@
     "max_hit": [
       "5"
     ],
+    "image": "Nylocas Ischyros.png"
+  },
+  {
+    "info": {
+      "id": 8381,
+      "name": "Nylocas Ischyros",
+      "version": "Verzik",
+      "combat_level": 162,
+      "attack_speed": 3,
+      "attack_styles": [
+        "Stab"
+      ],
+      "size": 2,
+      "attributes": null,
+      "weakness": {
+        "element": "fire",
+        "severity": 15
+      }
+    },
+    "stats": {
+      "attack": 0,
+      "defence": 0,
+      "hitpoints": 25,
+      "magic": 0,
+      "ranged": 0,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Nylocas Ischyros.png"
+  },
+  {
+    "info": {
+      "id": 10841,
+      "name": "Nylocas Ischyros",
+      "version": "Verzik (Entry Mode)",
+      "combat_level": 46,
+      "attack_speed": 3,
+      "attack_styles": [
+        "Stab"
+      ],
+      "size": 2,
+      "attributes": null,
+      "weakness": {
+        "element": "fire",
+        "severity": 15
+      }
+    },
+    "stats": {
+      "attack": 0,
+      "defence": 0,
+      "hitpoints": 3,
+      "magic": 0,
+      "ranged": 0,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
     "image": "Nylocas Ischyros.png"
   },
   {
@@ -102760,7 +103957,7 @@
     "info": {
       "id": 10778,
       "name": "Nylocas Toxobolos",
-      "version": "Big (Entry mode)",
+      "version": "Big (Entry Mode)",
       "combat_level": 82,
       "attack_speed": 3,
       "attack_styles": [
@@ -102876,7 +104073,7 @@
     "info": {
       "id": 10775,
       "name": "Nylocas Toxobolos",
-      "version": "Small (Entry mode)",
+      "version": "Small (Entry Mode)",
       "combat_level": 46,
       "attack_speed": 3,
       "attack_styles": [
@@ -102928,6 +104125,118 @@
     "max_hit": [
       "5"
     ],
+    "image": "Nylocas Toxobolos.png"
+  },
+  {
+    "info": {
+      "id": 8382,
+      "name": "Nylocas Toxobolos",
+      "version": "Verzik",
+      "combat_level": 162,
+      "attack_speed": 3,
+      "attack_styles": [
+        "Ranged"
+      ],
+      "size": 2,
+      "attributes": null,
+      "weakness": {
+        "element": "fire",
+        "severity": 15
+      }
+    },
+    "stats": {
+      "attack": 0,
+      "defence": 0,
+      "hitpoints": 25,
+      "magic": 0,
+      "ranged": 0,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Nylocas Toxobolos.png"
+  },
+  {
+    "info": {
+      "id": 10842,
+      "name": "Nylocas Toxobolos",
+      "version": "Verzik (Entry Mode)",
+      "combat_level": 46,
+      "attack_speed": 3,
+      "attack_styles": [
+        "Ranged"
+      ],
+      "size": 2,
+      "attributes": null,
+      "weakness": {
+        "element": "fire",
+        "severity": 15
+      }
+    },
+    "stats": {
+      "attack": 0,
+      "defence": 0,
+      "hitpoints": 3,
+      "magic": 0,
+      "ranged": 0,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
     "image": "Nylocas Toxobolos.png"
   },
   {
@@ -103279,6 +104588,178 @@
       "26 (Ranged)"
     ],
     "image": "Obor.png"
+  },
+  {
+    "info": {
+      "id": 16673,
+      "name": "Ocellus",
+      "version": "Phase 1",
+      "combat_level": 1121,
+      "attack_speed": 5,
+      "attack_styles": [
+        "Magic",
+        "Ranged"
+      ],
+      "size": 3,
+      "attributes": [
+        "demon"
+      ],
+      "weakness": null
+    },
+    "stats": {
+      "attack": 1,
+      "defence": 215,
+      "hitpoints": 2500,
+      "magic": 350,
+      "ranged": 250,
+      "strength": 1
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 1,
+        "ranged": 150,
+        "magic": 150
+      },
+      "defence": {
+        "crush": 60,
+        "magic": 100,
+        "heavy": 50,
+        "standard": 135,
+        "light": 50,
+        "slash": 95,
+        "stab": 150
+      },
+      "strength": {
+        "melee": 1,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "24"
+    ],
+    "image": "Ocellus.png"
+  },
+  {
+    "info": {
+      "id": 16675,
+      "name": "Ocellus",
+      "version": "Phase 2",
+      "combat_level": 0,
+      "attack_speed": 0,
+      "attack_styles": [
+        "Magic"
+      ],
+      "size": 3,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 1,
+      "defence": 250,
+      "hitpoints": 1000,
+      "magic": 220,
+      "ranged": 1,
+      "strength": 1
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 10,
+        "magic": 100,
+        "heavy": 80,
+        "standard": 110,
+        "light": 100,
+        "slash": 120,
+        "stab": 150
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "24"
+    ],
+    "image": "Ocellus_(phase_2).png"
+  },
+  {
+    "info": {
+      "id": 16677,
+      "name": "Ocellus",
+      "version": "Phase 3",
+      "combat_level": 1601,
+      "attack_speed": 6,
+      "attack_styles": [
+        "Magic",
+        "Melee",
+        "Ranged"
+      ],
+      "size": 3,
+      "attributes": [
+        "demon"
+      ],
+      "weakness": null
+    },
+    "stats": {
+      "attack": 325,
+      "defence": 250,
+      "hitpoints": 5250,
+      "magic": 300,
+      "ranged": 300,
+      "strength": 250
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 150,
+        "ranged": 0,
+        "magic": 350
+      },
+      "defence": {
+        "crush": 30,
+        "magic": 200,
+        "heavy": 250,
+        "standard": 250,
+        "light": 250,
+        "slash": 100,
+        "stab": 150
+      },
+      "strength": {
+        "melee": 10,
+        "ranged": 0,
+        "magic": 10
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "24"
+    ],
+    "image": "Ocellus_(phase_3).png"
   },
   {
     "info": {
@@ -109170,6 +110651,120 @@
   },
   {
     "info": {
+      "id": 16579,
+      "name": "Pete Kayer",
+      "version": "Final Challenge",
+      "combat_level": 126,
+      "attack_speed": 0,
+      "attack_styles": [
+        "Melee",
+        "Ranged",
+        "Magic"
+      ],
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 118,
+      "defence": 120,
+      "hitpoints": 115,
+      "magic": 99,
+      "ranged": 112,
+      "strength": 120
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "Varies"
+    ],
+    "image": "Pete Kayer (Final Fight).png"
+  },
+  {
+    "info": {
+      "id": 16588,
+      "name": "Pete Kayer",
+      "version": "Penultimate Challenge",
+      "combat_level": 126,
+      "attack_speed": 0,
+      "attack_styles": [
+        "Melee",
+        "Ranged",
+        "Magic"
+      ],
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 118,
+      "defence": 120,
+      "hitpoints": 115,
+      "magic": 99,
+      "ranged": 112,
+      "strength": 120
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "Varies"
+    ],
+    "image": "Pete Kayer (Penultimate Fight).png"
+  },
+  {
+    "info": {
       "id": 10957,
       "name": "Phantom Hand",
       "version": "Left Hand",
@@ -109456,6 +111051,61 @@
   },
   {
     "info": {
+      "id": 12063,
+      "name": "Phantom Muspah",
+      "version": "Melee",
+      "combat_level": 368,
+      "attack_speed": 5,
+      "attack_styles": [
+        "Stab"
+      ],
+      "size": 5,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 280,
+      "defence": 200,
+      "hitpoints": 550,
+      "magic": 150,
+      "ranged": 280,
+      "strength": 280
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 60,
+        "ranged": 0,
+        "magic": 90
+      },
+      "defence": {
+        "crush": 80,
+        "magic": -10,
+        "heavy": 160,
+        "standard": 160,
+        "light": 160,
+        "slash": 90,
+        "stab": 110
+      },
+      "strength": {
+        "melee": -10,
+        "ranged": -10,
+        "magic": 66
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "24"
+    ],
+    "image": "Strange Creature (melee).png"
+  },
+  {
+    "info": {
       "id": 12080,
       "name": "Phantom Muspah",
       "version": "Post-shield",
@@ -109515,6 +111165,63 @@
       "79 (Magic)"
     ],
     "image": "Phantom Muspah (ranged).png"
+  },
+  {
+    "info": {
+      "id": 12076,
+      "name": "Phantom Muspah",
+      "version": "Post-shield",
+      "combat_level": 368,
+      "attack_speed": 6,
+      "attack_styles": [
+        "Ranged",
+        "Magic"
+      ],
+      "size": 5,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 280,
+      "defence": 200,
+      "hitpoints": 550,
+      "magic": 179,
+      "ranged": 335,
+      "strength": 280
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 60,
+        "ranged": 0,
+        "magic": 90
+      },
+      "defence": {
+        "crush": 80,
+        "magic": 280,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 90,
+        "stab": 110
+      },
+      "strength": {
+        "melee": -10,
+        "ranged": -10,
+        "magic": 66
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "38 (Ranged)",
+      "33 (Magic)"
+    ],
+    "image": "Strange Creature (ranged).png"
   },
   {
     "info": {
@@ -109580,6 +111287,63 @@
   },
   {
     "info": {
+      "id": 12073,
+      "name": "Phantom Muspah",
+      "version": "Ranged",
+      "combat_level": 368,
+      "attack_speed": 6,
+      "attack_styles": [
+        "Ranged",
+        "Magic"
+      ],
+      "size": 5,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 280,
+      "defence": 200,
+      "hitpoints": 550,
+      "magic": 150,
+      "ranged": 280,
+      "strength": 280
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 60,
+        "ranged": 0,
+        "magic": 90
+      },
+      "defence": {
+        "crush": 80,
+        "magic": 280,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 90,
+        "stab": 110
+      },
+      "strength": {
+        "melee": -10,
+        "ranged": -10,
+        "magic": 66
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "32 (Ranged)",
+      "33 (Magic)"
+    ],
+    "image": "Strange Creature (ranged).png"
+  },
+  {
+    "info": {
       "id": 12079,
       "name": "Phantom Muspah",
       "version": "Shielded",
@@ -109640,6 +111404,63 @@
       "80 (Shockwave)"
     ],
     "image": "Phantom Muspah (shielded).png"
+  },
+  {
+    "info": {
+      "id": 12075,
+      "name": "Phantom Muspah",
+      "version": "Shielded",
+      "combat_level": 368,
+      "attack_speed": 6,
+      "attack_styles": [
+        "Ranged",
+        "Magic"
+      ],
+      "size": 5,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 280,
+      "defence": 200,
+      "hitpoints": 75,
+      "magic": 180,
+      "ranged": 336,
+      "strength": 280
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 60,
+        "ranged": 0,
+        "magic": 90
+      },
+      "defence": {
+        "crush": 80,
+        "magic": 280,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 90,
+        "stab": 110
+      },
+      "strength": {
+        "melee": -10,
+        "ranged": -10,
+        "magic": 66
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 100,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "38 (Ranged)",
+      "40 (Shockwave)"
+    ],
+    "image": "Strange Creature (shielded).png"
   },
   {
     "info": {
@@ -120248,7 +122069,7 @@
       "combat_level": 106,
       "attack_speed": 3,
       "attack_styles": [
-        "Stab"
+        "Typeless|Typeless Stab"
       ],
       "size": 1,
       "attributes": null,
@@ -120306,7 +122127,7 @@
       "combat_level": 106,
       "attack_speed": 3,
       "attack_styles": [
-        "Stab"
+        "Typeless|Typeless Stab"
       ],
       "size": 1,
       "attributes": null,
@@ -120364,7 +122185,7 @@
       "combat_level": 106,
       "attack_speed": 3,
       "attack_styles": [
-        "Stab"
+        "Typeless|Typeless Stab"
       ],
       "size": 1,
       "attributes": null,
@@ -124023,7 +125844,7 @@
       "burn": null
     },
     "max_hit": [
-      "0 (~48 if not defeated)"
+      "0 (~50 if not defeated)"
     ],
     "image": "Shadow Rift.png"
   },
@@ -124376,7 +126197,7 @@
     "info": {
       "id": 14860,
       "name": "Shellbane gryphon",
-      "version": null,
+      "version": "Post-quest",
       "combat_level": 235,
       "attack_speed": 5,
       "attack_styles": [
@@ -124434,8 +126255,8 @@
   {
     "info": {
       "id": 15010,
-      "name": "Shellbane gryphon (Troubled Tortugans)",
-      "version": null,
+      "name": "Shellbane gryphon",
+      "version": "Quest",
       "combat_level": 235,
       "attack_speed": 5,
       "attack_styles": [
@@ -124486,9 +126307,9 @@
       "burn": null
     },
     "max_hit": [
-      "22"
+      "22 <br/> 64 (whirlwinds) <br/> 30 (knockback)"
     ],
-    "image": "Shellbane gryphon (Troubled Tortugans).png"
+    "image": "Shellbane gryphon.png"
   },
   {
     "info": {
@@ -134322,6 +136143,567 @@
   },
   {
     "info": {
+      "id": 16610,
+      "name": "Sparring partner",
+      "version": "Gear Switching (magic)",
+      "combat_level": 126,
+      "attack_speed": 5,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 99,
+      "defence": 99,
+      "hitpoints": 1000,
+      "magic": 99,
+      "ranged": 99,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Sparring partner (4).png"
+  },
+  {
+    "info": {
+      "id": 16608,
+      "name": "Sparring partner",
+      "version": "Gear Switching (melee)",
+      "combat_level": 126,
+      "attack_speed": 4,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 99,
+      "defence": 99,
+      "hitpoints": 1000,
+      "magic": 99,
+      "ranged": 99,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Sparring partner (2).png"
+  },
+  {
+    "info": {
+      "id": 16609,
+      "name": "Sparring partner",
+      "version": "Gear Switching (ranged)",
+      "combat_level": 126,
+      "attack_speed": 5,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 99,
+      "defence": 99,
+      "hitpoints": 1000,
+      "magic": 99,
+      "ranged": 99,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Sparring partner (3).png"
+  },
+  {
+    "info": {
+      "id": 16607,
+      "name": "Sparring partner",
+      "version": "Power of Freezes",
+      "combat_level": 126,
+      "attack_speed": 4,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 99,
+      "defence": 70,
+      "hitpoints": 1000,
+      "magic": 99,
+      "ranged": 99,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Sparring partner.png"
+  },
+  {
+    "info": {
+      "id": 16611,
+      "name": "Sparring partner",
+      "version": "Prayer Protection (Armadyl godsword)",
+      "combat_level": 97,
+      "attack_speed": 2,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 99,
+      "defence": 99,
+      "hitpoints": 99,
+      "magic": 99,
+      "ranged": 99,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Sparring partner (5).png"
+  },
+  {
+    "info": {
+      "id": 16616,
+      "name": "Sparring partner",
+      "version": "Prayer Protection (dark bow)",
+      "combat_level": 92,
+      "attack_speed": 2,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 99,
+      "defence": 99,
+      "hitpoints": 99,
+      "magic": 99,
+      "ranged": 99,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Sparring partner (10).png"
+  },
+  {
+    "info": {
+      "id": 16614,
+      "name": "Sparring partner",
+      "version": "Prayer Protection (dragon claws)",
+      "combat_level": 111,
+      "attack_speed": 2,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 99,
+      "defence": 99,
+      "hitpoints": 99,
+      "magic": 99,
+      "ranged": 99,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Sparring partner (8).png"
+  },
+  {
+    "info": {
+      "id": 16613,
+      "name": "Sparring partner",
+      "version": "Prayer Protection (granite maul)",
+      "combat_level": 67,
+      "attack_speed": 2,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 99,
+      "defence": 99,
+      "hitpoints": 99,
+      "magic": 99,
+      "ranged": 99,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Sparring partner (7).png"
+  },
+  {
+    "info": {
+      "id": 16617,
+      "name": "Sparring partner",
+      "version": "Prayer Protection (Ice Barrage)",
+      "combat_level": 122,
+      "attack_speed": 2,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 99,
+      "defence": 99,
+      "hitpoints": 99,
+      "magic": 99,
+      "ranged": 99,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Sparring partner (11).png"
+  },
+  {
+    "info": {
+      "id": 16615,
+      "name": "Sparring partner",
+      "version": "Prayer Protection (rune crossbow)",
+      "combat_level": 83,
+      "attack_speed": 2,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 99,
+      "defence": 99,
+      "hitpoints": 99,
+      "magic": 99,
+      "ranged": 99,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Sparring partner (9).png"
+  },
+  {
+    "info": {
+      "id": 16612,
+      "name": "Sparring partner",
+      "version": "Prayer Protection (Voidwaker)",
+      "combat_level": 101,
+      "attack_speed": 2,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 99,
+      "defence": 99,
+      "hitpoints": 99,
+      "magic": 99,
+      "ranged": 99,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Sparring partner (6).png"
+  },
+  {
+    "info": {
       "id": 5916,
       "name": "Spawn",
       "version": null,
@@ -137685,232 +140067,6 @@
       "6"
     ],
     "image": "Strange creature (Shadows of Custodia).png"
-  },
-  {
-    "info": {
-      "id": 12063,
-      "name": "Strange Creature",
-      "version": "Melee",
-      "combat_level": 368,
-      "attack_speed": 5,
-      "attack_styles": [
-        "Stab"
-      ],
-      "size": 5,
-      "attributes": null,
-      "weakness": null
-    },
-    "stats": {
-      "attack": 280,
-      "defence": 200,
-      "hitpoints": 550,
-      "magic": 150,
-      "ranged": 280,
-      "strength": 280
-    },
-    "bonuses": {
-      "attack": {
-        "melee": 60,
-        "ranged": 0,
-        "magic": 90
-      },
-      "defence": {
-        "crush": 80,
-        "magic": -10,
-        "heavy": 160,
-        "standard": 160,
-        "light": 160,
-        "slash": 90,
-        "stab": 110
-      },
-      "strength": {
-        "melee": -10,
-        "ranged": -10,
-        "magic": 66
-      },
-      "flat_armour": 0
-    },
-    "immunities": {
-      "poison": 100,
-      "venom": 100,
-      "freeze": 0,
-      "burn": null
-    },
-    "max_hit": [
-      "24"
-    ],
-    "image": "Strange Creature (melee).png"
-  },
-  {
-    "info": {
-      "id": 12076,
-      "name": "Strange Creature",
-      "version": "Post-shield",
-      "combat_level": 368,
-      "attack_speed": 6,
-      "attack_styles": [
-        "Ranged",
-        "Magic"
-      ],
-      "size": 5,
-      "attributes": null,
-      "weakness": null
-    },
-    "stats": {
-      "attack": 280,
-      "defence": 200,
-      "hitpoints": 550,
-      "magic": 179,
-      "ranged": 335,
-      "strength": 280
-    },
-    "bonuses": {
-      "attack": {
-        "melee": 60,
-        "ranged": 0,
-        "magic": 90
-      },
-      "defence": {
-        "crush": 80,
-        "magic": 280,
-        "heavy": 0,
-        "standard": 0,
-        "light": 0,
-        "slash": 90,
-        "stab": 110
-      },
-      "strength": {
-        "melee": -10,
-        "ranged": -10,
-        "magic": 66
-      },
-      "flat_armour": 0
-    },
-    "immunities": {
-      "poison": 100,
-      "venom": 100,
-      "freeze": 0,
-      "burn": null
-    },
-    "max_hit": [
-      "38 (Ranged)",
-      "33 (Magic)"
-    ],
-    "image": "Strange Creature (ranged).png"
-  },
-  {
-    "info": {
-      "id": 12073,
-      "name": "Strange Creature",
-      "version": "Ranged",
-      "combat_level": 368,
-      "attack_speed": 6,
-      "attack_styles": [
-        "Ranged",
-        "Magic"
-      ],
-      "size": 5,
-      "attributes": null,
-      "weakness": null
-    },
-    "stats": {
-      "attack": 280,
-      "defence": 200,
-      "hitpoints": 550,
-      "magic": 150,
-      "ranged": 280,
-      "strength": 280
-    },
-    "bonuses": {
-      "attack": {
-        "melee": 60,
-        "ranged": 0,
-        "magic": 90
-      },
-      "defence": {
-        "crush": 80,
-        "magic": 280,
-        "heavy": 0,
-        "standard": 0,
-        "light": 0,
-        "slash": 90,
-        "stab": 110
-      },
-      "strength": {
-        "melee": -10,
-        "ranged": -10,
-        "magic": 66
-      },
-      "flat_armour": 0
-    },
-    "immunities": {
-      "poison": 100,
-      "venom": 100,
-      "freeze": 0,
-      "burn": null
-    },
-    "max_hit": [
-      "32 (Ranged)",
-      "33 (Magic)"
-    ],
-    "image": "Strange Creature (ranged).png"
-  },
-  {
-    "info": {
-      "id": 12075,
-      "name": "Strange Creature",
-      "version": "Shielded",
-      "combat_level": 368,
-      "attack_speed": 6,
-      "attack_styles": [
-        "Ranged",
-        "Magic"
-      ],
-      "size": 5,
-      "attributes": null,
-      "weakness": null
-    },
-    "stats": {
-      "attack": 280,
-      "defence": 200,
-      "hitpoints": 75,
-      "magic": 180,
-      "ranged": 336,
-      "strength": 280
-    },
-    "bonuses": {
-      "attack": {
-        "melee": 60,
-        "ranged": 0,
-        "magic": 90
-      },
-      "defence": {
-        "crush": 80,
-        "magic": 280,
-        "heavy": 0,
-        "standard": 0,
-        "light": 0,
-        "slash": 90,
-        "stab": 110
-      },
-      "strength": {
-        "melee": -10,
-        "ranged": -10,
-        "magic": 66
-      },
-      "flat_armour": 0
-    },
-    "immunities": {
-      "poison": 100,
-      "venom": 100,
-      "freeze": 0,
-      "burn": null
-    },
-    "max_hit": [
-      "38 (Ranged)",
-      "40 (Shockwave)"
-    ],
-    "image": "Strange Creature (shielded).png"
   },
   {
     "info": {
@@ -143285,6 +145441,63 @@
   },
   {
     "info": {
+      "id": 16641,
+      "name": "The Smorks",
+      "version": null,
+      "combat_level": 640,
+      "attack_speed": 7,
+      "attack_styles": [
+        "Ranged",
+        "Magic"
+      ],
+      "size": 3,
+      "attributes": null,
+      "weakness": {
+        "element": "earth",
+        "severity": 85
+      }
+    },
+    "stats": {
+      "attack": 1,
+      "defence": 220,
+      "hitpoints": 600,
+      "magic": 185,
+      "ranged": 185,
+      "strength": 1
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 250,
+        "magic": 185
+      },
+      "defence": {
+        "crush": 160,
+        "magic": 400,
+        "heavy": 80,
+        "standard": 150,
+        "light": 80,
+        "slash": 170,
+        "stab": 220
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 30,
+        "magic": 35
+      },
+      "flat_armour": 2
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "The Smorks.png"
+  },
+  {
+    "info": {
       "id": 3475,
       "name": "The Untouchable",
       "version": null,
@@ -146863,13 +149076,13 @@
         "magic": 0
       },
       "defence": {
-        "crush": 0,
-        "magic": 0,
+        "crush": -100,
+        "magic": -100,
         "heavy": 0,
         "standard": 0,
         "light": 0,
-        "slash": 0,
-        "stab": 0
+        "slash": -100,
+        "stab": -100
       },
       "strength": {
         "melee": 0,
@@ -146916,13 +149129,13 @@
         "magic": 0
       },
       "defence": {
-        "crush": 0,
-        "magic": 0,
+        "crush": -100,
+        "magic": -100,
         "heavy": 0,
         "standard": 0,
         "light": 0,
-        "slash": 0,
-        "stab": 0
+        "slash": -100,
+        "stab": -100
       },
       "strength": {
         "melee": 0,
@@ -150890,6 +153103,57 @@
       "29"
     ],
     "image": "Umbra.png"
+  },
+  {
+    "info": {
+      "id": 16670,
+      "name": "Undead binder",
+      "version": null,
+      "combat_level": 135,
+      "attack_speed": 5,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 0,
+      "defence": 225,
+      "hitpoints": 95,
+      "magic": 50,
+      "ranged": 0,
+      "strength": 170
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 10,
+        "magic": -20,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 15,
+        "stab": 12
+      },
+      "strength": {
+        "melee": 15,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Undead binder.png"
   },
   {
     "info": {
@@ -156511,6 +158775,64 @@
   },
   {
     "info": {
+      "id": 16680,
+      "name": "Void Augmenter",
+      "version": null,
+      "combat_level": 138,
+      "attack_speed": 4,
+      "attack_styles": [
+        "Crush"
+      ],
+      "size": 1,
+      "attributes": null,
+      "weakness": {
+        "element": "earth",
+        "severity": 75
+      }
+    },
+    "stats": {
+      "attack": 1,
+      "defence": 175,
+      "hitpoints": 44,
+      "magic": 300,
+      "ranged": 1,
+      "strength": 1
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 50,
+        "magic": 0,
+        "heavy": 50,
+        "standard": 50,
+        "light": 0,
+        "slash": 50,
+        "stab": 50
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": [
+      "1"
+    ],
+    "image": "Void Augmenter.png"
+  },
+  {
+    "info": {
       "id": 14179,
       "name": "Void Flare",
       "version": "Fire",
@@ -156847,6 +159169,162 @@
   },
   {
     "info": {
+      "id": 16678,
+      "name": "Void Rift",
+      "version": null,
+      "combat_level": 138,
+      "attack_speed": 0,
+      "attack_styles": null,
+      "size": 0,
+      "attributes": null,
+      "weakness": {
+        "element": "earth",
+        "severity": 75
+      }
+    },
+    "stats": {
+      "attack": 1,
+      "defence": 175,
+      "hitpoints": 44,
+      "magic": 300,
+      "ranged": 1,
+      "strength": 1
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Void Rift.png"
+  },
+  {
+    "info": {
+      "id": 16679,
+      "name": "Void Siphon",
+      "version": null,
+      "combat_level": 138,
+      "attack_speed": 0,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 0,
+      "defence": 175,
+      "hitpoints": 44,
+      "magic": 300,
+      "ranged": 0,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 50,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 50,
+        "stab": 50
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Void Siphon.png"
+  },
+  {
+    "info": {
+      "id": 16681,
+      "name": "Void Vine",
+      "version": null,
+      "combat_level": 0,
+      "attack_speed": 0,
+      "attack_styles": null,
+      "size": 1,
+      "attributes": null,
+      "weakness": null
+    },
+    "stats": {
+      "attack": 0,
+      "defence": 0,
+      "hitpoints": 44,
+      "magic": 0,
+      "ranged": 0,
+      "strength": 0
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "defence": {
+        "crush": 0,
+        "magic": 0,
+        "heavy": 0,
+        "standard": 0,
+        "light": 0,
+        "slash": 0,
+        "stab": 0
+      },
+      "strength": {
+        "melee": 0,
+        "ranged": 0,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 0,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Void Vine.png"
+  },
+  {
+    "info": {
       "id": 11716,
       "name": "Volatile Baboon",
       "version": null,
@@ -156950,7 +159428,7 @@
       "strength": {
         "melee": 0,
         "ranged": 0,
-        "magic": 0
+        "magic": 42
       },
       "flat_armour": 0
     },
@@ -159123,7 +161601,7 @@
     "info": {
       "id": 2917,
       "name": "Waterfiend",
-      "version": "Slayer task",
+      "version": "Slayer task area",
       "combat_level": 115,
       "attack_speed": 4,
       "attack_styles": [
@@ -159291,7 +161769,7 @@
     "max_hit": [
       "8"
     ],
-    "image": "Webbed-winged crow.png"
+    "image": "Webbed-winged Crow.png"
   },
   {
     "info": {
@@ -164160,6 +166638,66 @@
       "11 (50+ recoil)"
     ],
     "image": "Xarpus.png"
+  },
+  {
+    "info": {
+      "id": 16684,
+      "name": "Xarth",
+      "version": null,
+      "combat_level": 912,
+      "attack_speed": 4,
+      "attack_styles": [
+        "Magic",
+        "Ranged",
+        "Melee"
+      ],
+      "size": 3,
+      "attributes": [
+        "demon"
+      ],
+      "weakness": {
+        "element": "water",
+        "severity": 85
+      }
+    },
+    "stats": {
+      "attack": 250,
+      "defence": 170,
+      "hitpoints": 2600,
+      "magic": 350,
+      "ranged": 220,
+      "strength": 225
+    },
+    "bonuses": {
+      "attack": {
+        "melee": 150,
+        "ranged": 250,
+        "magic": 250
+      },
+      "defence": {
+        "crush": 20,
+        "magic": 205,
+        "heavy": 155,
+        "standard": 230,
+        "light": 125,
+        "slash": 105,
+        "stab": 115
+      },
+      "strength": {
+        "melee": 30,
+        "ranged": 30,
+        "magic": 0
+      },
+      "flat_armour": 0
+    },
+    "immunities": {
+      "poison": 100,
+      "venom": 0,
+      "freeze": 0,
+      "burn": null
+    },
+    "max_hit": null,
+    "image": "Xarth.png"
   },
   {
     "info": {

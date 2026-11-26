@@ -94,6 +94,10 @@ pub enum CombatStyle {
     AimAndFire,
     Explosive,
     Flamer,
+    #[strum(to_string = "Thrust (Accurate)")]
+    ThrustAccurate,
+    #[strum(to_string = "Thrust (Aggressive)")]
+    ThrustAggressive,
 }
 
 // Contains the type and stance, to be associated with a CombatStyle

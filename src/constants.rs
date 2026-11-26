@@ -711,9 +711,10 @@ pub const EMERALD_BOLTS: [(&str, Option<&str>); 2] = [
     ("Emerald dragon bolts (e)", None),
 ];
 
-pub const DIAMOND_BOLTS: [(&str, Option<&str>); 2] = [
+pub const DIAMOND_BOLTS: [(&str, Option<&str>); 3] = [
     ("Diamond bolts (e)", None),
     ("Diamond dragon bolts (e)", None),
+    ("Diamond ascension bolts (e)", None),
 ];
 
 pub const DRAGONSTONE_BOLTS: [(&str, Option<&str>); 2] = [
@@ -724,8 +725,11 @@ pub const DRAGONSTONE_BOLTS: [(&str, Option<&str>); 2] = [
 pub const JADE_BOLTS: [(&str, Option<&str>); 2] =
     [("Jade bolts (e)", None), ("Jade dragon bolts (e)", None)];
 
-pub const ONYX_BOLTS: [(&str, Option<&str>); 2] =
-    [("Onyx bolts (e)", None), ("Onyx dragon bolts (e)", None)];
+pub const ONYX_BOLTS: [(&str, Option<&str>); 3] = [
+    ("Onyx bolts (e)", None),
+    ("Onyx dragon bolts (e)", None),
+    ("Onyx ascension bolts (e)", None),
+];
 
 pub const RUBY_BOLTS: [(&str, Option<&str>); 2] =
     [("Ruby bolts (e)", None), ("Ruby dragon bolts (e)", None)];
@@ -742,7 +746,7 @@ pub const DEMONBANE_WEAPONS: [(&str, Option<&str>); 6] = [
 pub const OGRE_BOWS: [(&str, Option<&str>); 2] = [("Ogre bow", None), ("Comp ogre bow", None)];
 pub const EAT_DELAY: u32 = 3;
 
-pub const SPEC_COSTS: [(&str, u8); 75] = [
+pub const SPEC_COSTS: [(&str, u8); 76] = [
     ("Ancient godsword", 50),
     ("Eldritch Nightmare staff", 55),
     ("Keris partisan of the sun", 75),
@@ -818,6 +822,7 @@ pub const SPEC_COSTS: [(&str, u8); 75] = [
     ("Arkan blade", 30),
     ("Rosewood blowpipe", 25),
     ("Sunspear", 50),
+    ("Zorya's tome", 50),
 ];
 
 pub const DEMONBANE_VULNERABILITY: [(&str, i32); 4] = [
@@ -890,3 +895,8 @@ pub const QUIVER_VARIANTS: [(&str, Option<&str>); 4] = [
     ("Dizana's quiver", Some("Uncharged")),
     ("Dizana's quiver", Some("Charged")),
 ];
+
+pub const RONDACHE_DECAY_TICKS: u32 = 50;
+pub const RONDACHE_CD_SHORT: u32 = 2;
+pub const RONDACHE_CD_LONG: u32 = 14;
+pub const RONDACHE_MIN_SPEC_CHARGES: u32 = 10;

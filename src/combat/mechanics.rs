@@ -1,5 +1,8 @@
+use std::cmp::min;
+
 use crate::calc::monster_scaling::scale_monster_hp_only;
 use crate::combat::attacks::effects::CombatEffect;
+use crate::combat::attacks::specs::rondache_spec;
 use crate::combat::limiters::Limiter;
 use crate::combat::simulation::FightResult;
 use crate::combat::simulation::FightVars;
@@ -184,6 +187,54 @@ pub trait Mechanics {
         Ok(false)
     }
 
+    fn player_rondache_attack(
+        &self,
+        player: &mut Player,
+        monster: &mut Monster,
+        rng: &mut SmallRng,
+        limiter: &Option<Box<dyn Limiter>>,
+        fight_vars: &mut FightVars,
+        log: &mut FightRecorder,
+    ) {
+        if !(player.state.rondache.can_spec() && player.is_wearing("Rondache", None)) {
+            return;
+        }
+
+        let hit = rondache_spec(player, monster, rng, limiter);
+
+        log.record(
+            fight_vars.tick_counter,
+            EventType::PlayerRondacheAttack {
+                player_id: player.fight_id(),
+                success: hit.success,
+                damage: hit.damage,
+            },
+            &[player],
+            &[monster],
+        );
+
+        if hit.damage > 0 {
+            monster.take_damage(hit.damage);
+            // TODO: verify this can proc blood fury heals
+            handle_blood_fury(player, monster, &hit, fight_vars, log, rng);
+            scale_monster_hp_only(monster, true);
+        }
+
+        log.record(
+            fight_vars.tick_counter,
+            EventType::MonsterDamaged {
+                monster_id: monster.fight_id(),
+                damage: hit.damage,
+            },
+            &[player],
+            &[monster],
+        );
+
+        fight_vars.hit_attempts += 1;
+        fight_vars.hit_count += if hit.success { 1 } else { 0 };
+        fight_vars.hit_amounts.push(hit.damage);
+    }
+
     fn monster_attack(
         &self,
         monster: &mut Monster,
@@ -194,8 +245,11 @@ pub trait Mechanics {
         log: &mut FightRecorder,
     ) -> Result<(), SimulationError> {
         // Note: does not increment monster attack tick for flexibility
-        let hit = monster.attack(player, attack_type, rng, true)?;
-
+        let mut hit = monster.attack(player, attack_type, rng, false)?;
+        if let Some(attack_type) = attack_type {
+            hit.damage = player.apply_damage_reductions(hit.damage, attack_type, rng);
+        }
+        hit.damage = min(hit.damage, player.stats.hitpoints.current);
         player.take_damage(hit.damage);
         fight_vars.damage_taken += hit.damage;
 
